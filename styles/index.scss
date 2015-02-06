@@ -1,0 +1,15 @@
+// main styles
+
+@charset "UTF-8";
+
+%just-some-test {
+  width: 100%;
+}
+
+.just-getting-started {
+  @extend %just-some-test;
+}
+
+.styles-go-here {
+  @extend %just-some-test;
+}

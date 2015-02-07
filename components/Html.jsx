@@ -24,16 +24,16 @@ var Component = React.createClass({
         <body>
           <section id="docsapp" dangerouslySetInnerHTML={{__html: this.props.markup}}></section>
           <script dangerouslySetInnerHTML={{__html: this.props.state}}></script>
-           <div className="footer">
-              <div className="container">
-                All code on this site is licensed
-                under the <a href="https://github.com/localnerve/flux-react-example/blob/master/LICENSE.md">BSD License</a>,
-                unless otherwise stated.
-              </div>
-              <div className="copyright">
-                &copy; {(new Date()).getFullYear()}
-              </div>
-           </div>
+          <div className="footer">
+            <div className="container">
+              All code on this site is licensed
+              under the <a href="https://github.com/localnerve/flux-react-example/blob/master/LICENSE.md">BSD License</a>,
+              unless otherwise stated.
+            </div>
+            <div className="copyright">
+              &copy; {(new Date()).getFullYear()}
+            </div>
+          </div>
           <script src={this.props.scriptsDir+"/"+(Array.isArray(this.props.assets.main) ? this.props.assets.main[0] : this.props.assets.main)}></script>
         </body>
       </html>

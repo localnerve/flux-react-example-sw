@@ -55,6 +55,12 @@ module.exports = function (grunt) {
           expand: true,
           src: ['<%= project.src.images %>/**'], dest: '<%= project.dist.baseDir %>'
         }]
+      },
+      statics: {
+        files: [{
+          src: ['<%= project.src.four04 %>'],
+          dest: '<%= project.dist.baseDir %>/'
+        }]
       }
     },
     
@@ -236,8 +242,8 @@ module.exports = function (grunt) {
   //             example: settings:dist:images
   //  node_env: Set process.env.NODE_ENV for this process.
   //
-  grunt.registerMultiTask('nconfig', 'config settings', function() {
-    var configLib = require('./config');    
+  grunt.registerMultiTask('nconfig', 'Assign config settings to grunt project', function() {
+    var configLib = require('./configs');
     var options = this.options();
     
     if (options.node_env) {

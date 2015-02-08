@@ -7,7 +7,7 @@ var React = require('react');
 var FluxibleApp = require('fluxible');
 var fetchrPlugin = require('fluxible-plugin-fetchr');
 var routrPlugin = require('fluxible-plugin-routr');
-var routes = require('./config/routes');
+var routes = require('./configs/routes');
 
 var app = new FluxibleApp({
     appComponent: React.createFactory(require('./components/Application.jsx'))

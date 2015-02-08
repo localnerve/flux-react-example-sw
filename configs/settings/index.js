@@ -11,12 +11,6 @@ var assetsJsonFile = './assets.json';
 var distbase = 'dist';
 var publicbase = '/public';
 
-var assetsConfig = {
-  assets: function() {
-    return require(assetsJsonFile).assets;
-  }
-};
-
 /**
  * Prepends a path to object values.
  * Returns a new object result.
@@ -31,6 +25,29 @@ function prependPathToObject(fromObj, prePath) {
     }
     return obj;
   }, {});
+}
+
+/**
+ * A configuration for loading and decorating assets json at a later time
+ */
+function assetsConfig(baseDir) {
+  function Config(dir) {
+    this.baseDir = dir;
+  }
+  Config.prototype = {
+    load: function() {
+      if (!this.assets) {
+        this.assets = require(assetsJsonFile).assets;
+      }
+      return this;
+    },
+    mainScript: function() {
+      this.load();
+      var main = Array.isArray(this.assets.main) ? this.assets.main[0] : this.assets.main;
+      return path.join(this.baseDir, main);
+    }
+  };
+  return new Config(baseDir);
 }
 
 /**
@@ -64,7 +81,7 @@ var outputFiles = {
  */
 var srcDirs = {
   components: 'components',
-  config: 'config'  
+  config: 'configs'  
 };
 var srcFiles = {
   assetsJson: path.join(srcDirs.config, path.basename(__dirname), assetsJsonFile)  
@@ -120,8 +137,7 @@ assign(
   prependPathToObject(commonDirs, config.src.baseDir),
   prependPathToObject(commonFiles, config.src.baseDir),
   prependPathToObject(srcDirs, config.src.baseDir),
-  prependPathToObject(srcFiles, config.src.baseDir),
-  assetsConfig
+  prependPathToObject(srcFiles, config.src.baseDir)
 );
 
 // Assemble config.dist and config.web
@@ -131,8 +147,9 @@ assign(
     prependPathToObject(commonDirs, config.baseDir),
     prependPathToObject(commonFiles, config.baseDir),
     prependPathToObject(outputDirs, config.baseDir),
-    prependPathToObject(outputFiles, config.baseDir)
+    prependPathToObject(outputFiles, config.baseDir)    
   );
 });
+config.web.assets = assetsConfig(config.web.scripts);
 
 module.exports = config;

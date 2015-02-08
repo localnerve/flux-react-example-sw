@@ -34,7 +34,7 @@ var Component = React.createClass({
               &copy; {(new Date()).getFullYear()}
             </div>
           </div>
-          <script src={this.props.scriptsDir+"/"+(Array.isArray(this.props.assets.main) ? this.props.assets.main[0] : this.props.assets.main)}></script>
+          <script src={this.props.mainScript}></script>
         </body>
       </html>
     );

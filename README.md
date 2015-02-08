@@ -2,7 +2,11 @@
 
 > This is a Work In Progress
 
-An isomorphic flux-react example application using fluxible.
+An isomorphic flux-react example application using [fluxible](http://fluxible.io).
+
+## Development Environment Prerequisites
+1. Globally installed grunt-cli `npm install -g grunt-cli`
+2. Globally installed compass 1.0.1
 
 ## Setup
 

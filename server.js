@@ -24,24 +24,24 @@ var debug = require('debug')('Example');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var csrf = require('csurf');
-var errors = require('express-error-handler');
+var errorHandler = require('express-error-handler');
 var React = require('react');
 var fluxibleApp = require('./app');
 var HtmlComponent = React.createFactory(require('./components/Html.jsx'));
 
 var app = express();
 var server = protocol.createServer(app);
-var errorHandler = errors({
-  server: server,
-  static: {
-    '404': settings.dist.four04
-  }
-});
 
 app.set('state namespace', 'App');
 app.use(favicon(path.join(__dirname, settings.dist.favicon)));
 app.use(logger(settings.loggerFormat));
 app.use(compress());
+app.use((function() {
+  return config.get('MAINT_FLAG') ? errorHandler.httpError(503) :
+    function skippy(req, res, next) {
+      return next();
+    };
+}()));
 app.use(settings.web.baseDir, express.static(
   path.join(__dirname, settings.dist.baseDir), { maxAge: settings.web.assetAge }
 ));
@@ -56,7 +56,7 @@ var fetchrPlugin = fluxibleApp.getPlugin('FetchrPlugin');
 app.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
 
 // Every other request gets the app bootstrap
-app.use(function (req, res, next) {
+app.use(function main(req, res, next) {
   var context = fluxibleApp.createContext({
     req: req, // The fetchr plugin depends on this
     xhrContext: {
@@ -93,7 +93,21 @@ app.use(function (req, res, next) {
   });
 });
 
-app.use(errorHandler);
+app.use(errorHandler({
+  server: server,
+  maintenance: {
+    enabled: function() {
+      return config.get('MAINT_FLAG');
+    },
+    retryAfterSeconds: function() {
+      return config.get('MAINT_RETRYAFTER');
+    }
+  },
+  static: {
+    '404': settings.dist.four04,
+    '503': settings.dist.five03
+  }
+}));
 
 var port = process.env.PORT || 3000;
 server.listen(port);

@@ -58,7 +58,7 @@ module.exports = function (grunt) {
       },
       statics: {
         files: [{
-          src: ['<%= project.src.four04 %>'],
+          src: ['<%= project.src.four04 %>', '<%= project.src.five03 %>'],
           dest: '<%= project.dist.baseDir %>/'
         }]
       }
@@ -124,13 +124,19 @@ module.exports = function (grunt) {
       dev: {
         options: {
           overrides: {},
-          node_env: 'development',
-          debug: '*'
+          env: {
+            NODE_ENV: 'development',
+            DEBUG: '*',
+            // MAINT_FLAG: 1,
+            MAINT_RETRYAFTER: 14400
+          }
         }
       },
       prod: {
         options: {
-          node_env: 'production'
+          env: {
+            NODE_ENV: 'production'
+          }
         }
       }
     },
@@ -246,11 +252,10 @@ module.exports = function (grunt) {
     var configLib = require('./configs');
     var options = this.options();
     
-    if (options.node_env) {
-      process.env.NODE_ENV = options.node_env;
-    }
-    if (options.debug) {
-      process.env.DEBUG = options.debug;
+    if (options.env) {
+      Object.keys(options.env).forEach(function(key) {
+        process.env[key] = options.env[key];
+      });
     }
 
     grunt.config('project', configLib.create(options.overrides).get('settings'));

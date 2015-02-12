@@ -51,7 +51,6 @@ function assetsConfig(baseDir) {
 }
 
 function makeConfig(nconf) {
-
   /**
    * Directories and files that are in src, distribution, and web
    */

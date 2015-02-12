@@ -20,7 +20,7 @@ __UAREF__("create", "__UAID__", "auto"); \
 __UAREF__("send", "pageview");';
 
 function makeConfig(nconf) {
- return {
+  return {
     snippet: trackingTemplate.replace(/__UAID__/g, uaID[process.env.NODE_ENV || 'development']).replace(/__UAREF__/g, uaRef),
     globalRef: uaRef
   }; 

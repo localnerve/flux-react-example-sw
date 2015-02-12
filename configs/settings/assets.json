@@ -1,5 +1,8 @@
 {
     "assets": {
-        "main": "main.dd6cc095fcc078598380.min.js"
+        "main": [
+            "main.js",
+            "main.js.map"
+        ]
     }
 }

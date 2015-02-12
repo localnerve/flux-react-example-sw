@@ -36,12 +36,7 @@ app.set('state namespace', 'App');
 app.use(favicon(path.join(__dirname, settings.dist.favicon)));
 app.use(logger(settings.loggerFormat));
 app.use(compress());
-app.use((function() {
-  return config.get('MAINT_FLAG') ? errorHandler.httpError(503) :
-    function skippy(req, res, next) {
-      return next();
-    };
-}()));
+app.use(errorHandler.maintenance());
 app.use(settings.web.baseDir, express.static(
   path.join(__dirname, settings.dist.baseDir), { maxAge: settings.web.assetAge }
 ));
@@ -95,20 +90,12 @@ app.use(function main(req, res, next) {
 
 app.use(errorHandler({
   server: server,
-  maintenance: {
-    enabled: function() {
-      return config.get('MAINT_FLAG');
-    },
-    retryAfterSeconds: function() {
-      return config.get('MAINT_RETRYAFTER');
-    }
-  },
   static: {
     '404': settings.dist.four04,
     '503': settings.dist.five03
   }
 }));
 
-var port = process.env.PORT || 3000;
-server.listen(port);
-console.log('Listening on port ' + port);
+server.listen(config.get('PORT'), function() {
+  console.log('Listening on port ' + config.get('PORT'));
+});

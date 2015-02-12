@@ -1,21 +1,26 @@
 /**
- * Copyright 2015, Yahoo! Inc.
- * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
+ * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+ * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/*global document, window */
+/* global document, window, DEBUG */
 'use strict';
 
 var React = require('react');
-var debug = require('debug');
 var app = require('./app');
-var bootstrapDebug = debug('Example');
+
 var dehydratedState = window.App; // sent from the server
 
-// for chrome dev tool support
-window.React = React;
-debug.enable('*');
+var debug;
+if (DEBUG) {
+  // for chrome dev tool support
+  window.React = React;
+  var debugLib = require('debug');
+  
+  debug = debugLib('Client');
+  debugLib.enable('*');
+  debug('rehydrating app');
+}
 
-bootstrapDebug('rehydrating app');
 app.rehydrate(dehydratedState, function (err, context) {
   if (err) {
     throw err;
@@ -23,6 +28,9 @@ app.rehydrate(dehydratedState, function (err, context) {
 
   window.context = context;
 
+  if (DEBUG) {
+    debug('rendering app');
+  }
   React.withContext(context.getComponentContext(), function () {
     React.render(
       app.getAppComponent()(),

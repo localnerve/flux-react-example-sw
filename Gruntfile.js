@@ -111,12 +111,14 @@ module.exports = function (grunt) {
     },
 
     jshint: {
-      all: [
-        '*.js',
-        '{actions,components,services,stores}/**/*.js'
-      ],
       options: {
         jshintrc: true
+      },      
+      all: {
+        src: [
+          '*.js',
+          '{actions,components,services,stores}/**/*.js'        
+        ]
       }
     },
 
@@ -127,8 +129,8 @@ module.exports = function (grunt) {
           env: {
             NODE_ENV: 'development',
             DEBUG: '*',
-            // MAINT_FLAG: 1,
-            MAINT_RETRYAFTER: 14400
+            // ERR_HANDLER_MAINT_ENABLED: TRUE,
+            ERR_HANDLER_MAINT_RETRYAFTER: 7200
           }
         }
       },
@@ -143,11 +145,11 @@ module.exports = function (grunt) {
 
     nodemon: {
       app: {
-        script: './<%= pkg.main %>',
         options: {
           ignore: ['<%= project.distbase %>/**'],
           ext: 'js,jsx,md'
-        }
+        },        
+        script: './<%= pkg.main %>'
       }
     },
 
@@ -175,6 +177,9 @@ module.exports = function (grunt) {
           ]
         },
         plugins: [
+          new webpack.DefinePlugin({
+            DEBUG: true
+          }),
           new webpack.NormalModuleReplacementPlugin(/^react(\/addons)?$/, require.resolve('react/addons')),
           function() {
             return webpackStatsPlugin(this);
@@ -246,14 +251,14 @@ module.exports = function (grunt) {
   // Options:
   //  overrides: An object with config settings that overrides all. see nconf for details and config/index.js for impl.
   //             example: settings:dist:images
-  //  node_env: Set process.env.NODE_ENV for this process.
+  //  env: Set environment variables for this process.
   //
-  grunt.registerMultiTask('nconfig', 'Assign config settings to grunt project', function() {
+  grunt.registerMultiTask('nconfig', 'Assign config settings to grunt project', function() {    
     var configLib = require('./configs');
     var options = this.options();
-    
-    if (options.env) {
-      Object.keys(options.env).forEach(function(key) {
+
+    if (options.env) {      
+      Object.keys(options.env).forEach(function(key) {        
         process.env[key] = options.env[key];
       });
     }
@@ -265,13 +270,14 @@ module.exports = function (grunt) {
 
   grunt.registerTask('dumpconfigTask', function() {
     var util = require('util');
+    var config = require('./configs').create();
     var dump = {
       project: grunt.config('project'),
-      env: process.env
+      nconf: config.get()
     };
     console.log(util.inspect(dump));
   });
-  grunt.registerTask('dumpconfig', ['nconfig:dev', 'dumpconfigTask']);
+  grunt.registerTask('dumpconfig', ['nconfig:prod', 'dumpconfigTask']);
 
   // serial tasks for concurrent, external grunt processes
   grunt.registerTask('cc-compass-dev', ['nconfig:dev', 'compass:dev']);

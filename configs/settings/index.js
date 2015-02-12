@@ -5,7 +5,7 @@
 'use strict';
 
 var path = require('path');
-var assign = require('object-assign');
+var _ = require('lodash');
 
 var assetsJsonFile = './assets.json';
 var distbase = 'dist';
@@ -50,106 +50,110 @@ function assetsConfig(baseDir) {
   return new Config(baseDir);
 }
 
-/**
- * Directories and files that are in src, distribution, and web
- */
-var commonDirs = {
-  images: 'images',  
-  styles: 'styles',
-  fonts: 'fonts'
-};
-var commonFiles = {
-  four04: '404.html',
-  five03: '503.html',
-  favicon: path.join(commonDirs.images, 'favicon.ico'),  
-  robots: 'robots.txt',
-  sitemap: 'sitemap.xml'
-};
+function makeConfig(nconf) {
 
-/**
- * Directories and files that are in both dist and web
- */
-var outputDirs = {
-  scripts: 'scripts'
-};
-var outputFiles = {
-  css: path.join(commonDirs.styles, 'index.css')
-};
+  /**
+   * Directories and files that are in src, distribution, and web
+   */
+  var commonDirs = {
+    images: 'images',  
+    styles: 'styles',
+    fonts: 'fonts'
+  };
+  var commonFiles = {
+    four04: '404.html',
+    five03: '503.html',
+    favicon: path.join(commonDirs.images, 'favicon.ico'),  
+    robots: 'robots.txt',
+    sitemap: 'sitemap.xml'
+  };
 
-/**
- * Source only dirs and files
- */
-var srcDirs = {
-  components: 'components',
-  config: 'configs'  
-};
-var srcFiles = {
-  assetsJson: path.join(srcDirs.config, path.basename(__dirname), assetsJsonFile)  
-};
+  /**
+   * Directories and files that are in both dist and web
+   */
+  var outputDirs = {
+    scripts: 'scripts'
+  };
+  var outputFiles = {
+    css: path.join(commonDirs.styles, 'index.css')
+  };
 
-/**
- * Settings to override by environment
- */
-var overrides = {
-  production: {
+  /**
+   * Source only dirs and files
+   */
+  var srcDirs = {
+    components: 'components',
+    config: 'configs'  
+  };
+  var srcFiles = {
+    assetsJson: path.join(srcDirs.config, path.basename(__dirname), assetsJsonFile)  
+  };
+
+  /**
+   * Settings to override by environment
+   */
+  var overrides = {
+    production: {
+      dist: {
+        baseDir: path.join(distbase, 'release')
+      },
+      loggerFormat: 'tiny',
+      web: {
+        // ssl: true,
+        assetAge: 31556926000
+      }
+    }
+  };
+
+  /**
+   * The exported settings config
+   */
+  var config = {
     dist: {
-      baseDir: path.join(distbase, 'release')
+      baseDir: path.join(distbase, 'debug')
     },
-    loggerFormat: 'tiny',
+    src: {
+      baseDir: '.'
+    },
     web: {
       baseDir: publicbase,
-      assetAge: 31556926000,
+      assetAge: 0,
       ssl: false
-    }
-  }
-};
+    },
 
-/**
- * The exported settings config
- */
-var config = {
-  dist: {
-    baseDir: path.join(distbase, 'debug')
-  },
-  src: {
-    baseDir: '.'
-  },
-  web: {
-    baseDir: publicbase,
-    assetAge: 0,
-    ssl: false
-  },
+    // unmovable project directories
+    distbase: distbase,
+    reports: 'reports',
+    vendor: 'vendor',
 
-  // unmovable project directories
-  distbase: distbase,
-  reports: 'reports',
-  vendor: 'vendor',
+    loggerFormat: 'dev'
+  };
 
-  loggerFormat: 'dev'
-};
+  // Environment overrides
+  _.merge(config, overrides[nconf.get('NODE_ENV')]);
 
-// Environment overrides
-assign(config, overrides[process.env.NODE_ENV || 'development']);
-
-// Assemble config.src
-assign(
-  config.src,
-  prependPathToObject(commonDirs, config.src.baseDir),
-  prependPathToObject(commonFiles, config.src.baseDir),
-  prependPathToObject(srcDirs, config.src.baseDir),
-  prependPathToObject(srcFiles, config.src.baseDir)
-);
-
-// Assemble config.dist and config.web
-[config.dist, config.web].forEach(function(config) {
-  assign(
-    config,
-    prependPathToObject(commonDirs, config.baseDir),
-    prependPathToObject(commonFiles, config.baseDir),
-    prependPathToObject(outputDirs, config.baseDir),
-    prependPathToObject(outputFiles, config.baseDir)    
+  // Assemble config.src
+  _.assign(
+    config.src,
+    prependPathToObject(commonDirs, config.src.baseDir),
+    prependPathToObject(commonFiles, config.src.baseDir),
+    prependPathToObject(srcDirs, config.src.baseDir),
+    prependPathToObject(srcFiles, config.src.baseDir)
   );
-});
-config.web.assets = assetsConfig(config.web.scripts);
 
-module.exports = config;
+  // Assemble config.dist and config.web
+  [config.dist, config.web].forEach(function(config) {
+    _.assign(
+      config,
+      prependPathToObject(commonDirs, config.baseDir),
+      prependPathToObject(commonFiles, config.baseDir),
+      prependPathToObject(outputDirs, config.baseDir),
+      prependPathToObject(outputFiles, config.baseDir)
+    );
+  });
+  config.web.assets = assetsConfig(config.web.scripts);
+
+  return config;
+}
+
+module.exports = makeConfig;

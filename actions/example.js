@@ -4,13 +4,10 @@
  */
 'use strict';
 
-var debug = require('debug')('Example');
-
 module.exports = function (context, payload, done) {
-  debug('Example action dispatching UPDATE_PAGE_TITLE');
 
   context.dispatch('UPDATE_PAGE_TITLE', {
-    pageTitle: (payload.pageTitle) + ' | Example'
+    pageTitle: (payload.pageTitle)
   });
   
   return done();

@@ -11,16 +11,18 @@ var nconf = require('nconf');
 var fs = require('fs');
 var path = require('path');
 
-var exclude = [ 'index' ];
+var localEnv = 'local.env.json';
+
+var exclude = [ 'index.js', localEnv, 'routes' ];
 
 // Loads modules in this directory.
 // Return an object keyed by name.
-function configs () {
+function configs (nconf) {
   var result = {};
   fs.readdirSync(__dirname).forEach(function(item) {
     var name = path.basename(item);
     if (exclude.indexOf(name) === -1) {
-      result[name] = require('./' + name);
+      result[name] = require('./' + name)(nconf);
     }
   });
   return result;
@@ -28,9 +30,12 @@ function configs () {
 
 // Create a configuration with overrides
 function create(overrides) {
-  nconf.overrides(overrides || {});
-  nconf.env();
-  nconf.defaults(configs());
+  nconf
+    .overrides(overrides || {})
+    .env()
+    .file({ file: path.join(__dirname, localEnv) })
+    .defaults(configs(nconf));
+
   return nconf;
 }
 

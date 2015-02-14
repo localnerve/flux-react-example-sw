@@ -62,6 +62,7 @@
     "fluxible": "^0.2.0",
     "fluxible-plugin-fetchr": "^0.2.2",
     "fluxible-plugin-routr": "^0.3.0",
+    "lodash": "^3.2.0",
     "morgan": "^1.5.1",
     "nconf": "^0.7.1",
     "node-jsx": "^0.12.4",

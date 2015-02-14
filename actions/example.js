@@ -4,10 +4,14 @@
  */
 'use strict';
 
-module.exports = function (context, payload, done) {
+var defaultPageTitle = 'Default Page Title';
+
+function exampleAction(context, payload, done) {
   context.dispatch('UPDATE_PAGE_TITLE', {
-    pageTitle: (payload.pageTitle)
+    pageTitle: (payload.pageTitle || defaultPageTitle)
   });
   
   return done();
-};
+}
+
+module.exports = exampleAction;

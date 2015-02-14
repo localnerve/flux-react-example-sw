@@ -9,7 +9,7 @@ var React = require('react');
 var ApplicationStore = require('../stores/ApplicationStore');
 var FluxibleMixin = require('fluxible').Mixin;
 
-var Component = React.createClass({
+var Html = React.createClass({
   mixins: [ FluxibleMixin ],
   render: function () {
     return (
@@ -41,4 +41,4 @@ var Component = React.createClass({
   }
 });
 
-module.exports = Component;
+module.exports = Html;

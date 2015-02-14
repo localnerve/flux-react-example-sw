@@ -4,20 +4,20 @@
  */
 'use strict';
 var createStore = require('fluxible/utils/createStore');
-var routesConfig = require('../configs/routes');
 
 var ApplicationStore = createStore({
   storeName: 'ApplicationStore',
   handlers: {
     'CHANGE_ROUTE_SUCCESS': 'handleNavigate',
-    'UPDATE_PAGE_TITLE': 'updatePageTitle'
+    'UPDATE_PAGE_TITLE': 'updatePageTitle',
+    'RECEIVE_ROUTES': 'receiveRoutes'
   },
   initialize: function (dispatcher) {
     this.currentPageId = null;
     this.currentPageName = null;
     this.currentPage = null;
     this.currentRoute = null;
-    this.pages = routesConfig;
+    this.pages = {};
     this.pageTitle = '';
   },
   handleNavigate: function (route) {
@@ -38,6 +38,13 @@ var ApplicationStore = createStore({
   updatePageTitle: function (title) {
     this.pageTitle = title.pageTitle;
     this.emitChange();
+  },
+  receiveRoutes: function(routes) {
+    this.pages = routes;
+    this.emitChange();
+  },
+  getPages: function() {
+    return this.pages;
   },
   getCurrentPageName: function () {
     return this.currentPageName;

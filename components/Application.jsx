@@ -4,15 +4,11 @@
  */
 /* global document, ga */
 'use strict';
+
 var React = require('react');
-//var Home = require('./Home.jsx');
-//var Docs = require('./Docs.jsx');
 var ApplicationStore = require('../stores/ApplicationStore');
-//var DocStore = require('../stores/DocStore');
 var RouterMixin = require('flux-router-component').RouterMixin;
-//var NavLink = require('flux-router-component').NavLink;
 var FluxibleMixin = require('fluxible').Mixin;
-//var TopNav = require('./TopNav');
 
 var Application = React.createClass({
   mixins: [ RouterMixin, FluxibleMixin ],
@@ -42,42 +38,6 @@ var Application = React.createClass({
         <h1>Hello World</h1>
       </div>
     );
-/*        
-    var page;
-    var hideLogo = false;
-    var logo = (
-        <NavLink className="pure-menu-heading" routeName="home">
-            Fluxible
-        </NavLink>
-    );
-
-    if ('home' === this.state.currentPageName) {
-        page = <Home content={this.state.currentDoc.content} />;
-        hideLogo = true;
-    }
-    else if ('docs' === this.state.currentPageName) {
-        var docsConfig = require('./../configs/docs');
-        page = <Docs menu={docsConfig} doc={this.state.currentDoc} />;
-    }
-    else if ('apis' === this.state.currentPageName) {
-        var apisConfig = require('./../configs/apis');
-        page = <Docs menu={apisConfig} doc={this.state.currentDoc} />;
-    }
-
-    return (
-        <div>
-            <div className="header">
-                <div className="home-menu pure-menu pure-menu-open pure-menu-horizontal">
-                    <div className="content">
-                        <TopNav selected={this.state.currentPageName} />
-                        {hideLogo ? '' : logo}
-                    </div>
-                </div>
-            </div>
-            {page}
-        </div>
-    );
-*/    
   },
 
   componentDidUpdate: function (prevProps, prevState) {

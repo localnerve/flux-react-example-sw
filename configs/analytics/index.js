@@ -21,7 +21,9 @@ __UAREF__("send", "pageview");';
 
 function makeConfig(nconf) {
   return {
-    snippet: trackingTemplate.replace(/__UAID__/g, uaID[process.env.NODE_ENV || 'development']).replace(/__UAREF__/g, uaRef),
+    snippet: trackingTemplate
+      .replace(/__UAID__/g, uaID[process.env.NODE_ENV || 'development'])
+      .replace(/__UAREF__/g, uaRef),
     globalRef: uaRef
   }; 
 }

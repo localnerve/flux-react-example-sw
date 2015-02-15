@@ -6,7 +6,7 @@
 
 function routesAction(context, payload, done) {
   context.dispatch('RECEIVE_ROUTES', payload.routes);
-  done && done();
+  return done();
 }
 
 module.exports = routesAction;

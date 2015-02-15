@@ -59,8 +59,6 @@ function extend(app, routrPlugin) {
   debug('Fluxible app extended');
 
   app.updateRoutes = function updateRoutes(state, done) {
-    debug('Updating Routes');
-
     // This is bad, but no way to update RoutrPlugin
     var routerIndex;
     for (var i = 0; i < app._plugins.length; i++) {

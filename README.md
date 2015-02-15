@@ -37,10 +37,19 @@ rebuild as needed.
 Open http://localhost:3000
 
 
+## Debug production build
+```bash
+$ npm run prod
+```
+
+This will use `nodemon` and `webpack` to watch for changes and restart and
+rebuild as needed.
+
+Open http://localhost:3000
+
+
 ## License
 
-Unless otherwise specified, this software is free to use under the Yahoo! Inc.
-BSD license. See the [LICENSE file][] for license text and copyright
-information.
+Unless otherwise specified, this software is free to use under the BSD license. See the [LICENSE file][] for license text and copyright information.
 
 [LICENSE file]: https://github.com/localnerve/flux-react-example/blob/master/LICENSE.md

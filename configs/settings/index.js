@@ -9,6 +9,7 @@ var _ = require('lodash');
 
 var assetsJsonFile = './assets.json';
 var distbase = 'dist';
+var assetsbase = 'assets';
 var publicbase = '/public';
 
 /**
@@ -82,10 +83,11 @@ function makeConfig(nconf) {
    */
   var srcDirs = {
     components: 'components',
-    config: 'configs'  
+    config: 'configs',
+    assets: assetsbase
   };
   var srcFiles = {
-    assetsJson: path.join(srcDirs.config, path.basename(__dirname), assetsJsonFile)  
+    assetsJson: path.join(srcDirs.config, path.basename(__dirname), assetsJsonFile)
   };
 
   /**
@@ -134,8 +136,8 @@ function makeConfig(nconf) {
   // Assemble config.src
   _.assign(
     config.src,
-    prependPathToObject(commonDirs, config.src.baseDir),
-    prependPathToObject(commonFiles, config.src.baseDir),
+    prependPathToObject(commonDirs, path.join(config.src.baseDir, assetsbase)),
+    prependPathToObject(commonFiles, path.join(config.src.baseDir, assetsbase)),
     prependPathToObject(srcDirs, config.src.baseDir),
     prependPathToObject(srcFiles, config.src.baseDir)
   );

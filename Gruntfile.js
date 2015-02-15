@@ -48,15 +48,11 @@ module.exports = function (grunt) {
     clean: ['<%= project.dist.baseDir %>'],
     
     copy: {
-      images: {
+      assets: {
         files: [{
           expand: true,
-          src: ['<%= project.src.images %>/**'], dest: '<%= project.dist.baseDir %>'
-        }]
-      },
-      statics: {
-        files: [{
-          src: ['<%= project.src.four04 %>', '<%= project.src.five03 %>'],
+          cwd: '<%= project.src.assets %>',
+          src: ['**', '!**/styles/**'],
           dest: '<%= project.dist.baseDir %>/'
         }]
       }

@@ -18,7 +18,6 @@ function webpackStatsPlugin(self) {
     var assets = data.assetsByChunkName;
     var output = {
       assets: {}
-      // , cdnPath: this.options.output.publicPath
     };
 
     Object.keys(assets).forEach(function eachAsset(key) {
@@ -32,7 +31,6 @@ function webpackStatsPlugin(self) {
       output.assets[key] = value;
     });
 
-    // put it out in the dist 
     fs.writeFileSync(
       path.join(__dirname, self.options.custom.assetsJson),
       JSON.stringify(output, null, 4)
@@ -127,7 +125,6 @@ module.exports = function (grunt) {
         options: {
           overrides: {},
           env: {
-            NODE_ENV: 'development',
             DEBUG: '*',
             // ERR_HANDLER_MAINT_ENABLED: TRUE,
             ERR_HANDLER_MAINT_RETRYAFTER: 7200
@@ -246,10 +243,10 @@ module.exports = function (grunt) {
   });
 
   // Custom config task
-  // Creates a config instance for the project, saves settings in grunt.config('project')
+  // Creates a config for the project, saves config(settings) in grunt.config('project')
   // 
   // Options:
-  //  overrides: An object with config settings that overrides all. see nconf for details and config/index.js for impl.
+  //  overrides: An object with config settings that overrides all.
   //             example: settings:dist:images
   //  env: Set environment variables for this process.
   //
@@ -264,11 +261,10 @@ module.exports = function (grunt) {
     }
 
     grunt.config('project', configLib.create(options.overrides).get('settings'));
-  });
+  });  
 
-  // tasks
-
-  grunt.registerTask('dumpconfigTask', function() {
+  // debug nconfig
+  grunt.registerTask('_dumpconfigTask', function() {
     var util = require('util');
     var config = require('./configs').create();
     var dump = {
@@ -277,7 +273,12 @@ module.exports = function (grunt) {
     };
     console.log(util.inspect(dump));
   });
-  grunt.registerTask('dumpconfig', ['nconfig:prod', 'dumpconfigTask']);
+  grunt.registerTask('dumpconfig', 'Debug nconfig', function() {
+    var tasks = [
+      this.args.shift() === 'prod' ? 'nconfig:prod' : 'nconfig:dev'
+    ];
+    grunt.task.run(tasks.concat('_dumpconfigTask'));
+  });
 
   // serial tasks for concurrent, external grunt processes
   grunt.registerTask('cc-compass-dev', ['nconfig:dev', 'compass:dev']);

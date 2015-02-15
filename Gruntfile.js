@@ -95,8 +95,8 @@ module.exports = function (grunt) {
       options: {
         logConcurrentOutput: true
       },      
-      dev: ['cc-compass-dev', 'cc-nodemon-dev', 'cc-webpack-dev'],
-      prod: ['cc-compass-prod', 'cc-nodemon-prod', 'cc-webpack-prod']
+      dev: ['_cc-compass-dev', '_cc-nodemon-dev', '_cc-webpack-dev'],
+      prod: ['_cc-compass-prod', '_cc-nodemon-prod', '_cc-webpack-prod']
     },
 
     cssmin: {
@@ -115,7 +115,7 @@ module.exports = function (grunt) {
       all: {
         src: [
           '*.js',
-          '{actions,components,services,stores}/**/*.js'        
+          '{configs,utils,actions,components,services,stores}/**/*.js'        
         ]
       }
     },
@@ -281,13 +281,14 @@ module.exports = function (grunt) {
   });
 
   // serial tasks for concurrent, external grunt processes
-  grunt.registerTask('cc-compass-dev', ['nconfig:dev', 'compass:dev']);
-  grunt.registerTask('cc-compass-prod', ['nconfig:prod', 'compass:prod', 'cssmin:prod']);
-  grunt.registerTask('cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
-  grunt.registerTask('cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
-  grunt.registerTask('cc-webpack-dev', ['nconfig:dev', 'webpack:dev']);
-  grunt.registerTask('cc-webpack-prod', ['nconfig:prod', 'webpack:prod']);
+  grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'compass:dev']);
+  grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'compass:prod', 'cssmin:prod']);
+  grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
+  grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
+  grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:dev']);
+  grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:prod']);
 
+  // script interface
   grunt.registerTask('default', 'dev');
   grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
   grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod']);

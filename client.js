@@ -8,17 +8,16 @@
 var debugLib = require('debug');
 var debug = debugLib('Example:Client');
 var React = require('react');
-var app = require('./app');
-var routesAction = require('./actions/routes');
 
 if (DEBUG) {
   window.React = React; // for chrome dev tool support
   debugLib.enable('*'); // show debug trail
 }
 
+var app = require('./app');
 var dehydratedState = window.App; // sent from the server
 
-app.updateRoutes(dehydratedState, function(err, routes) {
+app.updateRoutes(dehydratedState, function(err) {
   if (err) {
     throw err;
   }
@@ -31,14 +30,13 @@ app.updateRoutes(dehydratedState, function(err, routes) {
 
     window.context = context;
 
-    // MUST add callback and render in callback
-    context.executeAction(routesAction, { routes: routes });
-
     debug('rendering app');
     React.withContext(context.getComponentContext(), function () {
       React.render(
-        app.getAppComponent()(),
-        document.getElementById('docsapp')
+        app.getAppComponent()({
+          analytics: dehydratedState.analytics
+        }),
+        document.getElementById('application')
       );
     });
   });

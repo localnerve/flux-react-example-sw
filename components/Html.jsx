@@ -22,7 +22,7 @@ var Html = React.createClass({
           <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>
         </head>
         <body>
-          <section id="docsapp" dangerouslySetInnerHTML={{__html: this.props.markup}}></section>
+          <section id="application" dangerouslySetInnerHTML={{__html: this.props.markup}}></section>
           <script dangerouslySetInnerHTML={{__html: this.props.state}}></script>
           <div className="footer">
             <div className="container">

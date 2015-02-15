@@ -6,6 +6,8 @@
 // some environments run the app from a different directory
 process.chdir(__dirname);
 
+var debug = require('debug')('Example:Server');
+
 var config = require('./configs').create();
 var settings = config.get('settings');
 
@@ -20,7 +22,7 @@ var compress = require('compression');
 var logger = require('morgan');
 var serialize = require('serialize-javascript');
 var navigateAction = require('flux-router-component').navigateAction;
-var debug = require('debug')('Example:Server');
+var routesAction = require('./actions/routes');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var csrf = require('csurf');
@@ -56,6 +58,7 @@ app.use(function main(req, res, next) {
       return next(err);
     }
 
+    debug('Creating app context');
     var context = fluxibleApp.createContext({
       req: req, // The fetchr plugin depends on this
       xhrContext: {
@@ -63,33 +66,43 @@ app.use(function main(req, res, next) {
       }
     });
 
-    debug('Executing navigate action');
-    context.executeAction(navigateAction, {
-      url: req.url
-    }, function (err) {
+    debug('Executing routes action');
+    context.executeAction(routesAction, {
+      routes: routes
+    }, function(err) {
       if (err) {
         return next(err);
       }
 
-      debug('Exposing context state');
-      var state = fluxibleApp.dehydrate(context);
-      state.routes = routes;
-      var exposed = 'window.App=' + serialize(state) + ';';
+      debug('Executing navigate action');
+      context.executeAction(navigateAction, {
+        url: req.url
+      }, function (err) {
+        if (err) {
+          return next(err);
+        }
 
-      debug('Rendering Application component into html');
-      var AppComponent = fluxibleApp.getAppComponent();
-      var doctype = '<!DOCTYPE html>';
-      React.withContext(context.getComponentContext(), function () {
-        var html = React.renderToStaticMarkup(HtmlComponent({
-          mainScript: settings.web.assets.mainScript(),
-          trackingSnippet: config.get('analytics:snippet'),
-          styles: fs.readFileSync(settings.dist.css, { encoding: 'utf8' }),
-          state: exposed,
-          markup: React.renderToString(AppComponent({
-              context: context.getComponentContext()
-          }))
-        }));
-        res.send(doctype + html);
+        debug('Exposing context state');
+        var state = fluxibleApp.dehydrate(context);
+        state.routes = routes;
+        state.analytics = config.get('analytics:globalRef');
+        var exposed = 'window.App=' + serialize(state) + ';';
+
+        debug('Rendering Application component into html');
+        var AppComponent = fluxibleApp.getAppComponent();
+        var doctype = '<!DOCTYPE html>';
+        React.withContext(context.getComponentContext(), function () {
+          var html = React.renderToStaticMarkup(HtmlComponent({
+            mainScript: settings.web.assets.mainScript(),
+            trackingSnippet: config.get('analytics:snippet'),
+            styles: fs.readFileSync(settings.dist.css, { encoding: 'utf8' }),
+            state: exposed,
+            markup: React.renderToString(AppComponent({
+              context: context.getComponentContext()              
+            }))
+          }));
+          res.send(doctype + html);
+        });
       });
     });
   });

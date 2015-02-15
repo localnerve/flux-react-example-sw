@@ -4,9 +4,9 @@
  */
 'use strict';
 
-var debug = require('debug')('Example:routesService');
+var debug = require('debug')('Example:RoutesService');
 
-// This is temporary.
+// Temporary.
 // This is a prototype for a service response model.
 var _routes = {
   home: {

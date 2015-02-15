@@ -2,7 +2,7 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global document, ga */
+/* global window, document */
 'use strict';
 
 var React = require('react');
@@ -21,9 +21,7 @@ var Application = React.createClass({
   },
   getState: function () {
     var appStore = this.getStore(ApplicationStore);
-    // var docStore = this.getStore(DocStore);
     return {
-      // currentDoc: docStore.getCurrent() || {},
       currentPageName: appStore.getCurrentPageName(),
       pageTitle: appStore.getPageTitle(),
       route: appStore.getCurrentRoute()
@@ -36,6 +34,13 @@ var Application = React.createClass({
     return (
       <div>
         <h1>Hello World</h1>
+        <p>
+        This is an example of an isomorphic Flux/React application. It employs Yahoo's 
+        <a href="http://fluxible.io">Fluxible</a> architecture.
+        </p>
+        <p>
+        As I'm just starting out, the UI is not built yet. Stay tuned for more as I figure it out.
+        </p>
       </div>
     );
   },
@@ -49,13 +54,13 @@ var Application = React.createClass({
 
     document.title = newState.pageTitle;
 
-    // log pageview
-    if (ga) {
-      ga('set', {
+    var analytics = window[this.props.analytics];
+    if (analytics) {
+      analytics('set', {
         page: newState.route.url,
         title: newState.pageTitle
       });
-      ga('send', 'pageview');
+      analytics('send', 'pageview');
     }
   }
 });

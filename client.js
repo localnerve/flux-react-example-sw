@@ -17,6 +17,7 @@ if (DEBUG) {
 var app = require('./app');
 var dehydratedState = window.App; // sent from the server
 
+debug('rehydrating routes');
 app.updateRoutes(dehydratedState, function(err) {
   if (err) {
     throw err;

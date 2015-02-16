@@ -10,7 +10,6 @@ var routrPlugin = require('fluxible-plugin-routr');
 var extend = require('../../../utils/fluxible-extension');
 
 describe('fluxible-extension', function () {
-
   var app;
   var state = {
     routes: {}
@@ -26,7 +25,6 @@ describe('fluxible-extension', function () {
   });
 
   describe('updateRoutes', function() {
-
     it('adds routrPlugin to app', function(done) {
       app.updateRoutes(state, function(err) {
         if (err) {
@@ -58,5 +56,4 @@ describe('fluxible-extension', function () {
       });
     });    
   });
-
 });

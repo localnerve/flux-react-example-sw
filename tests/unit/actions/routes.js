@@ -6,7 +6,7 @@
 'use strict';
 var expect = require('chai').expect;
 var MockContext = require('fluxible/utils/MockActionContext')();
-//var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
+// var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var routes = require('../../../actions/routes');
 var routesResponse = require('../../fixtures/routes-response');
@@ -54,5 +54,4 @@ describe('routes action', function () {
       done();
     });
   });
-
 });

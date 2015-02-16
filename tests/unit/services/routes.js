@@ -6,11 +6,10 @@
 'use strict';
 var expect = require('chai').expect;
 var routes = require('../../../services/routes.js');
-//delete require.cache[require.resolve('../../fixtures/routes-response')];
+// delete require.cache[require.resolve('../../fixtures/routes-response')];
 var routesResponse = require('../../fixtures/routes-response');
 
-describe('routes', function () {
-
+describe('routes', function() {
   it('should have name and read members', function() {
     expect(routes.name).to.be.a('string');
     expect(routes.read).to.be.a('function');

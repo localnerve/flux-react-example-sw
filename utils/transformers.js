@@ -22,13 +22,13 @@ function toFluxibleRoutes(routes) {
   Object.keys(routes).forEach(function(route) {
     var transformed = routes[route];
 
-    debug('transforming "'+transformed.action.name+'" to '+
-      (actions[transformed.action.name].name || 'undefined'));
-
     if (!actions[transformed.action.name]) {
       throw new Error('action "'+transformed.action.name+'"" not found');
     }
 
+    debug('transforming "'+transformed.action.name+'" to '+
+      (actions[transformed.action.name].name || 'undefined'));
+    
     transformed.action = (function(action, actionParams) {
       return function (context, payload, done) {
         context.executeAction(action, actionParams, done);

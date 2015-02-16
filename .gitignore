@@ -1,5 +1,6 @@
 .sass-cache
 dist
+reports
 node_modules
 npm-debug.log
 *sublime*

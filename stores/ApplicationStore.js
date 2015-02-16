@@ -1,6 +1,7 @@
 /**
  * Copyright 2015, Yahoo! Inc.
- * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
+ * Copyrights licensed under the New BSD License.
+ * See https://github.com/yahoo/fluxible.io/blob/master/LICENSE.md for terms.
  */
 'use strict';
 var createStore = require('fluxible/utils/createStore');

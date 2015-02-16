@@ -32,6 +32,7 @@ module.exports = {
     debug('initiating routes request');
     // TODO: Replace with request to backend
     setTimeout(function () {
+      // Make a clone of the response object
       callback(null, JSON.parse(JSON.stringify(_routes)));
     }, 10);
   }

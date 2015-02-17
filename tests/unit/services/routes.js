@@ -6,7 +6,6 @@
 'use strict';
 var expect = require('chai').expect;
 var routes = require('../../../services/routes.js');
-// delete require.cache[require.resolve('../../fixtures/routes-response')];
 var routesResponse = require('../../fixtures/routes-response');
 
 describe('routes', function() {

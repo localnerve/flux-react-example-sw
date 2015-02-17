@@ -7,34 +7,37 @@
  */
 'use strict';
 
-var nconf = require('nconf');
 var fs = require('fs');
 var path = require('path');
 
 var localEnv = 'local.env.json';
 
-var exclude = [ 'index.js', localEnv, 'routes' ];
+var exclude = [ 'index.js', localEnv ];
 
-// Loads modules in this directory.
-// Return an object keyed by name.
-function configs (nconf) {
+/**
+ * Loads modules in this directory.
+ * Return an object keyed by name.
+ */
+function configs(env) {
   var result = {};
   fs.readdirSync(__dirname).forEach(function(item) {
     var name = path.basename(item);
     if (exclude.indexOf(name) === -1) {
-      result[name] = require('./' + name)(nconf);
+      result[name] = require('./' + name)(env);
     }
   });
   return result;
 }
 
-// Create a configuration with overrides
+// Create a new configuration with overrides
 function create(overrides) {
+  var nconf = require('nconf');
+
   nconf
     .overrides(overrides || {})
     .env()
     .file({ file: path.join(__dirname, localEnv) })
-    .defaults(configs(nconf));
+    .defaults(configs(nconf.get('NODE_ENV')));
 
   return nconf;
 }

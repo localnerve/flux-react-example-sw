@@ -51,61 +51,61 @@ function assetsConfig(baseDir) {
   return new Config(baseDir);
 }
 
-function makeConfig(nconf) {
-  /**
-   * Directories and files that are in src, distribution, and web
-   */
-  var commonDirs = {
-    images: 'images',  
-    styles: 'styles',
-    fonts: 'fonts'
-  };
-  var commonFiles = {
-    four04: '404.html',
-    five03: '503.html',
-    favicon: path.join(commonDirs.images, 'favicon.ico'),  
-    robots: 'robots.txt',
-    sitemap: 'sitemap.xml'
-  };
+/**
+ * Directories and files that are in src, distribution, and web
+ */
+var commonDirs = {
+  images: 'images',  
+  styles: 'styles',
+  fonts: 'fonts'
+};
+var commonFiles = {
+  four04: '404.html',
+  five03: '503.html',
+  favicon: path.join(commonDirs.images, 'favicon.ico'),  
+  robots: 'robots.txt',
+  sitemap: 'sitemap.xml'
+};
 
-  /**
-   * Directories and files that are in both dist and web
-   */
-  var outputDirs = {
-    scripts: 'scripts'
-  };
-  var outputFiles = {
-    css: path.join(commonDirs.styles, 'index.css')
-  };
+/**
+ * Directories and files that are in both dist and web
+ */
+var outputDirs = {
+  scripts: 'scripts'
+};
+var outputFiles = {
+  css: path.join(commonDirs.styles, 'index.css')
+};
 
-  /**
-   * Source only dirs and files
-   */
-  var srcDirs = {
-    components: 'components',
-    config: 'configs',
-    assets: assetsbase
-  };
-  var srcFiles = {
-    assetsJson: path.join(srcDirs.config, path.basename(__dirname), assetsJsonFile)
-  };
+/**
+ * Source only dirs and files
+ */
+var srcDirs = {
+  components: 'components',
+  config: 'configs',
+  assets: assetsbase
+};
+var srcFiles = {
+  assetsJson: path.join(srcDirs.config, path.basename(__dirname), assetsJsonFile)
+};
 
-  /**
-   * Settings to override by environment
-   */
-  var overrides = {
-    production: {
-      dist: {
-        baseDir: path.join(distbase, 'release')
-      },
-      loggerFormat: 'tiny',
-      web: {
-        // ssl: true,
-        assetAge: 31556926000
-      }
+/**
+ * Settings to override by environment
+ */
+var overrides = {
+  production: {
+    dist: {
+      baseDir: path.join(distbase, 'release')
+    },
+    loggerFormat: 'tiny',
+    web: {
+      // ssl: true,
+      assetAge: 31556926000
     }
-  };
+  }
+};
 
+function makeConfig(env) {
   /**
    * The exported settings config
    */
@@ -131,7 +131,7 @@ function makeConfig(nconf) {
   };
 
   // Environment overrides
-  _.merge(config, overrides[nconf.get('NODE_ENV')]);
+  _.merge(config, overrides[env]);
 
   // Assemble config.src
   _.assign(

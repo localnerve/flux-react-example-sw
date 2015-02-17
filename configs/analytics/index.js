@@ -19,10 +19,10 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) 
 __UAREF__("create", "__UAID__", "auto"); \
 __UAREF__("send", "pageview");';
 
-function makeConfig(nconf) {
+function makeConfig(env) {
   return {
     snippet: trackingTemplate
-      .replace(/__UAID__/g, uaID[process.env.NODE_ENV || 'development'])
+      .replace(/__UAID__/g, uaID[env || 'development'])
       .replace(/__UAREF__/g, uaRef),
     globalRef: uaRef
   }; 

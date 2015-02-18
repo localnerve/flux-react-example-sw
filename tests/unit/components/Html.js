@@ -8,10 +8,10 @@
 require('node-jsx').install({ extension: '.jsx' });
 
 var expect = require('chai').expect;
-var React = require('react');
-var ReactAddons = require('react/addons');
+var React = require('react/addons');
 var ApplicationStore = require('../../../stores/ApplicationStore');
-var HtmlComponent = React.createFactory(require('../../../components/Html.jsx'));
+var HtmlComponent = require('react')
+  .createFactory(require('../../../components/Html.jsx'));
 var MockContext = require('fluxible/utils/MockComponentContext')();
 var testDom = require('../../helpers/testdom');
 
@@ -30,7 +30,7 @@ describe('html component', function() {
   };
 
   before(function() {    
-    testUtils = ReactAddons.addons.TestUtils;
+    testUtils = React.addons.TestUtils;
   });
 
   beforeEach(function() {

@@ -4,6 +4,7 @@
  */
 /* global describe, it */
 'use strict';
+
 var expect = require('chai').expect;
 var routes = require('../../../services/routes.js');
 var routesResponse = require('../../fixtures/routes-response');

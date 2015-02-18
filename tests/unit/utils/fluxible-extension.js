@@ -4,6 +4,7 @@
  */
 /* global describe, it, beforeEach */
 'use strict';
+
 var expect = require('chai').expect;
 var FluxibleApp = require('fluxible');
 var routrPlugin = require('fluxible-plugin-routr');

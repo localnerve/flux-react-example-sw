@@ -39,6 +39,7 @@ describe('routes action', function () {
   });
 
   it('should update the ApplicationStore', function (done) {
+    var testPage = 'home';
     var params = {
       routes: response
     };
@@ -49,7 +50,10 @@ describe('routes action', function () {
       }
 
       var pages = context.getStore(ApplicationStore).getPages();
+
       expect(pages).to.be.an('object');
+      expect(pages).to.not.be.empty;
+      expect(pages[testPage]).to.be.an('object');
 
       done();
     });

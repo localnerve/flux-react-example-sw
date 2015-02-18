@@ -4,6 +4,7 @@
  */
 /* global describe, it */
 'use strict';
+
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 var localEnv = require('../../../configs/local.env.json');

@@ -6,34 +6,15 @@
 'use strict';
 
 var expect = require('chai').expect;
-
 var routesResponse = require('../../fixtures/routes-response');
 var transformers = require('../../../utils/transformers');
 var MockContext = require('fluxible/utils/MockActionContext')();
-// var EventEmitter = require('events').EventEmitter;
-// var MockStore = require('fluxible/utils/createStore');
 
 describe('transformers', function () {
   describe('toFluxibleRoutes', function() {
     var jsonRoutes;
     var context;
     var toFluxibleRoutes = transformers.toFluxibleRoutes;
-/*
-    var STORE_EVENT = 'storeEvent';
-    var makeStore = function(emitter) {
-      return new MockStore({
-        storeName: 'MockStore',
-        handlers: {
-          'CHANGE_ROUTE_SUCCESS': 'bang',
-          'UPDATE_PAGE_TITLE': 'bang',
-          'RECEIVE_ROUTES': 'bang'
-        },
-        bang: function() {
-          emitter.emit(STORE_EVENT, arguments);
-        }
-      });
-    };
-*/
 
     beforeEach(function() {
       // clone routesResponse so we don't disrupt routes-response.

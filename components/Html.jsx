@@ -18,7 +18,7 @@ var Html = React.createClass({
           <meta charSet="utf-8" />
           <title>{this.getStore(ApplicationStore).getPageTitle()}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style dangerouslySetInnerHTML={{__html: this.props.styles}}></style>
+          <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>
           <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>
         </head>
         <body>

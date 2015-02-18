@@ -58,7 +58,7 @@ app.use(function main(req, res, next) {
       return next(err);
     }
 
-    debug('Reading the inline styles');
+    debug('Reading the in-page styles');
     fs.readFile(settings.dist.css, {
       encoding: 'utf8'
     }, function(err, styles) {
@@ -103,7 +103,7 @@ app.use(function main(req, res, next) {
             var html = React.renderToStaticMarkup(HtmlComponent({
               mainScript: settings.web.assets.mainScript(),
               trackingSnippet: config.get('analytics:snippet'),
-              styles: styles,
+              headerStyles: styles,
               state: exposed,
               markup: React.renderToString(AppComponent({
                 context: context.getComponentContext()              

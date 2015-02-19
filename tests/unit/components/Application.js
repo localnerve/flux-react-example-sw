@@ -13,7 +13,7 @@ var React = require('react/addons');
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var MockContext = require('fluxible/utils/MockComponentContext')();
 var fluxibleApp = require('../../../app');
-var testDom = require('../../helpers/testdom');
+var testDom = require('../../utils/testdom');
 
 MockContext.Dispatcher.registerStore(ApplicationStore);
 

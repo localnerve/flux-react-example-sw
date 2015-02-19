@@ -8,7 +8,7 @@
 var expect = require('chai').expect;
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var routesResponseFixture = require('../../fixtures/routes-response');
-var helperTests = require('../../helpers/tests');
+var helperTests = require('../../utils/tests');
 var transformers = require('../../../utils/transformers');
 
 describe('application store', function () {

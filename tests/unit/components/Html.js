@@ -13,7 +13,7 @@ var ApplicationStore = require('../../../stores/ApplicationStore');
 var HtmlComponent = require('react')
   .createFactory(require('../../../components/Html.jsx'));
 var MockContext = require('fluxible/utils/MockComponentContext')();
-var testDom = require('../../helpers/testdom');
+var testDom = require('../../utils/testdom');
 
 MockContext.Dispatcher.registerStore(ApplicationStore);
 

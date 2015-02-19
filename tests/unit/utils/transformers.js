@@ -8,7 +8,7 @@
 var expect = require('chai').expect;
 var routesResponseFixture = require('../../fixtures/routes-response');
 var fluxibleRoutesFixture = require('../../fixtures/fluxible-routes');
-var helperTests = require('../../helpers/tests');
+var helperTests = require('../../utils/tests');
 var transformers = require('../../../utils/transformers');
 var MockContext = require('fluxible/utils/MockActionContext')();
 

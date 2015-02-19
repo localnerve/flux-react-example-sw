@@ -53,19 +53,17 @@ var ApplicationStore = createStore({
   getCurrentRoute: function () {
     return this.currentRoute;
   },
-  dehydrate: function () {
-    var dehydratedPages = transformers.fluxibleToJson(this.pages);
+  dehydrate: function () {    
     return {
       currentPageName: this.currentPageName,
-      pages: dehydratedPages,
+      pages: transformers.fluxibleToJson(this.pages),
       route: this.currentRoute,
       pageTitle: this.pageTitle
     };
   },
   rehydrate: function (state) {
-    var rehydratedPages = transformers.jsonToFluxible(state.pages);
     this.currentPageName = state.currentPageName;
-    this.pages = rehydratedPages;
+    this.pages = transformers.jsonToFluxible(state.pages);
     this.currentRoute = state.route;
     this.pageTitle = state.pageTitle;
   }

@@ -4,9 +4,9 @@
  */
 'use strict';
 
-function routesAction(context, payload, done) {
+function routes(context, payload, done) {
   context.dispatch('RECEIVE_ROUTES', payload.routes);
   return done();
 }
 
-module.exports = routesAction;
+module.exports = routes;

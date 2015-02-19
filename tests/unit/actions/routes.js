@@ -10,7 +10,7 @@ var MockContext = require('fluxible/utils/MockActionContext')();
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var routes = require('../../../actions/routes');
 var routesResponse = require('../../fixtures/routes-response');
-var toFluxibleRoutes = require('../../../utils/transformers').toFluxibleRoutes;
+var jsonToFluxible = require('../../../utils/transformers').jsonToFluxible;
 
 MockContext.Dispatcher.registerStore(ApplicationStore);
 
@@ -21,7 +21,7 @@ describe('routes action', function () {
   before(function() {
     // clone the routesResponse so we don't disrupt it.
     var clone = JSON.parse(JSON.stringify(routesResponse));
-    response = toFluxibleRoutes(clone);
+    response = jsonToFluxible(clone);
   });
 
   beforeEach(function () {

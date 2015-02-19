@@ -1,17 +1,18 @@
 /**
- * Copyright 2015, Yahoo! Inc.
- * Copyrights licensed under the New BSD License.
- * See https://github.com/yahoo/fluxible.io/blob/master/LICENSE.md for terms.
+ * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+ * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
 /* global describe, it, beforeEach */
 'use strict';
 
 var expect = require('chai').expect;
 var ApplicationStore = require('../../../stores/ApplicationStore');
-var routesResponse = require('../../fixtures/routes-response');
+var routesResponseFixture = require('../../fixtures/routes-response');
+var helperTests = require('../../helpers/tests');
+var transformers = require('../../../utils/transformers');
 
 describe('application store', function () {
-  var storeInstance;
+  var storeInstance;  
   var homeRoute = {
     params: { key: 'home' },
     config: { page: 'Home' }
@@ -25,7 +26,6 @@ describe('application store', function () {
     expect(storeInstance).to.be.an('object');
     expect(storeInstance.currentPageId).to.equal(null);
     expect(storeInstance.currentPageName).to.equal(null);
-    expect(storeInstance.currentPage).to.equal(null);
     expect(storeInstance.currentRoute).to.equal(null);
     expect(storeInstance.pages).to.be.empty;
     expect(storeInstance.pageTitle).to.equal('');
@@ -33,8 +33,12 @@ describe('application store', function () {
   });
 
   describe('with routes', function() {
+    var routesResponse;
+
     beforeEach(function() {
-      storeInstance.receiveRoutes(routesResponse);
+      // clone the routes-response fixture data
+      routesResponse = JSON.parse(JSON.stringify(routesResponseFixture));
+      storeInstance.receiveRoutes(transformers.jsonToFluxible(routesResponse));
     });
 
     it('should handle navigate', function (done) {
@@ -88,11 +92,10 @@ describe('application store', function () {
       storeInstance.handleNavigate(homeRoute);
       var title = { pageTitle: 'Fluxible Rocks' };
       storeInstance.updatePageTitle(title);
-
+      
       var state = storeInstance.dehydrate();
       expect(state.currentPageName).to.equal(homeRoute.config.page);
-      expect(state.currentPage).to.equal(routesResponse[homeRoute.config.page]);
-      expect(state.pages).to.equal(routesResponse);
+      expect(state.pages).to.eql(routesResponse);
       expect(state.route).to.equal(homeRoute);
       expect(state.pageTitle).to.equal(title.pageTitle);
       done();
@@ -102,17 +105,17 @@ describe('application store', function () {
       var title = { pageTitle: 'Fluxible Rocks' };
       var state = {
         currentPageName: homeRoute.config.page,
-        currentPage: routesResponse[homeRoute.config.page],
         pages: routesResponse,
         route: homeRoute,
         pageTitle: title.pageTitle
       };
 
-      storeInstance.rehydrate(state);
+      storeInstance.rehydrate(state);      
 
+      helperTests.testTransform(
+        expect, storeInstance.pages, transformers.jsonToFluxible(routesResponse)
+      );
       expect(storeInstance.currentPageName).to.equal(homeRoute.config.page);
-      expect(storeInstance.currentPage).to.equal(routesResponse[homeRoute.config.page]);
-      expect(storeInstance.pages).to.equal(routesResponse);
       expect(storeInstance.currentRoute).to.equal(homeRoute);
       expect(storeInstance.pageTitle).to.equal(title.pageTitle);
       done();

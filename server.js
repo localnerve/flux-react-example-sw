@@ -23,6 +23,7 @@ var logger = require('morgan');
 var serialize = require('serialize-javascript');
 var navigateAction = require('flux-router-component').navigateAction;
 var routesAction = require('./actions/routes');
+var transformers = require('./utils/transformers');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var csrf = require('csurf');
@@ -92,7 +93,7 @@ app.use(function main(req, res, next) {
 
           debug('Exposing context state');
           var state = fluxibleApp.dehydrate(context);
-          state.routes = routes;
+          state.routes = transformers.fluxibleToJson(routes);
           state.analytics = config.get('analytics:globalRef');
           var exposed = 'window.App=' + serialize(state) + ';';
 

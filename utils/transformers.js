@@ -2,6 +2,7 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
+ * TODO: polyfill function.name for IE
  */
 'use strict';
 
@@ -13,34 +14,80 @@ var actions = {
 };
 
 /*
- * Transforms from json routes to fluxible routes.
+ * Transform from json routes to fluxible routes.
  */
-function toFluxibleRoutes(routes) {
+function jsonToFluxible(jsonRoutes) {
   debug('Transforming json to fluxible routes');
   var fluxibleRoutes = {};
 
-  Object.keys(routes).forEach(function(route) {
-    var transformed = routes[route];
+  var makeAction = function(action, params) {
+    return function (context, payload, done) {
+      context.executeAction(action, params, done);
+    };    
+  };
 
-    if (!actions[transformed.action.name]) {
-      throw new Error('action "'+transformed.action.name+'"" not found');
+  Object.keys(jsonRoutes).forEach(function(route) {
+    var dest = {}, src = jsonRoutes[route];
+
+    if (!actions[src.action.name]) {
+      throw new Error('action "'+src.action.name+'"" not found');
     }
 
-    debug('transforming "'+transformed.action.name+'" to '+
-      (actions[transformed.action.name].name || 'undefined'));
-    
-    transformed.action = (function(action, actionParams) {
-      return function (context, payload, done) {
-        context.executeAction(action, actionParams, done);
-      };
-    }(actions[transformed.action.name], transformed.action.params));
+    debug('transforming "'+src.action.name+'" to '+
+      (actions[src.action.name].name || 'undefined'));
 
-    fluxibleRoutes[route] = transformed;
+    Object.keys(src).forEach(function(key) {
+      if (key === 'action') {
+        dest.action = makeAction(actions[src.action.name], src.action.params);
+      } else {
+        dest[key] = src[key];
+      }
+    });
+
+    fluxibleRoutes[route] = dest;
   });
 
   return fluxibleRoutes;
 }
 
+/*
+ * Transform from fluxible routes to json routes.
+ */
+function fluxibleToJson(fluxibleRoutes) {
+  debug('Transforming fluxible to json routes');
+  var jsonRoutes = {};
+
+  var getActionParams = {
+    executeAction: function(action, params, done) {
+      done({
+        name: action.name,
+        params: params
+      });
+    }
+  };
+
+  Object.keys(fluxibleRoutes).forEach(function(route) {
+    var dest = {}, src = fluxibleRoutes[route];
+
+    Object.keys(src).forEach(function(key) {
+      if (key === 'action') {
+        src.action(getActionParams, {}, function(action) {
+          dest.action = action;
+        });
+      } else {
+        dest[key] = src[key];
+      }
+    });
+
+    debug('transformed action '+dest.action.name);
+
+    jsonRoutes[route] = dest;
+  });
+
+  return jsonRoutes;
+}
+
 module.exports = {
-  toFluxibleRoutes: toFluxibleRoutes
+  jsonToFluxible: jsonToFluxible,
+  fluxibleToJson: fluxibleToJson
 };

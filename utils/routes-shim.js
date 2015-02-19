@@ -7,7 +7,7 @@
 
 var debug = require('debug')('Example:Utils:Routes');
 var service = require('../services/routes');
-var toFluxibleRoutes = require('./transformers').toFluxibleRoutes;
+var jsonToFluxible = require('./transformers').jsonToFluxible;
 
 /**
  * Get the routes from state, if exists, or get routes from routes service.
@@ -20,7 +20,7 @@ function getRoutes(state, done) {
     // Use the routes service without fluxible and transform to fluxible
     service.read(null, 'routes', {}, {}, function(err, routes) {
       debug('Server routes request complete');
-      done(err, routes && toFluxibleRoutes(routes));
+      done(err, routes && jsonToFluxible(routes));
     });
   } else {
     debug('Getting routes from state');
@@ -30,7 +30,7 @@ function getRoutes(state, done) {
       err = new Error('routes member was missing from dehydrated state');
     }
 
-    done(err, state.routes);
+    done(err, jsonToFluxible(state.routes));
   }  
 }
 

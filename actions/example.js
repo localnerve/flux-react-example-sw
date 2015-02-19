@@ -6,7 +6,7 @@
 
 var defaultPageTitle = 'Default Page Title';
 
-function exampleAction(context, payload, done) {
+function example(context, payload, done) {
   context.dispatch('UPDATE_PAGE_TITLE', {
     pageTitle: (payload.pageTitle || defaultPageTitle)
   });
@@ -14,4 +14,4 @@ function exampleAction(context, payload, done) {
   return done();
 }
 
-module.exports = exampleAction;
+module.exports = example;

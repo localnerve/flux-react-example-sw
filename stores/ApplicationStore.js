@@ -1,10 +1,10 @@
 /**
- * Copyright 2015, Yahoo! Inc.
- * Copyrights licensed under the New BSD License.
- * See https://github.com/yahoo/fluxible.io/blob/master/LICENSE.md for terms.
+ * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+ * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
 'use strict';
 var createStore = require('fluxible/utils/createStore');
+var transformers = require('../utils/transformers');
 
 var ApplicationStore = createStore({
   storeName: 'ApplicationStore',
@@ -16,7 +16,6 @@ var ApplicationStore = createStore({
   initialize: function (dispatcher) {
     this.currentPageId = null;
     this.currentPageName = null;
-    this.currentPage = null;
     this.currentRoute = null;
     this.pages = {};
     this.pageTitle = '';
@@ -24,7 +23,6 @@ var ApplicationStore = createStore({
   handleNavigate: function (route) {
     var pageId = route.params.key;
     var pageName = route.config.page;
-    var page = this.pages[pageName];
 
     if (pageName === this.currentPageName && pageId === this.currentPageId) {
       return;
@@ -32,7 +30,6 @@ var ApplicationStore = createStore({
 
     this.currentPageId = pageId;
     this.currentPageName = pageName;
-    this.currentPage = page;
     this.currentRoute = route;
     this.emitChange();
   },
@@ -57,18 +54,18 @@ var ApplicationStore = createStore({
     return this.currentRoute;
   },
   dehydrate: function () {
+    var dehydratedPages = transformers.fluxibleToJson(this.pages);
     return {
       currentPageName: this.currentPageName,
-      currentPage: this.currentPage,
-      pages: this.pages,
+      pages: dehydratedPages,
       route: this.currentRoute,
       pageTitle: this.pageTitle
     };
   },
   rehydrate: function (state) {
+    var rehydratedPages = transformers.jsonToFluxible(state.pages);
     this.currentPageName = state.currentPageName;
-    this.currentPage = state.currentPage;
-    this.pages = state.pages;
+    this.pages = rehydratedPages;
     this.currentRoute = state.route;
     this.pageTitle = state.pageTitle;
   }

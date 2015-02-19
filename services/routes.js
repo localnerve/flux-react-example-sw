@@ -22,6 +22,20 @@ var _routes = {
         pageTitle: 'Flux React Example | An Example Isomorphic Application'
       }
     }
+  },
+  about: {
+    path: '/about',
+    method: 'get',
+    page: 'about',
+    label: 'About',
+    action: {
+      name: 'example',
+      params: {
+        resource: 'cms',
+        key: 'path/to/about',
+        pageTitle: 'Flux React Example | About'
+      }
+    }
   }
 };
 

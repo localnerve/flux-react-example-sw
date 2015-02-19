@@ -10,6 +10,10 @@ var ApplicationStore = require('../stores/ApplicationStore');
 var RouterMixin = require('flux-router-component').RouterMixin;
 var FluxibleMixin = require('fluxible').Mixin;
 
+var Home = require('./Home.jsx');
+var About = require('./About.jsx');
+var Nav = require('./Nav.jsx');
+
 var Application = React.createClass({
   mixins: [ RouterMixin, FluxibleMixin ],
   statics: {
@@ -24,23 +28,33 @@ var Application = React.createClass({
     return {
       currentPageName: appStore.getCurrentPageName(),
       pageTitle: appStore.getPageTitle(),
-      route: appStore.getCurrentRoute()
+      route: appStore.getCurrentRoute(),
+      pages: appStore.getPages()
     };
   },
   onChange: function () {
     this.setState(this.getState());
   },
   render: function () {
+    var page = 'Whoops! Not Found';
+    // This is just to test out the dynamic routes
+    switch (this.state.currentPageName) {
+      case 'home':
+        page = <Home />;
+        break;
+      case 'about':
+        page = <About />;
+        break;
+    }
     return (
       <div>
-        <h1>Hello World</h1>
-        <p>
-        This is an example of an isomorphic Flux/React application. It employs Yahoo's 
-        <a href="http://fluxible.io">Fluxible</a> architecture.
-        </p>
-        <p>
-        As I'm just starting out, the UI is not built yet. Stay tuned for more as I figure it out.
-        </p>
+        <header>
+          <Nav selected={this.state.currentPageName} links={this.state.pages} />
+        </header>
+        {page}
+        <footer>
+          <p>This is an example page footer</p>
+        </footer>
       </div>
     );
   },

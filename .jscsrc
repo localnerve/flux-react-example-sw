@@ -2,7 +2,8 @@
     "excludeFiles": [
         "./node_modules/**",
         "./dist/**",
-        "./reports/**"
+        "./reports/**",
+        "./pluginRoutr/**"
     ],
     "disallowMixedSpacesAndTabs": true,
     "disallowNewlineBeforeBlockStatements": true,

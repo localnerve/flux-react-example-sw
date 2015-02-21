@@ -9,7 +9,7 @@ var jsonToFluxible = require('../utils/transformers').jsonToFluxible;
 
 function routes(context, payload, done) {
   var transformer = (typeof payload.transform === 'function' ? 
-        payload.transform: jsonToFluxible);
+        payload.transform : jsonToFluxible);
 
   if (payload.routes) {
     var fluxibleRoutes = payload.routes;

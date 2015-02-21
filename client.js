@@ -17,28 +17,22 @@ if (DEBUG) {
 var app = require('./app');
 var dehydratedState = window.App; // sent from the server
 
-debug('rehydrating routes');
-app.updateRoutes(dehydratedState, function(err) {
+
+debug('rehydrating app');
+app.rehydrate(dehydratedState, function (err, context) {
   if (err) {
     throw err;
   }
 
-  debug('rehydrating app');
-  app.rehydrate(dehydratedState, function (err, context) {
-    if (err) {
-      throw err;
-    }
+  window.context = context;
 
-    window.context = context;
-
-    debug('rendering app');
-    React.withContext(context.getComponentContext(), function () {
-      React.render(
-        app.getAppComponent()({
-          analytics: dehydratedState.analytics
-        }),
-        document.getElementById('application')
-      );
-    });
+  debug('rendering app');
+  React.withContext(context.getComponentContext(), function () {
+    React.render(
+      app.getAppComponent()({
+        analytics: dehydratedState.analytics
+      }),
+      document.getElementById('application')
+    );
   });
 });

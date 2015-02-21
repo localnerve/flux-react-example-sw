@@ -8,6 +8,7 @@ var transformers = require('../utils/transformers');
 
 var ApplicationStore = createStore({
   storeName: 'ApplicationStore',
+  routesEvent: 'receivedRoutes',
   handlers: {
     'CHANGE_ROUTE_SUCCESS': 'handleNavigate',
     'UPDATE_PAGE_TITLE': 'updatePageTitle',
@@ -39,6 +40,7 @@ var ApplicationStore = createStore({
   },
   receiveRoutes: function(routes) {
     this.pages = routes;
+    this.emit(ApplicationStore.routesEvent, { routes: routes });
     this.emitChange();
   },
   getPages: function() {

@@ -8,19 +8,25 @@ var debug = require('debug')('Example:App');
 var React = require('react');
 var FluxibleApp = require('fluxible');
 var fetchrPlugin = require('fluxible-plugin-fetchr');
-var routrPlugin = require('fluxible-plugin-routr');
-var extend = require('./utils/fluxible-extension');
+var routrPlugin = require('./pluginRoutr');
+var ApplicationStore = require('./stores/ApplicationStore');
+var tranformers = require('./utils/transformers');
 
 debug('Creating FluxibleApp');
 var app = new FluxibleApp({
   appComponent: React.createFactory(require('./components/Application.jsx'))
 });
-extend(app, routrPlugin);
 
-debug('Adding Fetchr Plugin');
+debug('Adding Plugins');
 app.plug(fetchrPlugin({ xhrPath: '/_api' }));
+app.plug(routrPlugin({
+  dehydrateRoutes: tranformers.fluxibleToJson,
+  rehydrateRoutes: tranformers.jsonToFluxible,
+  storeName: ApplicationStore.storeName,
+  eventName: ApplicationStore.routesEvent
+}));
 
 debug('Registering Stores');
-app.registerStore(require('./stores/ApplicationStore'));
+app.registerStore(ApplicationStore);
 
 module.exports = app;

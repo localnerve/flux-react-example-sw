@@ -23,7 +23,6 @@ var logger = require('morgan');
 var serialize = require('serialize-javascript');
 var navigateAction = require('flux-router-component').navigateAction;
 var routesAction = require('./actions/routes');
-var transformers = require('./utils/transformers');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var csrf = require('csurf');
@@ -53,65 +52,57 @@ app.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
 
 // Every other request gets the app bootstrap
 app.use(function main(req, res, next) {
-  debug('Fetching app routes');
-  fluxibleApp.updateRoutes(undefined, function(err, routes) {
+  debug('Reading the header styles');
+  fs.readFile(settings.dist.css, {
+    encoding: 'utf8'
+  }, function(err, styles) {
     if (err) {
       return next(err);
     }
 
-    debug('Reading the in-page styles');
-    fs.readFile(settings.dist.css, {
-      encoding: 'utf8'
-    }, function(err, styles) {
+    debug('Creating app context');
+    var context = fluxibleApp.createContext({
+      req: req, // The fetchr plugin depends on this
+      xhrContext: {
+        _csrf: req.csrfToken() // Make sure all XHR requests have the CSRF token
+      }      
+    });
+
+    debug('Executing routes action');
+    context.executeAction(routesAction, {
+      resource: 'routes'
+    }, function(err) {
       if (err) {
         return next(err);
       }
 
-      debug('Creating app context');
-      var context = fluxibleApp.createContext({
-        req: req, // The fetchr plugin depends on this
-        xhrContext: {
-          _csrf: req.csrfToken() // Make sure all XHR requests have the CSRF token
-        }
-      });
-
-      debug('Executing routes action');
-      context.executeAction(routesAction, {
-        routes: routes
-      }, function(err) {
+      debug('Executing navigate action');
+      context.executeAction(navigateAction, {
+        url: req.url
+      }, function (err) {
         if (err) {
           return next(err);
         }
 
-        debug('Executing navigate action');
-        context.executeAction(navigateAction, {
-          url: req.url
-        }, function (err) {
-          if (err) {
-            return next(err);
-          }
+        debug('Exposing context state');
+        var state = fluxibleApp.dehydrate(context);
+        state.analytics = config.get('analytics:globalRef');
+        var exposed = 'window.App=' + serialize(state) + ';';
 
-          debug('Exposing context state');
-          var state = fluxibleApp.dehydrate(context);
-          state.routes = transformers.fluxibleToJson(routes);
-          state.analytics = config.get('analytics:globalRef');
-          var exposed = 'window.App=' + serialize(state) + ';';
-
-          debug('Rendering Application component into html');
-          var AppComponent = fluxibleApp.getAppComponent();
-          var doctype = '<!DOCTYPE html>';
-          React.withContext(context.getComponentContext(), function () {
-            var html = React.renderToStaticMarkup(HtmlComponent({
-              mainScript: settings.web.assets.mainScript(),
-              trackingSnippet: config.get('analytics:snippet'),
-              headerStyles: styles,
-              state: exposed,
-              markup: React.renderToString(AppComponent({
-                context: context.getComponentContext()              
-              }))
-            }));
-            res.send(doctype + html);
-          });
+        debug('Rendering Application component into html');
+        var AppComponent = fluxibleApp.getAppComponent();
+        var doctype = '<!DOCTYPE html>';
+        React.withContext(context.getComponentContext(), function () {
+          var html = React.renderToStaticMarkup(HtmlComponent({
+            mainScript: settings.web.assets.mainScript(),
+            trackingSnippet: config.get('analytics:snippet'),
+            headerStyles: styles,
+            state: exposed,
+            markup: React.renderToString(AppComponent({
+              context: context.getComponentContext()              
+            }))
+          }));
+          res.send(doctype + html);
         });
       });
     });

@@ -1,0 +1,45 @@
+{
+  "name": "fluxible-plugin-routr",
+  "version": "0.3.0",
+  "description": "A plugin for Fluxible applications to provide routing methods",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/yahoo/fluxible-plugin-routr.git"
+  },
+  "scripts": {
+    "test": "mocha tests/unit/ --recursive --reporter spec",
+    "cover": "istanbul cover --dir artifacts -- ./node_modules/mocha/bin/_mocha tests/unit/ --recursive --reporter spec",
+    "lint": "jshint"
+  },
+  "dependencies": {
+    "debug": "^2.0.0",
+    "routr": "^0.1.0"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "coveralls": "^2.11.1",
+    "fluxible": "^0.1.0",
+    "grunt": "^0.4.5",
+    "istanbul": "^0.3.2",
+    "jshint": "^2.5.5",
+    "mocha": "^2.0.1",
+    "mockery": "^1.4.0",
+    "precommit-hook": "1.0.x"
+  },
+  "author": "Michael Ridgway <mridgway@yahoo-inc.com>",
+  "contributors": [],
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "https://github.com/yahoo/fluxible-plugin-routr/blob/master/LICENSE.md"
+    }
+  ],
+  "keywords": [
+    "yahoo",
+    "flux",
+    "react",
+    "fluxible",
+    "routr"
+  ]
+}

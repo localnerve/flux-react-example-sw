@@ -147,11 +147,13 @@ module.exports = function (grunt) {
     },
 
     webpack: {
-      dev: {
+      options: {
         custom: {
           assetsJson: '<%= project.src.assetsJson %>',
           CHUNK_REGEX: /^([A-Za-z0-9_\-]+)\..*/
-        },
+        }
+      },
+      dev: {
         resolve: {
           extensions: ['', '.js', '.jsx']
         },
@@ -186,10 +188,6 @@ module.exports = function (grunt) {
         keepalive: true
       },
       prod: {
-        custom: {
-          assetsJson: '<%= project.src.assetsJson %>',
-          CHUNK_REGEX: /^([A-Za-z0-9_\-]+)\..*/
-        },
         resolve: {
           extensions: ['', '.js', '.jsx']
         },

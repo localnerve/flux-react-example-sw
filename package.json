@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An isomorphic flux-react example application",
   "main": "server.js",
   "scripts": {
@@ -79,7 +79,7 @@
     "flux-router-component": "^0.5.6",
     "fluxible": "^0.2.0",
     "fluxible-plugin-fetchr": "^0.2.2",
-    "fluxible-plugin-routr": "^0.3.0",
+    "fluxible-plugin-routr": "git://github.com/localnerve/fluxible-plugin-routr",
     "lodash": "^3.2.0",
     "morgan": "^1.5.1",
     "nconf": "^0.7.1",

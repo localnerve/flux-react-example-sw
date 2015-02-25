@@ -8,7 +8,7 @@ var debug = require('debug')('Example:App');
 var React = require('react');
 var FluxibleApp = require('fluxible');
 var fetchrPlugin = require('fluxible-plugin-fetchr');
-var routrPlugin = require('fluxible-plugin-routr');
+var routrPlugin = require('fluxible-plugin-dynamic-routr');
 var ApplicationStore = require('./stores/ApplicationStore');
 var tranformers = require('./utils/transformers');
 

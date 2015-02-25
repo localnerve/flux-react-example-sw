@@ -79,7 +79,7 @@
     "flux-router-component": "^0.5.6",
     "fluxible": "^0.2.0",
     "fluxible-plugin-fetchr": "^0.2.2",
-    "fluxible-plugin-routr": "git://github.com/localnerve/fluxible-plugin-routr",
+    "fluxible-plugin-dynamic-routr": "^0.1.0",
     "lodash": "^3.2.0",
     "morgan": "^1.5.1",
     "nconf": "^0.7.1",

@@ -7,24 +7,27 @@
 
 require('node-jsx').install({ extension: '.jsx' });
 
-// var expect = require('chai').expect;
-var React = require('react/addons');
+var expect = require('chai').expect;
+
+var testDom = require('../../utils/testdom');
+// This is an isomorphic component, so for testing, prepare to load react with dom here
+testDom();
 
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var MockContext = require('fluxible/utils/MockComponentContext')();
 var fluxibleApp = require('../../../app');
-var testDom = require('../../utils/testdom');
+var React = require('react/addons');
 
 MockContext.Dispatcher.registerStore(ApplicationStore);
 
 describe('application component', function() {
   var AppFactory, appElement, context, testUtils;
-/*  
+
   var homeRoute = {
     params: { key: 'home' },
-    config: { page: 'Home' }
+    config: { page: 'home' }
   };
-*/
+
   before(function() {
     AppFactory = fluxibleApp.getAppComponent();
     testUtils = React.addons.TestUtils;
@@ -34,19 +37,18 @@ describe('application component', function() {
     context = new MockContext();
     appElement = AppFactory({
       context: context
-    });
+    });    
     testDom();
   });
 
-  it('should do render hello world heading');
-/*
-    , function() {   
-    var app = testUtils.renderIntoDocument(appElement);
+  it('should render hello world heading', function() {    
     var appStore = context.getStore(ApplicationStore);
+    var app = testUtils.renderIntoDocument(appElement);
+    
+    // update state
     appStore.handleNavigate(homeRoute);
 
     var component = testUtils.findRenderedDOMComponentWithTag(app, 'h1');
     expect(component.getDOMNode().textContent).to.match(/hello world/i);
   });
-*/
 });

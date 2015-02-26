@@ -13,6 +13,7 @@ var ApplicationStore = require('../../../stores/ApplicationStore');
 var HtmlComponent = require('react')
   .createFactory(require('../../../components/Html.jsx'));
 var MockContext = require('fluxible/utils/MockComponentContext')();
+// HtmlComponent never renders on the client, so DONT make dom until test render
 var testDom = require('../../utils/testdom');
 
 MockContext.Dispatcher.registerStore(ApplicationStore);

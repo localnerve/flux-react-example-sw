@@ -14,8 +14,9 @@ module.exports = function(markup, addGlobals) {
   }
 
   var jsdom = require('jsdom').jsdom;
-  global.document = jsdom(markup || '');
-  global.window = document.parentWindow;
+  global.document = jsdom(markup || '<!doctype html><html><body></body></html>');
+  global.window = document.defaultView;
+  global.navigator = global.window.navigator;
     
   if (addGlobals) {    
     Object.keys(addGlobals).forEach(function(key) {

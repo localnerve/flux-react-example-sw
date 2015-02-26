@@ -41,7 +41,7 @@ describe('application component', function() {
     testDom();
   });
 
-  it('should render hello world heading', function() {    
+  it('should render hello world heading', function() {
     var appStore = context.getStore(ApplicationStore);
     var app = testUtils.renderIntoDocument(appElement);
     
@@ -50,5 +50,16 @@ describe('application component', function() {
 
     var component = testUtils.findRenderedDOMComponentWithTag(app, 'h1');
     expect(component.getDOMNode().textContent).to.match(/hello world/i);
+  });
+
+  it('should render navigation', function() {
+    var appStore = context.getStore(ApplicationStore);
+    var app = testUtils.renderIntoDocument(appElement);
+    
+    // update state
+    appStore.handleNavigate(homeRoute);
+
+    // throws if not exactly 1
+    testUtils.findRenderedDOMComponentWithTag(app, 'ul');
   });
 });

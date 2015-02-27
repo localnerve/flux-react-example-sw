@@ -1,0 +1,32 @@
+language: node_js
+matrix:
+  allow_failures:
+  - node_js: '0.13'
+node_js:
+- iojs
+- '0.13'
+- '0.12'
+- '0.10'
+env:
+  global:
+  - secure: NcG3pl3uhwuhfni18QpywTHZ2pZ1dxTCSpSDNlfkdYAKKjKrocWh5vuf+HmZzT4r0XuHb4cN8/cvXTn5J4+e+NtcEP7QkN1YCbqU0towoU/KvDZEr0cW8nanbQctUEc9Fe1X9WJd/f5k0T2oXxJ5DAqnLmSJH+t8I5qijM1pQ7k=
+  - secure: JmtKHcbatR/ImIJ7Hv+2sJinVFreQLR8Af83fgf9M/N+iBAFrwjhXGAxKAHkdAmn33kOG5W6FMZxrQr74+2gzOv1YxTcCxJq2EumjdjUhv0qQ0NAA1kVeVV4EYlBn8o5OPtY9Z3DyltZDlH62eMu1fsU2C+hDlNcKlHQhtDWIR8=
+addons:
+  sauce_connect: true
+before_install:
+- sudo apt-get update
+- sudo apt-get install rubygems
+- gem install compass
+before_script:
+- npm install -g grunt-cli
+after_success:
+- cat reports/coverage/lcov.info | ./node_modules/.bin/coveralls
+deploy:
+  provider: heroku
+  api_key:
+    secure: LnMaWuov0LkD3H+MCmBSaIg90YBKH0Bs+1EhRzaGcU0setO+MVsfYyBQ/UCRgg9g/BvCYW+nocjajeZ+/04GbOXEitAG7gIWSdPrApf2RJHzOs/xzS2tiVnlcFXbloDIv4ChjZ0KH4254VI3vjmMcXYC3ZswJIE38dkMbVAUCnY=
+  app: flux-react-example
+  on:
+    repo: localnerve/flux-react-example
+after_deploy:
+  - npm run functest

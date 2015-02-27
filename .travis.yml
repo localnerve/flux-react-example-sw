@@ -21,6 +21,8 @@ before_script:
 - npm install -g grunt-cli
 after_success:
 - cat reports/coverage/lcov.info | ./node_modules/.bin/coveralls
+before_deploy:
+  - npm run build
 deploy:
   provider: heroku
   api_key:
@@ -28,5 +30,6 @@ deploy:
   app: flux-react-example
   on:
     repo: localnerve/flux-react-example
+    node: 0.12
 after_deploy:
   - npm run functest

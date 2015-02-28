@@ -45,7 +45,8 @@
     "url": "https://github.com/localnerve/flux-react-example/issues"
   },
   "engines": {
-    "node": "~0.12.0"
+    "node": "~0.12.0",
+    "npm": "~2.5.1"
   },  
   "homepage": "https://github.com/localnerve/flux-react-example",
   "devDependencies": {

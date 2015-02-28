@@ -17,6 +17,7 @@ after_success:
 - cat reports/coverage/lcov.info | ./node_modules/.bin/coveralls
 before_deploy:
   - npm run build
+  - rm -rf node_modules/
 deploy:
   provider: heroku
   api_key:

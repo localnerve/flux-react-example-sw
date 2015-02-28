@@ -1,12 +1,6 @@
 language: node_js
-matrix:
-  allow_failures:
-  - node_js: '0.13'
 node_js:
-- iojs
-- '0.13'
 - '0.12'
-- '0.10'
 env:
   global:
   - secure: NcG3pl3uhwuhfni18QpywTHZ2pZ1dxTCSpSDNlfkdYAKKjKrocWh5vuf+HmZzT4r0XuHb4cN8/cvXTn5J4+e+NtcEP7QkN1YCbqU0towoU/KvDZEr0cW8nanbQctUEc9Fe1X9WJd/f5k0T2oXxJ5DAqnLmSJH+t8I5qijM1pQ7k=
@@ -28,6 +22,7 @@ deploy:
   api_key:
     secure: LnMaWuov0LkD3H+MCmBSaIg90YBKH0Bs+1EhRzaGcU0setO+MVsfYyBQ/UCRgg9g/BvCYW+nocjajeZ+/04GbOXEitAG7gIWSdPrApf2RJHzOs/xzS2tiVnlcFXbloDIv4ChjZ0KH4254VI3vjmMcXYC3ZswJIE38dkMbVAUCnY=
   app: flux-react-example
+  skip_cleanup: true
   on:
     repo: localnerve/flux-react-example
     node: 0.12

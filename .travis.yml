@@ -15,7 +15,7 @@ before_script:
 - npm install -g grunt-cli
 after_success:
 - cat reports/coverage/lcov.info | ./node_modules/.bin/coveralls
-before_deploy:
+before_deploy:  
   - npm run build
   - rm -rf node_modules/
 deploy:
@@ -28,4 +28,5 @@ deploy:
     repo: localnerve/flux-react-example
     node: 0.12
 after_deploy:
-  - npm run functest
+  - npm install -g mocha
+  - npm run functest -- http://flux-react-example.herokuapp.com

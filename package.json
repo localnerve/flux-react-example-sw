@@ -7,7 +7,7 @@
     "build": "grunt build",
     "dev": "grunt dev",
     "devtest": "mocha tests/unit --recursive --reporter spec",
-    "functest": "echo @@@ RAN FUNCTEST @@@",
+    "functest": "node tests/specs/run-parallel '--reporter spec tests/specs/*-specs.js'",
     "lint": "grunt jshint",
     "prod": "grunt prod",
     "start": "node -e 'process.env.NODE_ENV = process.env.NODE_ENV || \"production\"; require(\"./server\");'",
@@ -47,10 +47,12 @@
   "engines": {
     "node": "~0.12.0",
     "npm": "~2.5.1"
-  },  
+  },
   "homepage": "https://github.com/localnerve/flux-react-example",
   "devDependencies": {
     "chai": "^2.0.0",
+    "chai-as-promised": "^4.2.0",
+    "colors": "^1.0.3",
     "coveralls": "^2.11.2",
     "grunt": "^0.4.5",
     "grunt-concurrent": "^1.0.0",
@@ -71,6 +73,8 @@
     "mocha": "^2.1.0",
     "nodemon": "^1.3.2",
     "precommit-hook": "^1.0.7",
+    "q": "^1.2.0",
+    "wd": "^0.3.11",
     "webpack": "^1.5.3",
     "webpack-dev-server": "^1.7.0"
   },

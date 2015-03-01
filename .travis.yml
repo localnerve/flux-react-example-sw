@@ -29,4 +29,5 @@ deploy:
     node: 0.12
 after_deploy:
   - npm install -g mocha
+  - npm install
   - npm run functest -- http://flux-react-example.herokuapp.com

@@ -2,8 +2,7 @@
     "excludeFiles": [
         "./node_modules/**",
         "./dist/**",
-        "./reports/**",
-        "./tests/se-builder"
+        "./reports/**"
     ],
     "disallowMixedSpacesAndTabs": true,
     "disallowNewlineBeforeBlockStatements": true,

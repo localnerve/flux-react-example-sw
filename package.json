@@ -7,7 +7,7 @@
     "build": "grunt build",
     "dev": "grunt dev",
     "devtest": "mocha tests/unit --recursive --reporter spec",
-    "functest": "node tests/specs/run-parallel '--reporter spec tests/specs/*-specs.js'",
+    "functest": "node tests/functional/run-parallel '--reporter spec tests/functional/main.js'",
     "lint": "grunt jshint",
     "prod": "grunt prod",
     "start": "node -e 'process.env.NODE_ENV = process.env.NODE_ENV || \"production\"; require(\"./server\");'",

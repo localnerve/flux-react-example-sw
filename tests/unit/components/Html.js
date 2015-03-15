@@ -49,7 +49,7 @@ describe('html component', function() {
   it('should render a title', function() {
     var html = testUtils.renderIntoDocument(htmlComponent);
     var component = testUtils.findRenderedDOMComponentWithTag(html, 'title');
-    expect(component.getDOMNode.textContent).to.be.empty;
+    expect(component.getDOMNode().textContent).to.be.empty;
   });
 
   it('should render a section', function() {

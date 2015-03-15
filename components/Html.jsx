@@ -7,7 +7,7 @@
 'use strict';
 var React = require('react');
 var ApplicationStore = require('../stores/ApplicationStore');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible').FluxibleMixin;
 
 var Html = React.createClass({
   mixins: [ FluxibleMixin ],

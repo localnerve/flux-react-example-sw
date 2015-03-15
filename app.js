@@ -14,7 +14,7 @@ var tranformers = require('./utils/transformers');
 
 debug('Creating FluxibleApp');
 var app = new FluxibleApp({
-  appComponent: React.createFactory(require('./components/Application.jsx'))
+  component: React.createFactory(require('./components/Application.jsx'))
 });
 
 debug('Adding Plugins');

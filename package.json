@@ -62,6 +62,7 @@
     "grunt-contrib-cssmin": "^0.12.2",
     "grunt-contrib-jshint": "^0.11.0",
     "grunt-nodemon": "^0.4.0",
+    "grunt-perfbudget": "^0.1.6",
     "grunt-webpack": "^1.0.8",
     "istanbul": "^0.3.7",
     "jscs": "^1.11.3",

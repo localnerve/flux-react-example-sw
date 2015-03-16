@@ -146,6 +146,25 @@ module.exports = function (grunt) {
       }
     },
 
+    perfbudget: {
+      options: {
+        url: process.env.DEPLOY_URL,
+        key: process.env.WPT_API_KEY,
+        location: 'Dulles:Chrome',
+        repeatView: false,
+        timeout: 300
+      },
+      mobile: {
+        options: {
+          connectivity: '3G',          
+          runs: 3,
+          budget: {
+            SpeedIndex: 1500
+          }
+        }
+      }
+    },
+
     webpack: {
       options: {
         custom: {

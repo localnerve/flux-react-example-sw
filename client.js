@@ -27,12 +27,11 @@ app.rehydrate(dehydratedState, function (err, context) {
   window.context = context;
 
   debug('rendering app');
-  React.withContext(context.getComponentContext(), function () {
-    React.render(
-      app.getAppComponent()({
-        analytics: dehydratedState.analytics
-      }),
-      document.getElementById('application')
-    );
-  });
+  React.render(
+    app.getAppComponent()({
+      context: context.getComponentContext(),
+      analytics: dehydratedState.analytics
+    }),
+    document.getElementById('application')
+  );
 });

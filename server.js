@@ -91,19 +91,19 @@ app.use(function main(req, res, next) {
 
         debug('Rendering Application component into html');
         var AppComponent = fluxibleApp.getAppComponent();
+        var componentContext = context.getComponentContext();
         var doctype = '<!DOCTYPE html>';
-        React.withContext(context.getComponentContext(), function () {
-          var html = React.renderToStaticMarkup(HtmlComponent({
-            mainScript: settings.web.assets.mainScript(),
-            trackingSnippet: config.get('analytics:snippet'),
-            headerStyles: styles,
-            state: exposed,
-            markup: React.renderToString(AppComponent({
-              context: context.getComponentContext()              
-            }))
-          }));
-          res.send(doctype + html);
-        });
+        var html = React.renderToStaticMarkup(HtmlComponent({
+          context: componentContext,
+          mainScript: settings.web.assets.mainScript(),
+          trackingSnippet: config.get('analytics:snippet'),
+          headerStyles: styles,
+          state: exposed,
+          markup: React.renderToString(AppComponent({
+            context: componentContext
+          }))
+        }));
+        res.send(doctype + html);
       });
     });
   });

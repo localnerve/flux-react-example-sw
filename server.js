@@ -52,34 +52,34 @@ app.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
 
 // Every other request gets the app bootstrap
 app.use(function main(req, res, next) {
-  debug('Reading the header styles');
-  fs.readFile(settings.dist.css, {
-    encoding: 'utf8'
-  }, function(err, styles) {
+  debug('Creating app context');
+  var context = fluxibleApp.createContext({
+    req: req, // The fetchr plugin depends on this
+    xhrContext: {
+      _csrf: req.csrfToken() // Make sure all XHR requests have the CSRF token
+    }
+  });
+
+  debug('Executing routes action');
+  context.executeAction(routesAction, {
+    resource: 'routes'
+  }, function(err) {
     if (err) {
       return next(err);
     }
 
-    debug('Creating app context');
-    var context = fluxibleApp.createContext({
-      req: req, // The fetchr plugin depends on this
-      xhrContext: {
-        _csrf: req.csrfToken() // Make sure all XHR requests have the CSRF token
-      }      
-    });
-
-    debug('Executing routes action');
-    context.executeAction(routesAction, {
-      resource: 'routes'
-    }, function(err) {
+    debug('Executing navigate action');
+    context.executeAction(navigateAction, {
+      url: req.url
+    }, function (err) {
       if (err) {
         return next(err);
       }
 
-      debug('Executing navigate action');
-      context.executeAction(navigateAction, {
-        url: req.url
-      }, function (err) {
+      debug('Reading the header styles');
+      fs.readFile(settings.dist.css, {
+        encoding: 'utf8'
+      }, function(err, styles) {
         if (err) {
           return next(err);
         }

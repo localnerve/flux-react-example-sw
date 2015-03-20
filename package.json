@@ -14,7 +14,7 @@
     "style": "jscs .",
     "test": "istanbul cover --dir ${COVERAGE_DIR:-reports/coverage} -- _mocha tests/unit/* --recursive --reporter spec"
   },
-  "precommit": [
+  "pre-commit": [
     "style",
     "lint",
     "devtest"

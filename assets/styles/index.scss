@@ -13,3 +13,5 @@
 .styles-go-here {
   @extend %just-some-test;
 }
+
+@import "../../components/styles";

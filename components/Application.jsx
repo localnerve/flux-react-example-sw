@@ -10,9 +10,8 @@ var ApplicationStore = require('../stores/ApplicationStore');
 var RouterMixin = require('flux-router-component').RouterMixin;
 var FluxibleMixin = require('fluxible').FluxibleMixin;
 
-var Home = require('./Home.jsx');
-var About = require('./About.jsx');
-var Nav = require('./Nav.jsx');
+var pages = require('./pages');
+var Header = require('./header/Header.jsx');
 
 var Application = React.createClass({
   mixins: [ RouterMixin, FluxibleMixin ],
@@ -36,21 +35,11 @@ var Application = React.createClass({
     this.setState(this.getState());
   },
   render: function () {
-    var page = 'Whoops! Not Found';
-    // This is just to test out the dynamic routes
-    switch (this.state.currentPageName) {
-      case 'home':
-        page = <Home />;
-        break;
-      case 'about':
-        page = <About />;
-        break;
-    }
+    var page = React.createElement(pages(this.state.currentPageName));
+
     return (
       <div>
-        <header>
-          <Nav selected={this.state.currentPageName} links={this.state.pages} />
-        </header>
+        <Header selected={this.state.currentPageName} links={this.state.pages} />
         {page}
         <footer>
           <p>This is an example page footer</p>

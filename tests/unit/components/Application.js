@@ -28,6 +28,10 @@ describe('application component', function() {
     config: { page: 'home' }
   };
 
+  function makeHomePath() {
+    return '/';
+  }
+
   before(function() {
     AppFactory = fluxibleApp.getAppComponent();
     testUtils = React.addons.TestUtils;
@@ -35,6 +39,7 @@ describe('application component', function() {
 
   beforeEach(function() {
     context = new MockContext();
+    context.makePath = makeHomePath;
     appElement = AppFactory({
       context: context
     });    

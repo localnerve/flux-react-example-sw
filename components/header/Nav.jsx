@@ -7,12 +7,18 @@ var React = require('react');
 var NavLink = require('flux-router-component').NavLink;
 
 var Nav = React.createClass({
+  propTypes: {
+    selected: React.PropTypes.string,
+    links: React.PropTypes.object
+  },
+
   getDefaultProps: function () {
     return {
       selected: 'home',
       links: {}
     };
   },
+
   render: function() {
     var selected = this.props.selected,
         links = this.props.links,

@@ -52,7 +52,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= project.src.assets %>',
-          src: ['**', '!**/styles/**'],
+          src: ['**', '!**/styles/**', '!images/*.svg'],
           dest: '<%= project.dist.baseDir %>/'
         }]
       }
@@ -61,7 +61,7 @@ module.exports = function (grunt) {
     compass: {
       options: {
         sassDir: '<%= project.src.styles %>',
-        imagesDir: '<%= project.src.images %>',
+        imagesDir: '<%= project.dist.images %>',
         fontsDir: '<%= project.src.fonts %>',
         cssDir: '<%= project.dist.styles %>',
         httpPath: '/',
@@ -165,6 +165,17 @@ module.exports = function (grunt) {
       }
     },
 
+    svgmin: {
+      options: {
+      },
+      all: {
+        files: [{
+          src: '<%= project.src.images %>/logo.svg',
+          dest: '<%= project.dist.images %>/logo.svg'
+        }]
+      }
+    },
+
     webpack: {
       options: {
         custom: {
@@ -185,9 +196,7 @@ module.exports = function (grunt) {
         },
         module: {
           loaders: [
-            { test: /\.css$/, loader: 'style!css' },
-            { test: /\.jsx$/, loader: 'jsx-loader' },
-            { test: /\.json$/, loader: 'json-loader'}
+            { test: /\.jsx$/, loader: 'jsx-loader' }
           ]
         },
         plugins: [
@@ -219,9 +228,7 @@ module.exports = function (grunt) {
         },
         module: {
           loaders: [
-            { test: /\.css$/, loader: 'style!css' },
-            { test: /\.jsx$/, loader: 'jsx-loader' },
-            { test: /\.json$/, loader: 'json-loader'}
+            { test: /\.jsx$/, loader: 'jsx-loader' }
           ]
         },
         plugins: [
@@ -294,8 +301,8 @@ module.exports = function (grunt) {
   });
 
   // serial tasks for concurrent, external grunt processes
-  grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'compass:dev']);
-  grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'compass:prod', 'cssmin:prod']);
+  grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'svgmin:all', 'compass:dev']);
+  grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'svgmin:all', 'compass:prod', 'cssmin:prod']);
   grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
   grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
   grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:dev']);
@@ -303,7 +310,13 @@ module.exports = function (grunt) {
 
   // script interface
   grunt.registerTask('default', 'dev');
-  grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
-  grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod']);
-  grunt.registerTask('build', ['nconfig:prod', 'clean', 'copy', 'compass:prod', 'cssmin:prod', 'webpack:prod']);
+  grunt.registerTask('dev', [
+    'nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev'
+  ]);
+  grunt.registerTask('prod', [
+    'nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod'
+  ]);
+  grunt.registerTask('build', [
+    'nconfig:prod', 'clean', 'copy', 'svgmin:all', 'compass:prod', 'cssmin:prod', 'webpack:prod'
+  ]);
 };

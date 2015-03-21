@@ -11,7 +11,6 @@ var Logo = require('./Logo.jsx');
 var Nav = require('./Nav.jsx');
 
 var Header = React.createClass({
-
   render: function() {
     return (
       <header>

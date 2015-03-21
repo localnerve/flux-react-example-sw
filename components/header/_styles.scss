@@ -1,19 +1,27 @@
-//
+// -------------------------
 // header styles
-//
+// -------------------------
 
+// logo styles
+// -------------------------
 .logo {
   height: 100px;
   text-align: center;
   padding: 0 0 1em 0;
 }
+.logo a {
+  text-decoration: none;
+}
 .logo .graphics {
   display: inline-block;
   width: 100%;
   height: 100%;
-  background: inline-image("logo.svg", "image/svg+xml") 55% 0 no-repeat;
+  // png fallback
+  background: image-url("logo.png") 55% 0 no-repeat;
+  background: none, inline-image("logo.svg", "image/svg+xml") 55% 0 no-repeat;
 }
 .logo .tagline {
+  display: block;
   color: #1450d2;
   font: 90% Sans sans-serif;
   margin-top: -25px;

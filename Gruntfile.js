@@ -165,13 +165,25 @@ module.exports = function (grunt) {
       }
     },
 
+    svg2png: {
+      all: {
+        files: [{
+          cwd: '<%= project.src.images %>/',
+          src: ['**/*.svg'],
+          dest: '<%= project.dist.images %>/'
+        }]
+      }
+    },
+
     svgmin: {
       options: {
       },
       all: {
         files: [{
-          src: '<%= project.src.images %>/logo.svg',
-          dest: '<%= project.dist.images %>/logo.svg'
+          expand: true,
+          cwd: '<%= project.src.images %>/',
+          src: ['**/*.svg'],
+          dest: '<%= project.dist.images %>/'
         }]
       }
     },
@@ -301,8 +313,8 @@ module.exports = function (grunt) {
   });
 
   // serial tasks for concurrent, external grunt processes
-  grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'svgmin:all', 'compass:dev']);
-  grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'svgmin:all', 'compass:prod', 'cssmin:prod']);
+  grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'svg2png:all', 'svgmin:all', 'compass:dev']);
+  grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'svg2png:all', 'svgmin:all', 'compass:prod', 'cssmin:prod']);
   grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
   grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
   grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:dev']);
@@ -317,6 +329,6 @@ module.exports = function (grunt) {
     'nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod'
   ]);
   grunt.registerTask('build', [
-    'nconfig:prod', 'clean', 'copy', 'svgmin:all', 'compass:prod', 'cssmin:prod', 'webpack:prod'
+    'nconfig:prod', 'clean', 'copy', 'svg2png:all', 'svgmin:all', 'compass:prod', 'cssmin:prod', 'webpack:prod'
   ]);
 };

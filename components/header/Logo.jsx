@@ -12,11 +12,12 @@ var Logo = React.createClass({
     return (
       <section className="logo">
         <NavLink routeName="home">
-          <span className="graphics"></span>
+          <span className="graphics">
+          </span>
+          <span className="tagline">
+            A React demo with a good prognosis
+          </span>
         </NavLink>
-        <div className="tagline">
-          A React demo with a good prognosis
-        </div>
       </section>
     );
   }

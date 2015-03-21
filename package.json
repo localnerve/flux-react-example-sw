@@ -63,6 +63,7 @@
     "grunt-contrib-jshint": "^0.11.0",
     "grunt-nodemon": "^0.4.0",
     "grunt-perfbudget": "^0.1.6",
+    "grunt-svg2png": "^0.2.7",
     "grunt-svgmin": "^2.0.1",
     "grunt-webpack": "^1.0.8",
     "istanbul": "^0.3.7",

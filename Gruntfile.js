@@ -5,6 +5,7 @@
 'use strict';
 
 var webpack = require('webpack');
+var _nconfig;
 
 /**
  * Generate the webpack assets config
@@ -45,6 +46,12 @@ module.exports = function (grunt) {
     
     pkg: grunt.file.readJSON('package.json'),
 
+    autoprefixer: {
+      all: {
+        src: '<%= project.dist.css %>'
+      }
+    },
+
     clean: ['<%= project.dist.baseDir %>'],
     
     copy: {
@@ -66,7 +73,7 @@ module.exports = function (grunt) {
         cssDir: '<%= project.dist.styles %>',
         httpPath: '/',
         importPath: [
-          // '<%= project.vendor %>/foundation/scss',
+          '<%= project.vendor.css %>',
           '<%= project.src.components %>'
         ],
         environment: 'development',                
@@ -282,11 +289,12 @@ module.exports = function (grunt) {
   //             example: settings:dist:images
   //  env: Set environment variables for this process.
   //
-  grunt.registerMultiTask('nconfig', 'Assign config settings to grunt project', function() {    
+  grunt.registerMultiTask('nconfig', 'Assign config settings to grunt project', function() {
+    _nconfig = true;
     var configLib = require('./configs');
     var options = this.options();
 
-    if (options.env) {      
+    if (options.env) {
       Object.keys(options.env).forEach(function(key) {        
         process.env[key] = options.env[key];
       });
@@ -295,7 +303,7 @@ module.exports = function (grunt) {
     grunt.config('project', configLib.create(options.overrides).get('settings'));
   });  
 
-  // debug nconfig
+  // debug nconfig, dump the config to the console
   grunt.registerTask('_dumpconfigTask', function() {
     var util = require('util');
     var config = require('./configs').create();
@@ -305,16 +313,28 @@ module.exports = function (grunt) {
     };
     console.log(util.inspect(dump));
   });
+  // syntax: dumpconfig:prod | dumpconfig:dev
   grunt.registerTask('dumpconfig', 'Debug nconfig', function() {
-    var tasks = [
-      this.args.shift() === 'prod' ? 'nconfig:prod' : 'nconfig:dev'
-    ];
+    var isProd = this.args.shift() === 'prod';
+    var tasks = ['nconfig:'+(isProd ? 'prod' : 'dev')];
+    
     grunt.task.run(tasks.concat('_dumpconfigTask'));
   });
 
+  // scss compile task
+  // syntax: ccss:prod | ccss:dev
+  grunt.registerTask('ccss', 'Compile scss', function() {
+    var isProd = this.args.shift() === 'prod';
+    var tasks = _nconfig ? [] : ['nconfig:'+(isProd ? 'prod' : 'dev')];
+
+    tasks = tasks.concat(['svg2png', 'svgmin', 'compass:'+(isProd ? 'prod' : 'dev'), 'autoprefixer']);
+    
+    grunt.task.run(isProd ? tasks.concat('cssmin:prod') : tasks);
+  });
+
   // serial tasks for concurrent, external grunt processes
-  grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'svg2png:all', 'svgmin:all', 'compass:dev']);
-  grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'svg2png:all', 'svgmin:all', 'compass:prod', 'cssmin:prod']);
+  grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'ccss:dev']);
+  grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'ccss:prod']);
   grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
   grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
   grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:dev']);
@@ -322,13 +342,7 @@ module.exports = function (grunt) {
 
   // script interface
   grunt.registerTask('default', 'dev');
-  grunt.registerTask('dev', [
-    'nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev'
-  ]);
-  grunt.registerTask('prod', [
-    'nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod'
-  ]);
-  grunt.registerTask('build', [
-    'nconfig:prod', 'clean', 'copy', 'svg2png:all', 'svgmin:all', 'compass:prod', 'cssmin:prod', 'webpack:prod'
-  ]);
+  grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
+  grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod']);
+  grunt.registerTask('build', ['nconfig:prod', 'clean', 'copy', 'ccss:prod', 'webpack:prod']);
 };

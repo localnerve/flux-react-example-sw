@@ -124,8 +124,9 @@ function makeConfig(env) {
 
     // unmovable project directories
     distbase: distbase,
-    reports: 'reports',
-    vendor: 'vendor',
+    vendor: {
+      css: 'node_modules/foundation-apps/scss'
+    },
 
     loggerFormat: 'dev'
   };

@@ -10,15 +10,17 @@ var NavLink = require('flux-router-component').NavLink;
 var Logo = React.createClass({
   render: function() {
     return (
-      <section className="logo">
-        <NavLink routeName="home">
-          <span className="graphics">
-          </span>
-          <span className="tagline">
-            A React demo with a good prognosis
-          </span>
-        </NavLink>
-      </section>
+      <div className="logo">
+        <div className="grid-container-center">
+          <NavLink routeName="home" title="flux-react-example">
+            <span className="graphics">
+            </span>
+            <span className="tagline">
+              A LocalNerve responsive, reactive demo with a good prognosis.
+            </span>
+          </NavLink>
+        </div>
+      </div>
     );
   }
 });

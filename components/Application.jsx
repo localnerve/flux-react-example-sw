@@ -38,7 +38,7 @@ var Application = React.createClass({
     var page = React.createElement(pages(this.state.currentPageName));
 
     return (
-      <div>
+      <div className="app-block">
         <Header selected={this.state.currentPageName} links={this.state.pages} />
         {page}
         <footer>

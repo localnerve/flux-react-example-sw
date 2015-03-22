@@ -9,14 +9,14 @@ var React = require('react');
 var Ribbon = React.createClass({
   render: function() {
     return (
-      <section className="ribbon">
+      <div className="ribbon">
         <div className="contact">
           Contact stuff
         </div>
         <div className="social">
           Social stuff
         </div>
-      </section>
+      </div>
     );
   }
 });

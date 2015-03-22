@@ -1,19 +1,22 @@
-// main styles
+// Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+// Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+//
+// style main
 
 @charset "UTF-8";
 
 @import "vendor";
+@import "fonts";
 
-%just-some-test {
-  width: 100%;
+.app-frame {
+  @include grid-frame($orientation: vertical);
+}
+.app-block {
+  @include grid-block(expand, vertical, false, left, 0);
 }
 
-.just-getting-started {
-  @extend %just-some-test;
-}
-
-.styles-go-here {
-  @extend %just-some-test;
+.grid-container-center {
+  @include grid-container;
 }
 
 @import "../../components/styles";

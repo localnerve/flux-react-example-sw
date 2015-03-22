@@ -1,28 +1,50 @@
-// -------------------------
+// Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+// Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+//
 // header styles
 // -------------------------
 
 // logo styles
 // -------------------------
+$logo-color: #1450d2;
+$logo-width: 512px;
+$logo-height: 140px;
+$logo-scale-factor: 0.58;
+
 .logo {
-  height: 100px;
-  text-align: center;
-  padding: 0 0 1em 0;
+  @include grid-block(expand, vertical, false, center);
 }
 .logo a {
   text-decoration: none;
 }
+
 .logo .graphics {
-  display: inline-block;
-  width: 100%;
-  height: 100%;
+  @include grid-content;
+
+  width: $logo-width * $logo-scale-factor;
+  height: $logo-height * $logo-scale-factor; 
+  @include breakpoint(medium) {
+    width: $logo-width;
+    height: $logo-height;
+  }
+
   // png fallback
-  background: image-url("logo.png") 55% 0 no-repeat;
-  background: none, inline-image("logo.svg", "image/svg+xml") 55% 0 no-repeat;
+  background: image-url("logo.png") no-repeat;
+  background: none, inline-image("logo.svg", "image/svg+xml") no-repeat;
 }
+
 .logo .tagline {
-  display: block;
+  @include grid-content;  
+  padding-left: 0;
+  position: relative;
+  margin-top: $rem-base * $base-line-height * -1;
+
   color: #1450d2;
-  font: 90% Sans sans-serif;
-  margin-top: -25px;
+
+  max-width: $logo-width * $logo-scale-factor * .80;
+  font-size: 85%;
+  @include breakpoint(medium) {  
+    max-width: $logo-width * .80;
+    font-size: 100%;
+  }
 }

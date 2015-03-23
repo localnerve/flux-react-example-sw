@@ -47,7 +47,10 @@ module.exports = function (grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     autoprefixer: {
-      all: {
+      options: {
+        browsers: ['last 2 versions', '> 2% in US']
+      },
+      all: {        
         src: '<%= project.dist.css %>'
       }
     },

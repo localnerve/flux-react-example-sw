@@ -36,7 +36,21 @@ var _routes = {
         pageTitle: 'Flux React Example | About'
       }
     }
-  }
+  },
+  contact: {
+    path: '/contact',
+    method: 'get',
+    page: 'contact',
+    label: 'Contact',
+    action: {
+      name: 'example',
+      params: {
+        resource: 'cms',
+        key: 'path/to/contact',
+        pageTitle: 'Flux React Example | Contact'
+      }
+    }
+  }  
 };
 
 module.exports = {

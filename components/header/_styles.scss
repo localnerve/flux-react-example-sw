@@ -2,20 +2,33 @@
 // Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
 //
 // header styles
+// =========================
+.app-header a {
+  text-decoration: none;
+}
+
+// ribbon styles
 // -------------------------
+.ribbon {
+  margin: 0.4rem auto 0.4rem auto;
+  @include breakpoint(medium) {
+    margin: 1rem auto 0.2rem auto;
+  }
+}
+.ribbon span {
+  font-size: 2rem;
+}
 
 // logo styles
 // -------------------------
 $logo-color: #1450d2;
 $logo-width: 512px;
 $logo-height: 140px;
-$logo-scale-factor: 0.58;
+$logo-scale-factor: 0.54;
+$logo-tagline-factor: 0.82;
 
 .logo {
   @include grid-block(expand, vertical, false, center);
-}
-.logo a {
-  text-decoration: none;
 }
 
 .logo .graphics {
@@ -41,10 +54,22 @@ $logo-scale-factor: 0.58;
 
   color: #1450d2;
 
-  max-width: $logo-width * $logo-scale-factor * .80;
+  max-width: $logo-width * $logo-scale-factor * $logo-tagline-factor;
   font-size: 85%;
   @include breakpoint(medium) {  
-    max-width: $logo-width * .80;
+    max-width: $logo-width * $logo-tagline-factor;
     font-size: 100%;
   }
+}
+
+// nav styles
+// -----------------------------
+.navigation {
+  list-style: none;
+  padding: 0;
+}
+.navigation-link {
+  line-height: 1.4;
+  font-size: 1.4rem;
+  font-weight: bold;
 }

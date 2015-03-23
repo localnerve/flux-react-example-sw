@@ -12,6 +12,7 @@ var FluxibleMixin = require('fluxible').FluxibleMixin;
 
 var pages = require('./pages');
 var Header = require('./header/Header.jsx');
+var Footer = require('./footer/Footer.jsx');
 
 var Application = React.createClass({
   mixins: [ RouterMixin, FluxibleMixin ],
@@ -41,9 +42,7 @@ var Application = React.createClass({
       <div className="app-block">
         <Header selected={this.state.currentPageName} links={this.state.pages} />
         {page}
-        <footer>
-          <p>This is an example page footer</p>
-        </footer>
+        <Footer />
       </div>
     );
   },

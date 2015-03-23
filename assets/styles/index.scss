@@ -9,14 +9,18 @@
 @import "fonts";
 
 .app-frame {
-  @include grid-frame($orientation: vertical);
+  @include grid-frame(vertical);
 }
 .app-block {
-  @include grid-block(expand, vertical, false, left, 0);
+  @include grid-block(expand, vertical, false, left);
 }
 
 .grid-container-center {
   @include grid-container;
+}
+
+.grid-row-spaced {
+  @include grid-block(expand, horizontal, false, spaced);
 }
 
 @import "../../components/styles";

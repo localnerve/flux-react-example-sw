@@ -24,16 +24,6 @@ var Html = React.createClass({
         <body>
           <section id="application" className="app-frame" dangerouslySetInnerHTML={{__html: this.props.markup}}></section>
           <script dangerouslySetInnerHTML={{__html: this.props.state}}></script>
-          <div className="footer">
-            <div className="container">
-              All code on this site is licensed
-              under the <a href="https://github.com/localnerve/flux-react-example/blob/master/LICENSE.md">BSD License</a>,
-              unless otherwise stated.
-            </div>
-            <div className="copyright">
-              &copy; {(new Date()).getFullYear()}
-            </div>
-          </div>
           <script src={this.props.mainScript}></script>
         </body>
       </html>

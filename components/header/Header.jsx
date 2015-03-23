@@ -13,7 +13,7 @@ var Nav = require('./Nav.jsx');
 var Header = React.createClass({
   render: function() {
     return (
-      <header>
+      <header className="app-header">
         <Ribbon />
         <Logo />
         <Nav selected={this.props.selected} links={this.props.links} />

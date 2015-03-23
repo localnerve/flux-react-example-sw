@@ -13,16 +13,18 @@ var Home = React.createClass({
   render: function() {
     return (
       <div className="page">
-        <h1>Hello World</h1>
-        <p>
-          This is an example isomorphic Flux/React application. 
-        </p>
-        <p>
-          It uses Yahoo's&nbsp;<a href="http://fluxible.io" _target="blank">Fluxible</a>&nbsp;architecture.
-        </p>
-        <p>
-          This is a test of fluxible with bootstrapped dynamic routes.
-        </p>
+        <div className="grid-container-center page-content">
+          <h1>Hello World</h1>
+          <p>
+            This is an example isomorphic Flux/React application. 
+          </p>
+          <p>
+            It uses Yahoo's&nbsp;<a href="http://fluxible.io" _target="blank">Fluxible</a>&nbsp;architecture.
+          </p>
+          <p>
+            This is a test of fluxible with bootstrapped dynamic routes.
+          </p>
+        </div>
       </div>
     );
   }

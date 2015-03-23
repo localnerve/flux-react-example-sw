@@ -13,14 +13,16 @@ var About = React.createClass({
   render: function() {
     return (
       <div className="page">
-        <h1>Example About Page</h1>
-        <p>
-          This is an example about page.
-        </p>
-        <p>
-          This site is an example of techniques using isomorphic Flux and React via&nbsp;
-          <a href="http://fluxible.io" _target="blank">Fluxible</a>.
-        </p>
+        <div className="grid-container-center page-content">
+          <h1>Example About Page</h1>
+          <p>
+            This is an example about page.
+          </p>
+          <p>
+            This site is an example of techniques using isomorphic Flux and React via&nbsp;
+            <a href="http://fluxible.io" _target="blank">Fluxible</a>.
+          </p>
+        </div>
       </div>
     );
   }

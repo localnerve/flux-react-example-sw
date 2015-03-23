@@ -23,9 +23,9 @@ var Nav = React.createClass({
     var selected = this.props.selected,
         links = this.props.links,
         linkHTML = Object.keys(links).map(function (name) {
-          var className = '', link = links[name];
+          var className = 'navigation-link', link = links[name];
             if (selected === name) {
-              className = 'selected';
+              className += ' selected';
             }
             return (
               <li className={className} key={link.path}>
@@ -34,7 +34,7 @@ var Nav = React.createClass({
             );
         });
     return (
-      <ul className="navigation">
+      <ul className="grid-row-spaced navigation">
         {linkHTML}
       </ul>
     );

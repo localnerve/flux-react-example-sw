@@ -16,7 +16,7 @@ var Logo = React.createClass({
             <span className="graphics">
             </span>
             <span className="tagline">
-              A LocalNerve responsive, reactive demo with a good prognosis.
+              A responsive, reactive demo web app with a good prognosis.
             </span>
           </NavLink>
         </div>

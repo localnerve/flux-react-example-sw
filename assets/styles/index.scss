@@ -8,8 +8,16 @@
 @import "vendor";
 @import "fonts";
 
+// add custom breakpoints
+// -----------------------
+// $breakpoints: $breakpoints !global;
+// map-merge($breakpoints, (small-landscape: landscape))
+
 .app-frame {
   @include grid-frame(vertical);
+  @include breakpoint(landscape) {
+    height: auto;
+  }
 }
 .app-block {
   @include grid-block(expand, vertical, false, left);

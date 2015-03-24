@@ -8,14 +8,10 @@
 @import "vendor";
 @import "fonts";
 
-// add custom breakpoints
-// -----------------------
-// $breakpoints: $breakpoints !global;
-// map-merge($breakpoints, (small-landscape: landscape))
-
 .app-frame {
   @include grid-frame(vertical);
-  @include breakpoint(landscape) {
+  // @include breakpoint(landscape) { }
+  @media only screen and (orientation: landscape) and (max-height: 767px) {
     height: auto;
   }
 }

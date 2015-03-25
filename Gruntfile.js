@@ -85,6 +85,11 @@ module.exports = function (grunt) {
       },
       dev: {
         options: {
+          watch: false
+        }
+      },
+      watch: {
+        options: {
           watch: true
         }
       },
@@ -331,6 +336,9 @@ module.exports = function (grunt) {
     var tasks = _nconfig ? [] : ['nconfig:'+(isProd ? 'prod' : 'dev')];
 
     tasks = tasks.concat(['svg2png', 'svgmin', 'compass:'+(isProd ? 'prod' : 'dev'), 'autoprefixer']);
+    if (!isProd) {
+      tasks = tasks.concat(['compass:watch']);
+    }
     
     grunt.task.run(isProd ? tasks.concat('cssmin:prod') : tasks);
   });

@@ -11,15 +11,13 @@ var Logo = React.createClass({
   render: function() {
     return (
       <div className="logo">
-        <div className="grid-container-center">
-          <NavLink routeName="home" title="flux-react-example">
-            <span className="graphics">
-            </span>
-            <span className="tagline">
-              A responsive, reactive demo web app with a good prognosis.
-            </span>
-          </NavLink>
-        </div>
+        <NavLink routeName="home" title="flux-react-example">
+          <span className="graphics">
+          </span>
+          <span className="tagline">
+            A responsive, reactive demo web app with a good prognosis.
+          </span>
+        </NavLink>
       </div>
     );
   }

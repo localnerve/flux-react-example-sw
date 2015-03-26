@@ -15,6 +15,9 @@
     margin: 1rem auto 0.2rem auto;
   }
 }
+.ribbon .contact, .ribbon .social {
+  overflow-y: hidden;
+}
 .ribbon span {
   font-size: 2rem;
 }
@@ -28,11 +31,15 @@ $logo-scale-factor: 0.54;
 $logo-tagline-factor: 0.82;
 
 .logo {
-  @include grid-block(expand, vertical, false, center);
+  @include grid-block(shrink, vertical, false, center);
+  overflow-y: visible;
+  overflow-x: visible;
+  align-items: center;
 }
 
 .logo .graphics {
   @include grid-content;
+  overflow-y: visible;  
 
   width: $logo-width * $logo-scale-factor;
   height: $logo-height * $logo-scale-factor; 
@@ -47,7 +54,9 @@ $logo-tagline-factor: 0.82;
 }
 
 .logo .tagline {
-  @include grid-content;  
+  @include grid-content;
+  overflow-y: visible;
+
   padding-left: 0;
   position: relative;
   margin-top: $rem-base * $base-line-height * -1;

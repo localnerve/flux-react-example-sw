@@ -72,7 +72,8 @@ module.exports = function (grunt) {
       options: {
         sassDir: '<%= project.src.styles %>',
         imagesDir: '<%= project.dist.images %>',
-        fontsDir: '<%= project.src.fonts %>',
+        httpImagesPath: '<%= project.web.images %>',
+        fontsDir: '<%= project.dist.fonts %>',
         cssDir: '<%= project.dist.styles %>',
         httpPath: '/',
         importPath: [
@@ -105,7 +106,8 @@ module.exports = function (grunt) {
     concurrent: {
       options: {
         logConcurrentOutput: true
-      },      
+      },
+      css: ['_cc-watch-ap', '_cc-watch-compass'],
       dev: ['_cc-compass-dev', '_cc-nodemon-dev', '_cc-webpack-dev'],
       prod: ['_cc-compass-prod', '_cc-nodemon-prod', '_cc-webpack-prod']
     },
@@ -200,6 +202,16 @@ module.exports = function (grunt) {
           src: ['**/*.svg'],
           dest: '<%= project.dist.images %>/'
         }]
+      }
+    },
+
+    watch: {
+      ap: {
+        options: {
+          spawn: false
+        },
+        files: '<%= project.dist.css %>',
+        tasks: ['autoprefixer']
       }
     },
 
@@ -335,15 +347,17 @@ module.exports = function (grunt) {
     var isProd = this.args.shift() === 'prod';
     var tasks = _nconfig ? [] : ['nconfig:'+(isProd ? 'prod' : 'dev')];
 
-    tasks = tasks.concat(['svg2png', 'svgmin', 'compass:'+(isProd ? 'prod' : 'dev'), 'autoprefixer']);
+    tasks = tasks.concat(['svg2png', 'svgmin', 'compass:'+(isProd ? 'prod' : 'dev')]);
     if (!isProd) {
-      tasks = tasks.concat(['compass:watch']);
+      tasks = tasks.concat(['concurrent:css']);
     }
     
-    grunt.task.run(isProd ? tasks.concat('cssmin:prod') : tasks);
+    grunt.task.run(isProd ? tasks.concat(['autoprefixer', 'cssmin:prod']) : tasks);
   });
 
   // serial tasks for concurrent, external grunt processes
+  grunt.registerTask('_cc-watch-compass', ['nconfig:dev', 'compass:watch']);
+  grunt.registerTask('_cc-watch-ap', ['nconfig:dev', 'watch:ap']);
   grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'ccss:dev']);
   grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'ccss:prod']);
   grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);

@@ -63,6 +63,7 @@
     "grunt-contrib-copy": "^0.8.0",
     "grunt-contrib-cssmin": "^0.12.2",
     "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-watch": "^0.6.1",
     "grunt-nodemon": "^0.4.0",
     "grunt-perfbudget": "^0.1.6",
     "grunt-svg2png": "^0.2.7",

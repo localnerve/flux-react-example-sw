@@ -8,15 +8,9 @@
 @import "vendor";
 @import "fonts";
 
-.app-frame {
-  @include grid-frame(vertical);
-  // @include breakpoint(landscape) { }
-  @media only screen and (orientation: landscape) and (max-height: 767px) {
-    height: auto;
-  }
-}
-.app-block {
-  @include grid-block(expand, vertical, false, left);
+@mixin vertical-block($align: center, $size: expand) {
+  @include grid-block($size, vertical, false, $align);
+  @content;
 }
 
 .grid-container-center {

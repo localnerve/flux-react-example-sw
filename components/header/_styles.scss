@@ -28,19 +28,21 @@ $logo-color: #1450d2;
 $logo-width: 512px;
 $logo-height: 140px;
 $logo-scale-factor: 0.54;
-$logo-tagline-factor: 0.82;
+$logo-tagline-factor: 0.78;
 
 .logo {
-  @include grid-block(shrink, vertical, false, center);
-  overflow-y: visible;
-  overflow-x: visible;
-  align-items: center;
+  @include vertical-block(center, shrink) {
+    overflow-y: visible;
+    overflow-x: visible;
+    align-items: center;
+  }
 }
 
 .logo .graphics {
   @include grid-content;
   overflow-y: visible;  
 
+  padding: 0;
   width: $logo-width * $logo-scale-factor;
   height: $logo-height * $logo-scale-factor; 
   @include breakpoint(medium) {

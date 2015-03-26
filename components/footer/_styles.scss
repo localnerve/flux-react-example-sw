@@ -2,9 +2,10 @@
 // Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
 //
 .app-footer {
-  @include grid-block(expand, vertical, false, left);
-  max-height: 8rem;
-  min-height: 8rem;
+  @include vertical-block(left) {
+    max-height: 8rem;
+    min-height: 8rem;
+  }
 }
 .footer-line {
   @include grid-content;

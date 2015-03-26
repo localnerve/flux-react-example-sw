@@ -1,6 +1,17 @@
 //
 // Components styles
 //
+.app-frame {
+  @include grid-frame(vertical);
+  // @include breakpoint(landscape) { }
+  @media only screen and (orientation: landscape) and (max-height: 767px) {
+    height: auto;
+  }
+}
+.app-block {
+  @include vertical-block(left);
+}
+
 @import "header/styles";
 @import "pages/styles";
 @import "footer/styles";

@@ -9,7 +9,7 @@
 
 require('fontfaceobserver/fontfaceobserver');
 
-new window.FontFaceObserver("Source Sans Pro", {})
+new window.FontFaceObserver('Source Sans Pro', {})
 .check()
 .then(function() {
   window.document.documentElement.className += 'fonts-loaded';

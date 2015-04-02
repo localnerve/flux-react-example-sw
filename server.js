@@ -88,6 +88,9 @@ app.use(function main(req, res, next) {
         fs.readFile(settings.dist.headerScript, {
           encoding: 'utf8'
         }, function(err, headerScript) {
+          if (err) {
+            return next(err);
+          }
 
           debug('Exposing context state');
           var state = fluxibleApp.dehydrate(context);

@@ -53,7 +53,7 @@ describe('application component', function() {
     // update state
     appStore.handleNavigate(homeRoute);
 
-    var component = testUtils.findRenderedDOMComponentWithTag(app, 'h1');
+    var component = testUtils.findRenderedDOMComponentWithTag(app, 'h2');
     expect(component.getDOMNode().textContent).to.match(/hello world/i);
   });
 

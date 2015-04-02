@@ -18,10 +18,13 @@ var Html = React.createClass({
           <meta charSet="utf-8" />
           <title>{this.getStore(ApplicationStore).getPageTitle()}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>
-          <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>
+          <meta http-equiv="x-dns-prefetch-control" content="on" />
+          <link rel="dns-prefetch" href="http://fonts.gstatic.com" />
+          <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>          
+          <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>          
         </head>
         <body>
+          <script dangerouslySetInnerHTML={{__html: this.props.headerScript}}></script>
           <section id="application" className="app-frame" dangerouslySetInnerHTML={{__html: this.props.markup}}></section>
           <script dangerouslySetInnerHTML={{__html: this.props.state}}></script>
           <script src={this.props.mainScript}></script>

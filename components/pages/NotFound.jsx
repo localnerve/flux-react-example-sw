@@ -11,7 +11,7 @@ var NotFound = React.createClass({
     return (
       <div className="page">
         <div className="grid-container-center page-content">
-          <h1>Page Not Found</h1>
+          <h2>Page Not Found</h2>
           <p>
             Sorry, but the page you are trying to view does not exist.
           </p>

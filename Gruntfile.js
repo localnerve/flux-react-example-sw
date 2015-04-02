@@ -62,7 +62,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= project.src.assets %>',
-          src: ['**', '!**/styles/**', '!images/*.svg'],
+          src: ['**', '!**/styles/**', '!images/*.svg', '!scripts/**'],
           dest: '<%= project.dist.baseDir %>/'
         }]
       }
@@ -74,6 +74,7 @@ module.exports = function (grunt) {
         imagesDir: '<%= project.dist.images %>',
         httpImagesPath: '<%= project.web.images %>',
         fontsDir: '<%= project.dist.fonts %>',
+        httpFontsPath: '<%= project.web.fonts %>',
         cssDir: '<%= project.dist.styles %>',
         httpPath: '/',
         importPath: [
@@ -222,6 +223,37 @@ module.exports = function (grunt) {
           CHUNK_REGEX: /^([A-Za-z0-9_\-]+)\..*/
         }
       },
+      headerDev: {
+        entry: './<%= project.src.headerScript %>',
+        output: {
+          path: '<%= project.dist.scripts %>',
+          filename: 'header.js'
+        },
+        stats: {
+          colors: true
+        }
+      },
+      headerProd: {
+        entry: './<%= project.src.headerScript %>',
+        output: {
+          path: '<%= project.dist.scripts %>',
+          filename: 'header.js'
+        },
+        plugins: [
+          new webpack.DefinePlugin({
+            'process.env': {
+              NODE_ENV: JSON.stringify('production')
+            }
+          }),
+          new webpack.optimize.DedupePlugin(),
+          new webpack.optimize.OccurenceOrderPlugin(),
+          new webpack.optimize.UglifyJsPlugin({
+            compress: {
+              warnings: false
+            }
+          })
+        ]
+      },
       dev: {
         resolve: {
           extensions: ['', '.js', '.jsx']
@@ -355,6 +387,19 @@ module.exports = function (grunt) {
     grunt.task.run(isProd ? tasks.concat(['autoprefixer', 'cssmin:prod']) : tasks);
   });
 
+  // build the header script
+  grunt.registerTask('header', 'Build the header script', function() {
+    var isProd = this.args.shift() === 'prod';
+    var tasks;
+    if (isProd) {
+      tasks = ['nconfig:prod', 'webpack:headerProd'];
+    }
+    else {
+      tasks = ['nconfig:dev', 'webpack:headerDev'];
+    }
+    grunt.task.run(tasks);
+  });
+
   // serial tasks for concurrent, external grunt processes
   grunt.registerTask('_cc-watch-compass', ['nconfig:dev', 'compass:watch']);
   grunt.registerTask('_cc-watch-ap', ['nconfig:dev', 'watch:ap']);
@@ -362,12 +407,12 @@ module.exports = function (grunt) {
   grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'ccss:prod']);
   grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
   grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
-  grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:dev']);
-  grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:prod']);
+  grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:headerDev', 'webpack:dev']);
+  grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:headerProd', 'webpack:prod']);
 
   // script interface
   grunt.registerTask('default', 'dev');
   grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
   grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod']);
-  grunt.registerTask('build', ['nconfig:prod', 'clean', 'copy', 'ccss:prod', 'webpack:prod']);
+  grunt.registerTask('build', ['nconfig:prod', 'clean', 'copy', 'ccss:prod', 'webpack:headerProd', 'webpack:prod']);
 };

@@ -84,26 +84,33 @@ app.use(function main(req, res, next) {
           return next(err);
         }
 
-        debug('Exposing context state');
-        var state = fluxibleApp.dehydrate(context);
-        state.analytics = config.get('analytics:globalRef');
-        var exposed = 'window.App=' + serialize(state) + ';';
+        debug('Reading the header script');
+        fs.readFile(settings.dist.headerScript, {
+          encoding: 'utf8'
+        }, function(err, headerScript) {
 
-        debug('Rendering Application component into html');
-        var AppComponent = fluxibleApp.getAppComponent();
-        var componentContext = context.getComponentContext();
-        var doctype = '<!DOCTYPE html>';
-        var html = React.renderToStaticMarkup(HtmlComponent({
-          context: componentContext,
-          mainScript: settings.web.assets.mainScript(),
-          trackingSnippet: config.get('analytics:snippet'),
-          headerStyles: styles,
-          state: exposed,
-          markup: React.renderToString(AppComponent({
-            context: componentContext
-          }))
-        }));
-        res.send(doctype + html);
+          debug('Exposing context state');
+          var state = fluxibleApp.dehydrate(context);
+          state.analytics = config.get('analytics:globalRef');
+          var exposed = 'window.App=' + serialize(state) + ';';
+
+          debug('Rendering Application component into html');
+          var AppComponent = fluxibleApp.getAppComponent();
+          var componentContext = context.getComponentContext();
+          var doctype = '<!DOCTYPE html>';
+          var html = React.renderToStaticMarkup(HtmlComponent({
+            context: componentContext,
+            mainScript: settings.web.assets.mainScript(),
+            trackingSnippet: config.get('analytics:snippet'),
+            headerStyles: styles,
+            headerScript: headerScript,
+            state: exposed,
+            markup: React.renderToString(AppComponent({
+              context: componentContext
+            }))
+          }));
+          res.send(doctype + html);
+        });
       });
     });
   });

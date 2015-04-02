@@ -24,11 +24,8 @@
 
 // logo styles
 // -------------------------
+$height-constrained-phone: "only screen and (orientation: portrait) and (max-height: 480px)";
 $logo-color: #1450d2;
-$logo-width: 512px;
-$logo-height: 140px;
-$logo-scale-factor: 0.54;
-$logo-tagline-factor: 0.78;
 
 .logo {
   @include vertical-block(center, shrink) {
@@ -36,23 +33,36 @@ $logo-tagline-factor: 0.78;
     overflow-x: visible;
     align-items: center;
   }
+  margin: 0 2rem;
+
+  @include breakpoint(medium) {
+    margin-top: 0.67rem;
+  }
+  @media #{$height-constrained-phone} {
+    margin: 0 1.2rem;
+  }
 }
 
-.logo .graphics {
-  @include grid-content;
-  overflow-y: visible;  
+.logo a {
+  color: $logo-color;  
+}
 
-  padding: 0;
-  width: $logo-width * $logo-scale-factor;
-  height: $logo-height * $logo-scale-factor; 
-  @include breakpoint(medium) {
-    width: $logo-width;
-    height: $logo-height;
-  }
+.logo h1 {
+  padding: 0.7em 2.2em 0.7em 0em;
+  background-size: 2em;
+  margin: 0;
+  font-size: 2.2em;
 
   // png fallback
-  background: image-url("logo.png") no-repeat;
-  background: none, inline-image("logo.svg", "image/svg+xml") no-repeat;
+  background: image-url("logo.png") no-repeat 100% 50% / 35%;
+  background: none, inline-image("logo.svg", "image/svg+xml") no-repeat 100% 50%;
+
+  @include breakpoint(medium) {
+    font-size: 3em;
+  }
+  @media #{$height-constrained-phone} {
+    font-size: 2em;
+  }
 }
 
 .logo .tagline {
@@ -63,12 +73,9 @@ $logo-tagline-factor: 0.78;
   position: relative;
   margin-top: $rem-base * $base-line-height * -1;
 
-  color: #1450d2;
-
-  max-width: $logo-width * $logo-scale-factor * $logo-tagline-factor;
+  max-width: 80%;
   font-size: 85%;
   @include breakpoint(medium) {  
-    max-width: $logo-width * $logo-tagline-factor;
     font-size: 100%;
   }
 }
@@ -77,7 +84,7 @@ $logo-tagline-factor: 0.78;
 // -----------------------------
 .navigation {
   list-style: none;
-  padding: 0;
+  padding: 0 0 1rem 0;
 }
 .navigation-link {
   line-height: 1.4;

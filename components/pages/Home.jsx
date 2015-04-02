@@ -14,7 +14,7 @@ var Home = React.createClass({
     return (
       <div className="page">
         <div className="grid-container-center page-content">
-          <h1>Hello World</h1>
+          <h2>Hello World</h2>
           <p>
             This is an example isomorphic Flux/React application. 
           </p>

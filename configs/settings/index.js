@@ -57,21 +57,23 @@ function assetsConfig(baseDir) {
 var commonDirs = {
   images: 'images',  
   styles: 'styles',
-  fonts: 'fonts'
+  fonts: 'fonts',
+  scripts: 'scripts'
 };
 var commonFiles = {
   four04: '404.html',
   five03: '503.html',
   favicon: path.join(commonDirs.images, 'favicon.ico'),  
   robots: 'robots.txt',
-  sitemap: 'sitemap.xml'
+  sitemap: 'sitemap.xml',
+  headerScript: path.join(commonDirs.scripts, 'header.js')
 };
 
 /**
  * Directories and files that are in both dist and web
  */
 var outputDirs = {
-  scripts: 'scripts'
+  // scripts: 'scripts'
 };
 var outputFiles = {
   css: path.join(commonDirs.styles, 'index.css')

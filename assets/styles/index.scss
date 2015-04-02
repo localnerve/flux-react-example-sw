@@ -6,7 +6,10 @@
 @charset "UTF-8";
 
 @import "vendor";
-@import "fonts";
+
+@import
+  "icon-fonts",
+  "fonts";
 
 @mixin vertical-block($align: center, $size: expand) {
   @include grid-block($size, vertical, false, $align);

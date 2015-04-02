@@ -14,7 +14,7 @@ var About = React.createClass({
     return (
       <div className="page">
         <div className="grid-container-center page-content">
-          <h1>Example About Page</h1>
+          <h2>Example About Page</h2>
           <p>
             This is an example about page.
           </p>

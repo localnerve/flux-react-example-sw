@@ -48,9 +48,9 @@ $logo-color: #1450d2;
 }
 
 .logo h1 {
-  padding: 0.7em 2.2em 0.7em 0em;
-  background-size: 2em;
+  padding: 0.3em 2.2em 0.7em 0em;
   margin: 0;
+
   font-size: 2.2em;
 
   // png fallback
@@ -75,7 +75,7 @@ $logo-color: #1450d2;
 
   max-width: 80%;
   font-size: 85%;
-  @include breakpoint(medium) {  
+  @include breakpoint(medium) {
     font-size: 100%;
   }
 }
@@ -84,10 +84,15 @@ $logo-color: #1450d2;
 // -----------------------------
 .navigation {
   list-style: none;
-  padding: 0 0 1rem 0;
+  padding: 0;
+  margin: 0.8rem 0 1rem 0;
 }
 .navigation-link {
   line-height: 1.4;
   font-size: 1.4rem;
   font-weight: bold;
+
+  @include breakpoint(medium) {
+    font-size: 1.8rem;
+  }
 }

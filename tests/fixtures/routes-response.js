@@ -11,7 +11,7 @@ module.exports = {
     page: 'home',
     label: 'Home',
     action: {
-      name: 'example',
+      name: 'page',
       params: {      
         resource: 'cms',
         key: 'path/to/home',      

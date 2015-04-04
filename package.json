@@ -93,15 +93,17 @@
     "express": "^4.12.2",
     "express-error-handler": "git://github.com/localnerve/express-error-handler",
     "flux-router-component": "^0.6.0",
-    "fluxible": "^0.3.0",
+    "fluxible": "^0.3.3",
     "fluxible-plugin-dynamic-routr": "^0.1.0",
-    "fluxible-plugin-fetchr": "^0.2.3",    
+    "fluxible-plugin-fetchr": "^0.2.3",
     "lodash": "^3.5.0",
+    "marked": "^0.3.3",
     "morgan": "^1.5.1",
     "nconf": "^0.7.1",
     "node-jsx": "^0.12.4",
     "react": "^0.13.x",
     "serialize-javascript": "^1.0.0",
-    "serve-favicon": "^2.2.0"
+    "serve-favicon": "^2.2.0",
+    "superagent": "^1.1.0"
   }
 }

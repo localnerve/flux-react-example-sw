@@ -4,15 +4,13 @@
  */
 'use strict';
 
-var Home = require('./Home.jsx');
-var About = require('./About.jsx');
 var NotFound = require('./NotFound.jsx');
+var SinglePage = require('./SinglePage.jsx');
 
-var pages = {
-  about: About,
-  home: Home
+var pageTypes = {
+  SinglePage: SinglePage
 };
 
-module.exports = function(page) {
-  return pages[page] || NotFound;
+module.exports = function(component) {
+  return pageTypes[component] || NotFound;
 };

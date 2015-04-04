@@ -4,7 +4,7 @@
  */
 'use strict';
 
-var debug = require('debug')('Routes');
+var debug = require('debug')('Example:RoutesAction');
 var jsonToFluxible = require('../utils/transformers').jsonToFluxible;
 
 function routes(context, payload, done) {
@@ -25,7 +25,7 @@ function routes(context, payload, done) {
   }
 
   debug('Routes request start');
-  context.service.read(payload.resource, payload, {}, function(err, routes) {
+  context.service.read('routes', payload, {}, function(err, routes) {
     debug('Routes request complete');
     
     if (err) {

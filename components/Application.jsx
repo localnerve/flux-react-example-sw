@@ -26,21 +26,24 @@ var Application = React.createClass({
   getState: function () {
     var appStore = this.getStore(ApplicationStore);
     return {
-      currentPageName: appStore.getCurrentPageName(),
-      pageTitle: appStore.getPageTitle(),
+      pageName: appStore.getCurrentPageName(),
+      pageTitle: appStore.getCurrentPageTitle(),
+      pageContent: appStore.getCurrentPageContent(),
       route: appStore.getCurrentRoute(),
-      pages: appStore.getPages()
+      pages: appStore.getPages(),
     };
   },
   onChange: function () {
     this.setState(this.getState());
   },
   render: function () {
-    var page = React.createElement(pages(this.state.currentPageName));
+    var page = React.createElement(pages(this.state.route.config.component), {
+        content: this.state.pageContent
+    });
 
     return (
       <div className="app-block">
-        <Header selected={this.state.currentPageName} links={this.state.pages} />
+        <Header selected={this.state.pageName} links={this.state.pages} />
         {page}
         <Footer />
       </div>

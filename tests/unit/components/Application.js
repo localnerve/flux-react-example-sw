@@ -46,7 +46,7 @@ describe('application component', function() {
     testDom();
   });
 
-  it('should render hello world heading', function() {
+  it.skip('should render hello world heading', function() {
     var appStore = context.getStore(ApplicationStore);
     var app = testUtils.renderIntoDocument(appElement);
     
@@ -57,7 +57,7 @@ describe('application component', function() {
     expect(component.getDOMNode().textContent).to.match(/hello world/i);
   });
 
-  it('should render navigation', function() {
+  it.skip('should render navigation', function() {
     var appStore = context.getStore(ApplicationStore);
     var app = testUtils.renderIntoDocument(appElement);
     

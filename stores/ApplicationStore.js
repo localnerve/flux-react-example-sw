@@ -11,15 +11,19 @@ var ApplicationStore = createStore({
   routesEvent: 'receivedRoutes',
   handlers: {
     'CHANGE_ROUTE_SUCCESS': 'handleNavigate',
-    'UPDATE_PAGE_TITLE': 'updatePageTitle',
+    'UPDATE_PAGE': 'updatePage',
     'RECEIVE_ROUTES': 'receiveRoutes'
   },
   initialize: function (dispatcher) {
     this.currentPageId = null;
     this.currentPageName = null;
     this.currentRoute = null;
+    this.currentPageTitle = '';
     this.pages = {};
-    this.pageTitle = '';
+    
+    // this.contents = {};
+    
+    this.currentPageContent = '';
   },
   handleNavigate: function (route) {
     var pageId = route.params.key;
@@ -34,8 +38,12 @@ var ApplicationStore = createStore({
     this.currentRoute = route;
     this.emitChange();
   },
-  updatePageTitle: function (title) {
-    this.pageTitle = title.pageTitle;
+  updatePage: function(page) {
+    this.currentPageTitle = page.title;
+    
+    // this.contents[this.currentPageName] = page.content;
+    
+    this.currentPageContent = page.content;
     this.emitChange();
   },
   receiveRoutes: function(routes) {
@@ -46,28 +54,39 @@ var ApplicationStore = createStore({
   getPages: function() {
     return this.pages;
   },
+  // getContents: function() {
+  //  return this.contents;
+  // },
+  getCurrentPageContent: function() {
+    // return this.contents[this.currentPageName];
+    return this.currentPageContent;
+  },
   getCurrentPageName: function () {
     return this.currentPageName;
   },
-  getPageTitle: function () {
-    return this.pageTitle;
+  getCurrentPageTitle: function () {
+    return this.currentPageTitle;
   },
   getCurrentRoute: function () {
     return this.currentRoute;
   },
   dehydrate: function () {    
     return {
-      currentPageName: this.currentPageName,
-      pages: transformers.fluxibleToJson(this.pages),
+      pageName: this.currentPageName,      
       route: this.currentRoute,
-      pageTitle: this.pageTitle
+      pageTitle: this.currentPageTitle,
+      pages: transformers.fluxibleToJson(this.pages),
+      // contents: this.contents,
+      content: this.currentPageContent
     };
   },
   rehydrate: function (state) {
-    this.currentPageName = state.currentPageName;
-    this.pages = transformers.jsonToFluxible(state.pages);
+    this.currentPageName = state.pageName;    
     this.currentRoute = state.route;
-    this.pageTitle = state.pageTitle;
+    this.currentPageTitle = state.pageTitle;
+    this.pages = transformers.jsonToFluxible(state.pages);
+    // this.contents = state.contents;
+    this.currentPageContent = state.content;
   }
 });
 

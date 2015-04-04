@@ -10,15 +10,28 @@ var routesResponseFixture = require('../../fixtures/routes-response');
 var fluxibleRoutesFixture = require('../../fixtures/fluxible-routes');
 var helperTests = require('../../utils/tests');
 var transformers = require('../../../utils/transformers');
-var MockContext = require('fluxible/utils/MockActionContext')();
+var createMockActionContext = require('fluxible/utils').createMockActionContext;
 
 describe('transformers', function () {
   var jsonRoutes, fluxibleRoutes;
   var jsonToFluxible, fluxibleToJson;
   var context;
   var testKey = 'home';
-  var testAction = 'example';
+  var testAction = 'page';
   var testResource = 'test';
+
+  function createMockActionContextHelper() {
+    context = createMockActionContext();
+    // createMockActionContext is broken
+    context.executeActionCalls = [];
+    context.dispatchCalls = [];
+    context.executeAction = context.prototype.executeAction.bind(context);
+    context.service = {
+      read: function(resource, params, config, callback) {
+        callback('mock');
+      }
+    };
+  }
 
   function cloneFixtures() {
     // clone routesResponse so we don't disrupt routes-response in require cache.
@@ -53,7 +66,7 @@ describe('transformers', function () {
   describe('jsonToFluxible', function() {
     beforeEach(function() {
       cloneFixtures();
-      context = new MockContext();
+      createMockActionContextHelper();
     });
 
     it('should transform json routes to fluxible routes', function(done) {
@@ -68,8 +81,12 @@ describe('transformers', function () {
         Object.keys(fluxibleRoutes).length
       );
 
-      // check that the output action is workable
-      fluxibleRoutes[testKey].action(context, {}, done);
+      // check that the output action is workable      
+      fluxibleRoutes[testKey].action(context, {}, function(err) {
+        expect(err).to.equal('mock');
+        done();
+      });
+      
     });
 
     it('should throw if an unknown action is specified', function() {
@@ -108,7 +125,7 @@ describe('transformers', function () {
   describe('roundtrip', function() {
     beforeEach(function() {
       cloneFixtures();
-      context = new MockContext();
+      createMockActionContextHelper();
     });
 
     it('should reproduce the json routes', function() {
@@ -124,7 +141,10 @@ describe('transformers', function () {
       helperTests.testTransform(expect, roundtrip, fluxibleRoutes);
       
       // check that the output action is workable
-      roundtrip[testKey].action(context, {}, done);
+      roundtrip[testKey].action(context, {}, function(err) {
+        expect(err).to.equal('mock');
+        done();
+      });
     });
   });
 });

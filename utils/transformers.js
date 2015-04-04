@@ -10,7 +10,7 @@ var debug = require('debug')('Example:Utils:Transformers');
 
 // This will be a hash of all the availble actions that can be defined
 var actions = {
-  example: require('../actions/example')
+  page: require('../actions/page')
 };
 
 /*
@@ -30,7 +30,7 @@ function jsonToFluxible(jsonRoutes) {
     var dest = {}, src = jsonRoutes[route];
 
     if (!actions[src.action.name]) {
-      throw new Error('action "'+src.action.name+'"" not found');
+      throw new Error('action "'+src.action.name+'" not found');
     }
 
     debug('transforming "'+src.action.name+'" to '+

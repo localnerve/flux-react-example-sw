@@ -48,6 +48,7 @@ app.use(csrf({ cookie: true }));
 // Access fetchr plugin instance, register services, and setup middleware
 var fetchrPlugin = fluxibleApp.getPlugin('FetchrPlugin');
 fetchrPlugin.registerService(require('./services/routes'));
+fetchrPlugin.registerService(require('./services/page'));
 app.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
 
 // Every other request gets the app bootstrap

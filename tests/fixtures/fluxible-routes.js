@@ -5,7 +5,7 @@
 'use strict';
 
 var actions = {
-  example: require('../../actions/example')
+  page: require('../../actions/page')
 };
 
 var params = {
@@ -14,7 +14,7 @@ var params = {
   pageTitle: 'A Test Title'
 };
 
-var action = actions.example;
+var action = actions.page;
 
 module.exports = {
   home: {

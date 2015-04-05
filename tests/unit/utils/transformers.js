@@ -10,6 +10,11 @@ var routesResponseFixture = require('../../fixtures/routes-response');
 var fluxibleRoutesFixture = require('../../fixtures/fluxible-routes');
 var helperTests = require('../../utils/tests');
 var transformers = require('../../../utils/transformers');
+
+var ApplicationStore = require('../../../stores/ApplicationStore');
+var ContentStore = require('../../../stores/ContentStore');
+
+var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 var createMockActionContext = require('fluxible/utils').createMockActionContext;
 
 describe('transformers', function () {
@@ -19,18 +24,25 @@ describe('transformers', function () {
   var testKey = 'home';
   var testAction = 'page';
   var testResource = 'test';
+  var mockError = new Error('mock');
 
-  function createMockActionContextHelper() {
-    context = createMockActionContext();
-    // createMockActionContext is broken
-    context.executeActionCalls = [];
-    context.dispatchCalls = [];
-    context.executeAction = context.prototype.executeAction.bind(context);
-    context.service = {
-      read: function(resource, params, config, callback) {
-        callback('mock');
+  function createMockContext() {
+    context = createMockActionContext({
+      stores: [ApplicationStore, ContentStore]
+    });
+    context.service = new MockService();
+    context.service.setService('routes', function(method, params, config, callback) {
+      if (params.emulateError) {
+        return callback(mockError);
       }
-    };
+      callback(null, fluxibleRoutes);
+    });
+    context.service.setService('page', function(method, params, config, callback) {
+      if (params.emulateError) {
+        return callback(mockError);
+      }
+      callback(null, '<h1>Hello World</h1>');
+    });
   }
 
   function cloneFixtures() {
@@ -47,9 +59,13 @@ describe('transformers', function () {
     fluxibleToJson = transformers.fluxibleToJson;
   });
 
+  beforeEach(function() {
+    cloneFixtures();
+  });
+
   describe('test fixtures', function() {
     beforeEach(function() {
-      cloneFixtures();
+      createMockContext();
     });
 
     it('json routes should be correct', function() {
@@ -64,9 +80,8 @@ describe('transformers', function () {
   });
 
   describe('jsonToFluxible', function() {
-    beforeEach(function() {
-      cloneFixtures();
-      createMockActionContextHelper();
+    beforeEach(function() {      
+      createMockContext();
     });
 
     it('should transform json routes to fluxible routes', function(done) {
@@ -82,10 +97,7 @@ describe('transformers', function () {
       );
 
       // check that the output action is workable      
-      fluxibleRoutes[testKey].action(context, {}, function(err) {
-        expect(err).to.equal('mock');
-        done();
-      });
+      fluxibleRoutes[testKey].action(context, { emulateError: true }, done);
       
     });
 
@@ -99,10 +111,6 @@ describe('transformers', function () {
   });
   
   describe('fluxibleToJson', function() {
-    beforeEach(function() {
-      cloneFixtures();
-    });
-
     it('should transform fluxible routes to json routes', function() {
       var jsonRoutes = fluxibleToJson(fluxibleRoutes);
 
@@ -124,8 +132,7 @@ describe('transformers', function () {
 
   describe('roundtrip', function() {
     beforeEach(function() {
-      cloneFixtures();
-      createMockActionContextHelper();
+      createMockContext();
     });
 
     it('should reproduce the json routes', function() {
@@ -141,10 +148,7 @@ describe('transformers', function () {
       helperTests.testTransform(expect, roundtrip, fluxibleRoutes);
       
       // check that the output action is workable
-      roundtrip[testKey].action(context, {}, function(err) {
-        expect(err).to.equal('mock');
-        done();
-      });
+      roundtrip[testKey].action(context, {}, done);
     });
   });
 });

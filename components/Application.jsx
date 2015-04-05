@@ -7,8 +7,9 @@
 
 var React = require('react');
 var ApplicationStore = require('../stores/ApplicationStore');
+var ContentStore = require('../stores/ContentStore');
 var RouterMixin = require('flux-router-component').RouterMixin;
-var FluxibleMixin = require('fluxible').FluxibleMixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 
 var pages = require('./pages');
 var Header = require('./header/Header.jsx');
@@ -25,10 +26,12 @@ var Application = React.createClass({
   },
   getState: function () {
     var appStore = this.getStore(ApplicationStore);
+    var contentStore = this.getStore(ContentStore);
+
     return {
       pageName: appStore.getCurrentPageName(),
       pageTitle: appStore.getCurrentPageTitle(),
-      pageContent: appStore.getCurrentPageContent(),
+      pageContent: contentStore.getCurrentPageContent(),
       route: appStore.getCurrentRoute(),
       pages: appStore.getPages(),
     };

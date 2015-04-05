@@ -10,6 +10,7 @@ var FluxibleApp = require('fluxible');
 var fetchrPlugin = require('fluxible-plugin-fetchr');
 var routrPlugin = require('fluxible-plugin-dynamic-routr');
 var ApplicationStore = require('./stores/ApplicationStore');
+var ContentStore = require('./stores/ContentStore');
 var tranformers = require('./utils/transformers');
 
 debug('Creating FluxibleApp');
@@ -28,5 +29,6 @@ app.plug(routrPlugin({
 
 debug('Registering Stores');
 app.registerStore(ApplicationStore);
+app.registerStore(ContentStore);
 
 module.exports = app;

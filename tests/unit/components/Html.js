@@ -12,11 +12,9 @@ var React = require('react/addons');
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var HtmlComponent = require('react')
   .createFactory(require('../../../components/Html.jsx'));
-var MockContext = require('fluxible/utils/MockComponentContext')();
+var createMockComponentContext = require('fluxible/utils').createMockComponentContext;
 // HtmlComponent never renders on the client, so DONT make dom until test render
 var testDom = require('../../utils/testdom');
-
-MockContext.Dispatcher.registerStore(ApplicationStore);
 
 describe('html component', function() {
   var testUtils;
@@ -36,7 +34,9 @@ describe('html component', function() {
   });
 
   beforeEach(function() {
-    testProps.context = new MockContext();
+    testProps.context = createMockComponentContext({
+      stores: [ApplicationStore]
+    });
     htmlComponent = HtmlComponent(testProps);
     testDom();
   });

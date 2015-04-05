@@ -6,16 +6,14 @@
 'use strict';
 
 var expect = require('chai').expect;
-
 var mocks = require('../../utils/mocks');
-var routesResponse = require('../../fixtures/routes-response');
 
-describe('routes service', function() {
-  var routes;
+describe('page service', function() {
+  var page;
 
   before(function() {
     mocks.serviceData.begin();
-    routes = require('../../../services/routes');
+    page = require('../../../services/page');
   });
 
   after(function() {
@@ -24,19 +22,18 @@ describe('routes service', function() {
 
   describe('object', function() {
     it('should have name and read members', function() {
-      expect(routes.name).to.be.a('string');
-      expect(routes.read).to.be.a('function');
+      expect(page.name).to.be.a('string');
+      expect(page.read).to.be.a('function');
     });
   });
 
   describe('read', function() {
     it('should return a valid response', function(done) {
-      routes.read(null, null, { resource: 'routes' }, null, function(err, data) {
+      page.read(null, null, { resource: 'home' }, null, function(err, data) {
         if (err) {
           done(err);
         }      
-        expect(routes).to.be.an('object');
-        expect(JSON.stringify(routesResponse.home)).to.equal(JSON.stringify(data.home));
+        expect(data).to.be.a('string').that.is.not.empty;        
         done();
       });
     });

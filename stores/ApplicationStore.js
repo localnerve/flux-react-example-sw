@@ -11,7 +11,7 @@ var ApplicationStore = createStore({
   routesEvent: 'receivedRoutes',
   handlers: {
     'CHANGE_ROUTE_SUCCESS': 'handleNavigate',
-    'UPDATE_PAGE': 'updatePage',
+    'UPDATE_PAGE_TITLE': 'updatePageTitle',
     'RECEIVE_ROUTES': 'receiveRoutes'
   },
   initialize: function (dispatcher) {
@@ -20,10 +20,6 @@ var ApplicationStore = createStore({
     this.currentRoute = null;
     this.currentPageTitle = '';
     this.pages = {};
-    
-    // this.contents = {};
-    
-    this.currentPageContent = '';
   },
   handleNavigate: function (route) {
     var pageId = route.params.key;
@@ -38,12 +34,8 @@ var ApplicationStore = createStore({
     this.currentRoute = route;
     this.emitChange();
   },
-  updatePage: function(page) {
+  updatePageTitle: function(page) {
     this.currentPageTitle = page.title;
-    
-    // this.contents[this.currentPageName] = page.content;
-    
-    this.currentPageContent = page.content;
     this.emitChange();
   },
   receiveRoutes: function(routes) {
@@ -53,13 +45,6 @@ var ApplicationStore = createStore({
   },
   getPages: function() {
     return this.pages;
-  },
-  // getContents: function() {
-  //  return this.contents;
-  // },
-  getCurrentPageContent: function() {
-    // return this.contents[this.currentPageName];
-    return this.currentPageContent;
   },
   getCurrentPageName: function () {
     return this.currentPageName;
@@ -75,9 +60,7 @@ var ApplicationStore = createStore({
       pageName: this.currentPageName,      
       route: this.currentRoute,
       pageTitle: this.currentPageTitle,
-      pages: transformers.fluxibleToJson(this.pages),
-      // contents: this.contents,
-      content: this.currentPageContent
+      pages: transformers.fluxibleToJson(this.pages)
     };
   },
   rehydrate: function (state) {
@@ -85,8 +68,6 @@ var ApplicationStore = createStore({
     this.currentRoute = state.route;
     this.currentPageTitle = state.pageTitle;
     this.pages = transformers.jsonToFluxible(state.pages);
-    // this.contents = state.contents;
-    this.currentPageContent = state.content;
   }
 });
 

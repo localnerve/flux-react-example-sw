@@ -14,11 +14,9 @@ var testDom = require('../../utils/testdom');
 testDom();
 
 var ApplicationStore = require('../../../stores/ApplicationStore');
-var MockContext = require('fluxible/utils/MockComponentContext')();
+var createMockComponentContext = require('fluxible/utils').createMockComponentContext;
 var fluxibleApp = require('../../../app');
 var React = require('react/addons');
-
-MockContext.Dispatcher.registerStore(ApplicationStore);
 
 describe('application component', function() {
   var AppFactory, appElement, context, testUtils;
@@ -33,12 +31,14 @@ describe('application component', function() {
   }
 
   before(function() {
-    AppFactory = fluxibleApp.getAppComponent();
+    AppFactory = fluxibleApp.getComponent();
     testUtils = React.addons.TestUtils;
   });
 
   beforeEach(function() {
-    context = new MockContext();
+    context = createMockComponentContext({
+      stores: [ApplicationStore]
+    });
     context.makePath = makeHomePath;
     appElement = AppFactory({
       context: context

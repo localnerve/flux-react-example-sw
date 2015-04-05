@@ -28,7 +28,7 @@ app.rehydrate(dehydratedState, function (err, context) {
 
   debug('rendering app');
   React.render(
-    app.getAppComponent()({
+    app.getComponent()({
       context: context.getComponentContext(),
       analytics: dehydratedState.analytics
     }),

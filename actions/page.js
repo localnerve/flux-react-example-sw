@@ -4,21 +4,34 @@
  */
 'use strict';
 
-// var ApplicationStore = require('../stores/ApplicationStore');
 var debug = require('debug')('Example:PageAction');
+var ContentStore = require('../stores/ContentStore');
 var defaultPageTitle = 'Default Page Title';
 
+function dispatchActions(context, resource, title, content) {
+  context.dispatch('RECEIVE_PAGE_CONTENT', {
+    resource: resource,
+    content: content
+  });
+
+  context.dispatch('UPDATE_PAGE_TITLE', {
+    title: title
+  });  
+}
+
 function page(context, payload, done) {
-  debug('page action payload\n');
-  debug(require('util').inspect(payload, {depth:null}));
+  var title = (payload.pageTitle || defaultPageTitle);
 
-  // var contents = context.getStore(ApplicationStore).getContents();
-  // debug('ApplicationStore contents\n');
-  // debug(require('util').inspect(contents, {depth:null}));
+  // Try cache first
+  var content = context.getStore(ContentStore).get(payload.resource);
+  if (content) {
+    debug('Found '+payload.resource+' in cache');
+    dispatchActions(context, payload.resource, title, content);
+  }
 
-  debug('Page request start');
+  debug('Page service request start');
   context.service.read('page', payload, {}, function(err, data) {
-    debug('Page request complete');
+    debug('Page service request complete');
 
     if (err) {
       return done(err);
@@ -30,11 +43,7 @@ function page(context, payload, done) {
       return done(noData);
     }
 
-
-    context.dispatch('UPDATE_PAGE', {
-      title: (payload.pageTitle || defaultPageTitle),
-      content: data
-    });
+    dispatchActions(context, payload.resource, title, data);
 
     return done();
   });  

@@ -5,14 +5,12 @@
 /* global describe, it, before, beforeEach */
 'use strict';
 var expect = require('chai').expect;
-var MockContext = require('fluxible/utils/MockActionContext')();
+var createMockActionContext = require('fluxible/utils').createMockActionContext;
 // var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var routes = require('../../../actions/routes');
 var routesResponse = require('../../fixtures/routes-response');
 var jsonToFluxible = require('../../../utils/transformers').jsonToFluxible;
-
-MockContext.Dispatcher.registerStore(ApplicationStore);
 
 describe('routes action', function () {
   var context;
@@ -25,7 +23,9 @@ describe('routes action', function () {
   });
 
   beforeEach(function () {
-    context = new MockContext();
+    context = createMockActionContext({
+      stores: [ApplicationStore]
+    });
 /*    
     context.service = new MockService();
     context.service.setService('routes', function (method, params, config, callback) {

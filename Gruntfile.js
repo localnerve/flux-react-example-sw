@@ -157,7 +157,7 @@ module.exports = function (grunt) {
     nodemon: {
       app: {
         options: {
-          ignore: ['<%= project.distbase %>/**'],
+          ignore: ['node_modules/**', '<%= project.distbase %>/**'],
           ext: 'js,jsx,md'
         },        
         script: './<%= pkg.main %>'

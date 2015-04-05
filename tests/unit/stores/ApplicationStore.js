@@ -12,7 +12,7 @@ var helperTests = require('../../utils/tests');
 var transformers = require('../../../utils/transformers');
 
 describe('application store', function () {
-  var storeInstance;  
+  var storeInstance;
   var homeRoute = {
     params: { key: 'home' },
     config: { page: 'Home' }
@@ -59,8 +59,8 @@ describe('application store', function () {
     });
 
     it('should update page', function (done) {
-      var page = { title: 'Fluxible Rocks', content: '<span>hello</span>' };
-      storeInstance.updatePage(page);
+      var page = { title: 'Fluxible Rocks' };
+      storeInstance.updatePageTitle(page);
 
       expect(storeInstance.currentPageTitle).to.equal(page.title);
       expect(storeInstance.currentPageContent).to.equal(page.content);
@@ -76,7 +76,7 @@ describe('application store', function () {
 
     it('should get current page title', function (done) {
       var page = { title: 'Fluxible Rocks' };
-      storeInstance.updatePage(page);
+      storeInstance.updatePageTitle(page);
 
       expect(storeInstance.getCurrentPageTitle()).to.equal(page.title);
       done();
@@ -89,36 +89,37 @@ describe('application store', function () {
       done();
     });
 
-    it.skip('should dehydrate', function (done) {
+    it('should dehydrate', function (done) {
       storeInstance.handleNavigate(homeRoute);
-      var title = { pageTitle: 'Fluxible Rocks' };
-      storeInstance.updatePageTitle(title);
+      var page = { title: 'Fluxible Rocks' };
+      storeInstance.updatePageTitle(page);
       
       var state = storeInstance.dehydrate();
-      expect(state.currentPageName).to.equal(homeRoute.config.page);
+
+      expect(state.pageName).to.equal(homeRoute.config.page);
       expect(state.pages).to.eql(routesResponse);
       expect(state.route).to.equal(homeRoute);
-      expect(state.pageTitle).to.equal(title.pageTitle);
+      expect(state.pageTitle).to.equal(page.title);
       done();
     });
 
-    it.skip('should rehydrate', function (done) {
-      var title = { pageTitle: 'Fluxible Rocks' };
+    it('should rehydrate', function (done) {
+      var page = { title: 'Fluxible Rocks' };
       var state = {
-        currentPageName: homeRoute.config.page,
+        pageName: homeRoute.config.page,
         pages: routesResponse,
         route: homeRoute,
-        pageTitle: title.pageTitle
+        pageTitle: page.title
       };
 
-      storeInstance.rehydrate(state);      
+      storeInstance.rehydrate(state);
 
       helperTests.testTransform(
         expect, storeInstance.pages, transformers.jsonToFluxible(routesResponse)
       );
-      expect(storeInstance.currentPageName).to.equal(homeRoute.config.page);
-      expect(storeInstance.currentRoute).to.equal(homeRoute);
-      expect(storeInstance.pageTitle).to.equal(title.pageTitle);
+      expect(storeInstance.getCurrentPageName()).to.equal(homeRoute.config.page);
+      expect(storeInstance.getCurrentRoute()).to.equal(homeRoute);
+      expect(storeInstance.getCurrentPageTitle()).to.equal(page.title);
       done();
     });
   });

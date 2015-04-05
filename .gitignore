@@ -3,5 +3,6 @@ dist
 reports
 node_modules
 npm-debug.log
+/tmp
 /configs/settings/assets.json
 *sublime*

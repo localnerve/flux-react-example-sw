@@ -19,17 +19,9 @@ function dispatchActions(context, resource, title, content) {
   });  
 }
 
-function page(context, payload, done) {
-  var title = (payload.pageTitle || defaultPageTitle);
-
-  // Try cache first
-  var content = context.getStore(ContentStore).get(payload.resource);
-  if (content) {
-    debug('Found '+payload.resource+' in cache');
-    dispatchActions(context, payload.resource, title, content);
-  }
-
+function serviceRequest(context, payload, done) {
   debug('Page service request start');
+
   context.service.read('page', payload, {}, function(err, data) {
     debug('Page service request complete');
 
@@ -43,10 +35,23 @@ function page(context, payload, done) {
       return done(noData);
     }
 
-    dispatchActions(context, payload.resource, title, data);
+    dispatchActions(context, payload.resource, payload.pageTitle, data);
 
     return done();
-  });  
+  });
+}
+
+function page(context, payload, done) {
+  payload.pageTitle = payload.pageTitle || defaultPageTitle;
+
+  var content = context.getStore(ContentStore).get(payload.resource);
+  if (content) {
+    debug('Found '+payload.resource+' in cache');
+    dispatchActions(context, payload.resource, payload.pageTitle, content);
+    return done();
+  }
+
+  serviceRequest(context, payload, done);
 }
 
 module.exports = page;

@@ -10,13 +10,16 @@ var markdown = require('./markdown');
 
 var cache = {};
 
-// TODO: Start a real integration strategy with branches
+// TODO: move to config and start a real integration strategy with branches
 var branches = {
   development: 'master',
   production: 'master'
 };
 
 var formatToCache = {
+  markup: function(resource, data) {
+    cache[resource] = data;
+  },
   markdown: function(resource, data) {
     cache[resource] = markdown(data);
   },
@@ -37,7 +40,7 @@ function fetch(params, callback) {
 
   // A bootstrap request has no url specified
   if (!params.url) {
-    params.url = 'https://api.github.com/repos/localnerve/flux-react-example-data/contents/meta.json';
+    params.url = 'https://api.github.com/repos/localnerve/flux-react-example-data/contents/resources.json';
   }
 
   // Get the appropriate data for this instance

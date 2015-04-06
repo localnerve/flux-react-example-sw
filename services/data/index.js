@@ -46,12 +46,16 @@ function fetch(params, callback) {
   request.get(params.url).set('User-Agent', 'superagent')
   .end(function(err, res) {
     if (err) {
-      callback(err);
+      debug('get failed: '+err);
+
+      return callback(err);
     }
 
     var content = res.body && res.body.content;
 
     if (content) {
+      debug ('successful content retrieved for', params.url);
+
       var raw = new Buffer(content, 'base64').toString();
 
       formatToCache[params.format || 'json'](params.resource, raw);

@@ -5,7 +5,6 @@
 'use strict';
 
 var debug = require('debug')('Example:App');
-var React = require('react');
 var FluxibleApp = require('fluxible');
 var fetchrPlugin = require('fluxible-plugin-fetchr');
 var routrPlugin = require('fluxible-plugin-dynamic-routr');
@@ -15,7 +14,7 @@ var tranformers = require('./utils/transformers');
 
 debug('Creating FluxibleApp');
 var app = new FluxibleApp({
-  component: React.createFactory(require('./components/Application.jsx'))
+  component: require('./components/Application.jsx')
 });
 
 debug('Adding Plugins');

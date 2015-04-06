@@ -17,7 +17,6 @@ if (DEBUG) {
 var app = require('./app');
 var dehydratedState = window.App; // sent from the server
 
-
 debug('rehydrating app');
 app.rehydrate(dehydratedState, function (err, context) {
   if (err) {
@@ -28,8 +27,7 @@ app.rehydrate(dehydratedState, function (err, context) {
 
   debug('rendering app');
   React.render(
-    app.getComponent()({
-      context: context.getComponentContext(),
+    context.createElement({
       analytics: dehydratedState.analytics
     }),
     document.getElementById('application')

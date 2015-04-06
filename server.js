@@ -99,7 +99,7 @@ app.use(function main(req, res, next) {
           var exposed = 'window.App=' + serialize(state) + ';';
 
           debug('Rendering Application component into html');
-          var AppComponent = fluxibleApp.getComponent();
+          var renderedApp = React.renderToString(context.createElement());
           var componentContext = context.getComponentContext();
           var doctype = '<!DOCTYPE html>';
           var html = React.renderToStaticMarkup(HtmlComponent({
@@ -109,9 +109,7 @@ app.use(function main(req, res, next) {
             headerStyles: styles,
             headerScript: headerScript,
             state: exposed,
-            markup: React.renderToString(AppComponent({
-              context: componentContext
-            }))
+            markup: renderedApp
           }));
           res.send(doctype + html);
         });

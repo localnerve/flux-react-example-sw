@@ -22,9 +22,13 @@ module.exports = {
         break;
 
       case 'about':
+        callback(null, '<h2>About</h2>');
+        break;
       case 'contact':
+        callback(null, '<h2>Contact</h2>');
+        break;
       case 'home':
-        callback(null, '<h2>Some Markup Here</h2>');
+        callback(null, '<h2>Home</h2>');
         break;
 
       default:

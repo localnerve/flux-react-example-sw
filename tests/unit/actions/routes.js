@@ -2,60 +2,117 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global describe, it, before, beforeEach */
+/* global describe, it, beforeEach */
 'use strict';
+
 var expect = require('chai').expect;
+
 var createMockActionContext = require('fluxible/utils').createMockActionContext;
-// var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
+var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
+
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var routes = require('../../../actions/routes');
 var routesResponse = require('../../fixtures/routes-response');
 var jsonToFluxible = require('../../../utils/transformers').jsonToFluxible;
+var testUtils = require('../../utils/tests');
 
 describe('routes action', function () {
   var context;
   var response;
+  var testPage = 'home';
 
-  before(function() {
-    // clone the routesResponse so we don't disrupt it.
-    var clone = JSON.parse(JSON.stringify(routesResponse));
-    response = jsonToFluxible(clone);
-  });
+  function checkTestPage() {
+    var pages = context.getStore(ApplicationStore).getPages();
 
-  beforeEach(function () {
+    expect(pages).to.be.an('object');
+    expect(pages).to.not.be.empty;
+    expect(pages[testPage]).to.be.an('object');
+  }
+  
+  // create the action context wired to ApplicationStore
+  beforeEach(function () {    
     context = createMockActionContext({
       stores: [ApplicationStore]
     });
-/*    
-    context.service = new MockService();
-    context.service.setService('routes', function (method, params, config, callback) {
-      if (params.emulateError) {
-        return callback(new Error('Things went sour.'));
-      }
-
-      callback(null, routesResponse);
-    });
-*/
   });
 
-  it('should update the ApplicationStore', function (done) {
-    var testPage = 'home';
+  describe('with routes payload', function () {
     var params = {
-      routes: response
+      routes: null
     };
 
-    context.executeAction(routes, params, function (err) {
-      if (err) {
-        return done(err);
-      }
+    // clone the response fixture, set it to a fluxible state.
+    beforeEach(function () {      
+      response = jsonToFluxible(JSON.parse(JSON.stringify(routesResponse)));
+      params.routes = response;
+    });
 
-      var pages = context.getStore(ApplicationStore).getPages();
+    it('should update the ApplicationStore', function (done) {
+      context.executeAction(routes, params, function (err) {
+        if (err) {
+          return done(err);
+        }
 
-      expect(pages).to.be.an('object');
-      expect(pages).to.not.be.empty;
-      expect(pages[testPage]).to.be.an('object');
+        checkTestPage();
+        done();
+      });
+    });
 
-      done();
+    it('should use a custom transformer if supplied', function (done) {
+      var custom;
+      
+      params.transform = function (input) {
+        custom = input;
+        return custom;
+      };
+      
+      context.executeAction(routes, params, function (err) {
+        if (err) {
+          done(err);
+        }
+
+        expect(custom).to.be.an('object');
+        checkTestPage();
+        done();
+      });
+    });
+  });
+
+  describe('without routes payload', function () {
+    var fluxibleRoutesFixture;
+
+    // Setup the context.service
+    // clone the response fixture, set it to a wire state.
+    beforeEach(function () {
+      response = JSON.parse(JSON.stringify(routesResponse));
+      fluxibleRoutesFixture = jsonToFluxible(response);
+
+      context.service = new MockService();
+      context.service.setService('routes', function (method, params, config, callback) {
+        if (params.emulateError) {
+          return callback(new Error('mock'));
+        }
+        callback(null, response);
+      });
+    });
+
+    it('should update the ApplicationStore', function (done) {
+      context.executeAction(routes, {}, function (err, fluxibleRoutes) {
+        if (err) {
+          return done(err);
+        }
+
+        testUtils.testTransform(expect, fluxibleRoutes, fluxibleRoutesFixture);
+        checkTestPage();
+        done();
+      });
+    });
+
+    it('should throw an error if the service does', function (done) {
+      context.executeAction(routes, { emulateError: true }, function (err) {
+        expect(err).to.be.instanceof(Error);
+        done();
+      });
     });
   });
 });

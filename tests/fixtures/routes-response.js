@@ -6,22 +6,22 @@
 
 module.exports = {
   home: {
-    path: "/",
-    method: "get",
-    page: "home",
-    label: "Home",
-    component: "SinglePage",
+    path: '/',
+    method: 'get',
+    page: 'home',
+    label: 'Home',
+    component: 'SinglePage',
     mainNav: true,
     order: 0,
     priority: 1,
     action: {
-      name: "page",
+      name: 'page',
       params: {
-        resource: "home",
-        url: "https://api.github.com/repos/localnerve/flux-react-example-data/contents/pages/home.md",
-        format: "markdown",
-        prefetch: "server",
-        pageTitle: "An Example Isomorphic Application"
+        resource: 'home',
+        url: 'https://api.github.com/repos/localnerve/flux-react-example-data/contents/pages/home.md',
+        format: 'markdown',
+        prefetch: 'server',
+        pageTitle: 'An Example Isomorphic Application'
       }
     }
   }

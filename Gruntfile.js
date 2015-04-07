@@ -129,7 +129,7 @@ module.exports = function (grunt) {
       all: {
         src: [
           '*.js',
-          '{configs,utils,actions,components,services,stores}/**/*.js'        
+          '{configs,utils,actions,components,services,stores,tests}/**/*.js'
         ]
       }
     },

@@ -8,7 +8,7 @@
   
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/localnerve.svg)](https://saucelabs.com/u/localnerve)
 
-> A *Work In Progress* example of using Fluxible with dynamic routes.
+> A *Work In Progress* example of using Fluxible with dynamic data.
 
 An isomorphic flux-react example application using [fluxible](http://fluxible.io).
 

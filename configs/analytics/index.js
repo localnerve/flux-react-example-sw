@@ -22,7 +22,7 @@ __UAREF__("send", "pageview");';
 function makeConfig(env) {
   return {
     snippet: trackingTemplate
-      .replace(/__UAID__/g, uaID[env || 'development'])
+      .replace(/__UAID__/g, uaID[env])
       .replace(/__UAREF__/g, uaRef),
     globalRef: uaRef
   }; 

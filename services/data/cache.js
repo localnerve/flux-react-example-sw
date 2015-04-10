@@ -16,6 +16,8 @@ function writeToCache (params, data) {
     data: data    
   };
   cache[params.resource] = obj;
+
+  debug('wrote cache[' + params.resource + '] = '+require('util').inspect(obj, { depth: null }));
 }
 
 var formatToCache = {
@@ -67,6 +69,12 @@ module.exports = {
   },
 
   put: function (params, data) {
+    debug('putting data into cache', 'resource: '+params.resource, 'format: '+params.format, 'data: '+data);
+
+    if (!params || !params.resource || !data) {
+      throw new Error('Invalid arguments to cache put');
+    }
+
     formatToCache[params.format || 'json'](params, data);
   }
 };

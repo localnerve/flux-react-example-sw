@@ -4,12 +4,13 @@
  */
 'use strict';
 
+var debug = require('debug')('Example:Data:Cache');
 var markdown = require('./markdown');
 
 // TODO: Change to Redis to support multiple processes
 var cache = {};
 
-function writeToCache (params, data) {
+function writeToCache (params, data) {  
   var obj = {
     models: params.models,
     data: data    
@@ -18,7 +19,7 @@ function writeToCache (params, data) {
 }
 
 var formatToCache = {
-  markup: function (params, data) {
+  markup: function (params, data) {    
     writeToCache(params, data);
   },
   markdown: function (params, data) {
@@ -34,23 +35,37 @@ var formatToCache = {
   }
 };
 
+function readFromCache (cached) {
+  var result = {
+    models: cached.models,
+    data: cached.data
+  };
+
+  if (cached.models) {
+    result.models = cached.models.reduce(function(prev, curr) {
+      prev[curr] = cache.models.data[curr];
+      return prev;
+    }, {});
+  }
+
+  debug('result', require('util').inspect(result, { depth: null}));
+  return result;
+}
+
 module.exports = {
   get: function (resource) {
     var result;
-    var obj = cache[resource];
+    var cached = cache[resource];
 
-    if (obj) {
-      if (obj.models) {
-        obj.models = obj.models.reduce(function(prev, curr) {
-          prev[curr] = cache.models[curr];
-        }, {});
-      }
-      // TODO: support returning both models and data
-      result = obj.data;
+    if (cached) {      
+      result = readFromCache(cached);
+      // TODO: support returning formatted cached result
+      result = result.data;
     }
 
     return result;
   },
+
   put: function (params, data) {
     formatToCache[params.format || 'json'](params, data);
   }

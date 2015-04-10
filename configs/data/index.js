@@ -24,21 +24,30 @@ function FRED_MEDIATYPE () {
   return process.env.FRED_MEDIATYPE || 'application/vnd.github.v3+json';
 }
 
-var FRED_BRANCH = {
+var branches = {
   development: 'development',
   production: 'master'
 };
+
+function FRED_BRANCH (env) {
+  return process.env.FRED_BRANCH || branches[env];
+}
+
+function addBranch(url, env) {
+  return url +'?' + qs.stringify({ ref: FRED_BRANCH(env) });
+}
 
 function makeConfig (env) {
   return {
     FRED: {
       url: function () {
-        return FRED_URL() + '?' + qs.stringify({
-          ref: process.env.FRED_BRANCH || FRED_BRANCH[env]
-        });
+        return addBranch(FRED_URL(), env);
       },
       mediaType: function () {
         return FRED_MEDIATYPE();
+      },
+      branchify: function (url) {
+        return addBranch(url, env);
       }
     }
   };

@@ -19,6 +19,8 @@ function fetchOne (params, callback) {
   // A manifest request has no url specified
   if (!params.url) {
     params.url = config.FRED.url();
+  } else {
+    params.url = config.FRED.branchify(params.url);
   }
 
   request.get(params.url)

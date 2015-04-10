@@ -6,7 +6,7 @@
 
 var React = require('react');
 
-var Header = React.createClass({
+var Footer = React.createClass({
   render: function() {
     return (
       <footer className="app-footer">
@@ -30,4 +30,4 @@ var Header = React.createClass({
   }
 });
 
-module.exports = Header;
+module.exports = Footer;

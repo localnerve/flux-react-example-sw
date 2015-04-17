@@ -8,7 +8,8 @@ var createStore = require('fluxible/addons').createStore;
 var ContactStore = createStore({
   storeName: 'ContactStore',  
   handlers: {
-    'UPDATE_CONTACT_FIELDS': 'updateContactFields'
+    'UPDATE_CONTACT_FIELDS': 'updateContactFields',
+    'CREATE_CONTACT_SUCCESS': 'clearContactFields'
   },
   initialize: function () {
     this.name = '';
@@ -19,6 +20,10 @@ var ContactStore = createStore({
     this.name = fields.name || '';
     this.email = fields.email || '';
     this.message = fields.message || '';
+    this.emitChange();
+  },
+  clearContactFields: function () {
+    this.initialize();
     this.emitChange();
   },
   getContactFields: function () {

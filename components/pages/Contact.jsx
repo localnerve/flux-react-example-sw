@@ -9,7 +9,6 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var ContactStore = require('../../stores/ContactStore');
 var contactAction = require('../../actions/contact');
 var cx = require('classnames');
-var STEP_FINAL = 3;
 
 var Contact = React.createClass({
   mixins: [ FluxibleMixin ],
@@ -50,7 +49,7 @@ var Contact = React.createClass({
   _saveFields: function (fields) {
     this.executeAction(contactAction, {
       fields: fields,
-      complete: (this.state.step === (STEP_FINAL - 1))
+      complete: (this.state.step === (this.props.stepFinal - 1))
     });
   },
   _getStateFromStore: function () {
@@ -69,15 +68,15 @@ var Contact = React.createClass({
     });
   },
   _renderContactElements: function () {
-    var self = this;
-    // make a copy
+    // make a copy of this step
     var step = JSON.parse(JSON.stringify(this.props.steps[this.state.step]));
 
-    if (step.step < STEP_FINAL) {
+    if (step.step < this.props.stepFinal) {
+      // wire up event handlers and value field
       step.container.props.onSubmit = this._handleSubmit;
-      step.elements[step.valueElement].props.defaultValue = this.state.fields[step.name] || null;
-      if (step.previousElement >= 0) {
-        step.elements[step.previousElement].props.onClick = this._handlePrevious;
+      step.value.props.defaultValue = this.state.fields[step.name] || null;
+      if (step.previousElement) {
+        step.navigation.elements[step.previousElement].props.onClick = this._handlePrevious;
       }
     }
 
@@ -86,22 +85,36 @@ var Contact = React.createClass({
         step.description.tagName,
         step.description.props,
         step.description.text
+      ),
+      React.createElement(
+        step.value.tagName,
+        step.value.props,
+        step.value.text
       )
-    ].concat(step.elements.map(function (element) {
-        return React.createElement(
-          element.tagName,
-          element.props,
-          element.text
-        );
-      })
-    );
+    ];
 
     return React.createElement(
-      step.container.tagName, step.container.props, children
+      step.container.tagName,
+      step.container.props,
+      !step.navigation ? children : children.concat(
+        React.createElement(
+          step.navigation.container.tagName,
+          step.navigation.container.props,
+          step.navigation.elements
+          .map(function (element) {
+            return React.createElement(
+              element.tagName,
+              element.props,
+              element.text
+            );
+          })
+        )
+      )
     );
   },
   _renderContactSteps: function () {
     var self = this;
+
     return this.props.steps
       .sort(function (a, b) {
         return a.step - b.step;
@@ -111,7 +124,7 @@ var Contact = React.createClass({
           complete: input.step < self.state.step,
           current: input.step === self.state.step,
           incomplete: input.step > self.state.step,
-          hide: input.step === STEP_FINAL
+          hide: input.step === self.props.stepFinal
         });
         return (
           <span className={classNames} key={input.name}>
@@ -137,6 +150,7 @@ var Contact = React.createClass({
   },
   _handlePrevious: function (event) {
     event.preventDefault();
+
     this._prevStep();
   }
 });

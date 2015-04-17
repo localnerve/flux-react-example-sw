@@ -5,15 +5,12 @@
 'use strict';
 
 var debug = require('debug')('Example:Mail');
-
-// TODO: implement
+var mailer = require('./mailer');
 
 function send (input, callback) {
   debug('sending mail', input);
 
-  callback(null, {    
-    messages: []
-  });
+  mailer.queueMail(input, callback);
 }
 
 module.exports = {

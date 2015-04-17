@@ -24,4 +24,8 @@
   @include grid-block(expand, horizontal, false, spaced);
 }
 
+.hide {
+  display: none;
+}
+
 @import "app";

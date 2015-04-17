@@ -39,10 +39,12 @@ var Application = React.createClass({
   onChange: function () {
     this.setState(this.getState());
   },
+
   render: function () {
-    var page = React.createElement(pages(this.state.route.config.component), {
-        content: this.state.pageContent
-    });
+    var page = pages.createElement(
+      this.state.route.config.component,
+      this.state.pageContent
+      );
 
     return (
       <div className="app-block">

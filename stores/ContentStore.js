@@ -10,7 +10,7 @@ var ContentStore = createStore({
   handlers: {
     'RECEIVE_PAGE_CONTENT': 'receivePageContent'
   },
-  initialize: function (dispatcher) {    
+  initialize: function () {    
     this.contents = {};    
     this.currentResource = '';
   },

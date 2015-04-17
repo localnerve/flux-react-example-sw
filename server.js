@@ -49,6 +49,7 @@ app.use(csrf({ cookie: true }));
 var fetchrPlugin = fluxibleApp.getPlugin('FetchrPlugin');
 fetchrPlugin.registerService(require('./services/routes'));
 fetchrPlugin.registerService(require('./services/page'));
+fetchrPlugin.registerService(require('./services/contact'));
 app.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
 
 // Every other request gets the app bootstrap

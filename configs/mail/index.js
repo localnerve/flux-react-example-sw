@@ -13,6 +13,7 @@
  */
 'use strict';
 
+// For now, just supporting well known services
 function MAIL_SERVICE () {
   return process.env.MAIL_SERVICE || 'Mandrill';
 }
@@ -22,7 +23,7 @@ function MAIL_USERNAME () {
 }
 
 function MAIL_PASSWORD () {
-  return process.env.MAIL_PASSWORD || process.env.MANDRILL_PASSWORD;
+  return process.env.MAIL_PASSWORD || process.env.MANDRILL_APIKEY;
 }
 
 var mailHeaders = {
@@ -44,21 +45,39 @@ function mailFrom (env) {
   return process.env.MAIL_FROM || mailHeaders[env].mailFrom;
 }
 
+function QUEUE_NAME () {
+  return process.env.QUEUE_NAME || 'outgoing-mail';
+}
+
+var mailQueue = {
+  development: 'amqp://localhost',
+  production: process.env.CLOUDAMQP_URL
+};
+
+function QUEUE_URL (env) {
+  return process.env.QUEUE_URL || mailQueue[env];
+}
+
 function makeConfig(env) {
   return {
-    service: {
-      name: MAIL_SERVICE,
+    mail: {
+      service: MAIL_SERVICE,
       username: MAIL_USERNAME,
-      password: MAIL_PASSWORD
+      password: MAIL_PASSWORD,
+      to: function () {
+        return mailTo(env);
+      },
+      from: function () {
+        return mailFrom(env);
+      },
+      subject: 'Flux-React-Example Contact Form Submission'
     },
-    mailTo: function () {
-      return mailTo(env);
-    },
-    mailFrom: function () {
-      return mailFrom(env);
-    },
-    transport: 'SMTP',
-    subject: 'Flux-React-Example Contact Form Submission'
+    queue: {
+      name: QUEUE_NAME,
+      url: function () {
+        return QUEUE_URL(env);
+      }
+    }
   };
 }
 

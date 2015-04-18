@@ -4,14 +4,12 @@
  */
 'use strict';
 
-var debug = require('debug')('Example:PageService');
 var data = require('./data');
 
 module.exports = {
   name: 'page',
   // at least one of the CRUD methods is required
   read: function(req, resource, params, config, callback) {
-    debug('initiating page request');
 
     return data.fetch(params, callback);
   }

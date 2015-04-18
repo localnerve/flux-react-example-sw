@@ -6,8 +6,8 @@
 
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
-var ContactStore = require('../../stores/ContactStore');
-var contactAction = require('../../actions/contact');
+var ContactStore = require('../../../stores/ContactStore');
+var contactAction = require('../../../actions/contact');
 var cx = require('classnames');
 
 var Contact = React.createClass({
@@ -53,8 +53,10 @@ var Contact = React.createClass({
     });
   },
   _getStateFromStore: function () {
+    var store = this.getStore(ContactStore);
     return {
-      fields: this.getStore(ContactStore).getContactFields()
+      fields: store.getContactFields(),
+      failure: store.getContactFailure()
     };
   },
   _nextStep: function () {
@@ -75,8 +77,13 @@ var Contact = React.createClass({
       // wire up event handlers and value field
       step.container.props.onSubmit = this._handleSubmit;
       step.value.props.defaultValue = this.state.fields[step.name] || null;
-      if (step.previousElement) {
+      if (step.previousElement >= 0) {
         step.navigation.elements[step.previousElement].props.onClick = this._handlePrevious;
+      }
+    } else {
+      if (this.state.failure) {
+        step.description.text = step.description.failureText;
+        step.value.text = step.value.failureText;
       }
     }
 

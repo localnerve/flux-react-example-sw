@@ -7,7 +7,7 @@
 var React = require('react');
 var NotFound = require('./NotFound.jsx');
 var SinglePage = require('./SinglePage.jsx');
-var Contact = require('./Contact.jsx');
+var Contact = require('./contact');
 
 var pageTypes = {
   SinglePage: SinglePage,

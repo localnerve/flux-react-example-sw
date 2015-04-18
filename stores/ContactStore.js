@@ -9,12 +9,14 @@ var ContactStore = createStore({
   storeName: 'ContactStore',  
   handlers: {
     'UPDATE_CONTACT_FIELDS': 'updateContactFields',
-    'CREATE_CONTACT_SUCCESS': 'clearContactFields'
+    'CREATE_CONTACT_SUCCESS': 'clearContactFields',
+    'CREATE_CONTACT_FAILURE': 'setContactFailure'
   },
   initialize: function () {
     this.name = '';
     this.email = '';
     this.message = '';
+    this.failure = false;
   },
   updateContactFields: function (fields) {
     this.name = fields.name || '';
@@ -26,6 +28,13 @@ var ContactStore = createStore({
     this.initialize();
     this.emitChange();
   },
+  setContactFailure: function () {
+    this.failure = true;
+    this.emitChange();
+  },
+  getContactFailure: function () {
+    return this.failure;
+  },
   getContactFields: function () {
     return {
       name: this.name,
@@ -34,12 +43,15 @@ var ContactStore = createStore({
     };    
   },
   dehydrate: function () {
-    return this.getContactFields();
+    var state = this.getContactFields();
+    state.failure = this.failure;
+    return state;
   },
   rehydrate: function (state) {
     this.name = state.name;
     this.email = state.email;
     this.message = state.message;
+    this.failure = state.failure;
   }
 });
 

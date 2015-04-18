@@ -4,14 +4,12 @@
  */
 'use strict';
 
-var debug = require('debug')('Example:ContactService');
 var mail = require('./mail');
 
 module.exports = {
   name: 'contact',
   // at least one of the CRUD methods is required
   create: function(req, resource, params, body, config, callback) {
-    debug('sending mail');
 
     return mail.send(params, callback);
   }

@@ -42,8 +42,6 @@ function contactWorker () {
       var q = contact.queue.name();
       
       ch.assertQueue(q).then(function () {
-        ch.prefetch(1);
-
         ch.consume(q, function (msg) {
           if (msg !== null) {
             mailer.send(JSON.parse(msg.content.toString()), function(err) {

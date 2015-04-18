@@ -7,11 +7,9 @@
 module.exports = {
   send: function(params, callback) {
     if (params.emulateError) {
-      callback(new Error('mock'));
+      return callback(new Error('mock'));
     }
 
-    callback(null, {      
-      messages: []
-    });
+    callback();
   }
 };

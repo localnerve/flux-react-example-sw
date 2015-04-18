@@ -22,6 +22,18 @@ describe('contact action', function () {
     message: 'the truth about seafood is it\'s people'
   };
 
+  function getContactData () {
+    var store = context.getStore(ContactStore);
+    return {
+      fields: store.getContactFields(),
+      failure: store.getContactFailure()
+    };
+  }
+
+  function populateStore (callback) {
+    context.executeAction(contactAction, { fields: fields }, callback);
+  }
+
   beforeEach(function () {
     context = createMockActionContext({
       stores: [ ContactStore ]
@@ -36,29 +48,34 @@ describe('contact action', function () {
     var partialFields = {
       email: fields.email
     };
+
     context.executeAction(contactAction, { fields: partialFields }, function (err) {
       if (err) {
         return done(err);
       }
 
-      var contactFields = context.getStore(ContactStore).getContactFields();
+      var data = getContactData();
 
-      expect(contactFields.name).to.equal('');
-      expect(contactFields.email).to.deep.equal(partialFields.email);
-      expect(contactFields.message).to.equal('');
+      expect(data.fields.name).to.equal('');
+      expect(data.fields.email).to.deep.equal(partialFields.email);
+      expect(data.fields.message).to.equal('');
+      expect(data.failure).to.be.false;
+
       done();
     });
   });
 
   it('should update the ContactStore with all fields', function (done) {
-    context.executeAction(contactAction, { fields: fields }, function (err) {
+    populateStore(function (err) {
       if (err) {
         return done(err);
       }
 
-      var contactFields = context.getStore(ContactStore).getContactFields();
+      var data = getContactData();      
 
-      expect(contactFields).to.deep.equal(fields);
+      expect(data.fields).to.deep.equal(fields);
+      expect(data.failure).to.be.false;
+
       done();
     });    
   });
@@ -69,15 +86,38 @@ describe('contact action', function () {
         return done(err);
       }
 
-      var contactFields = context.getStore(ContactStore).getContactFields();
+      var data = getContactData();
 
-      expect(contactFields.name).to.equal('');
-      expect(contactFields.email).to.equal('');
-      expect(contactFields.message).to.equal('');
+      expect(data.fields.name).to.equal('');
+      expect(data.fields.email).to.equal('');
+      expect(data.fields.message).to.equal('');
+      expect(data.failure).to.be.false;
+
       done();
-    });    
+    });
   });
 
-  it.skip('should update the ContactStore and send when complete, handle failure', function (done) {
+  it('should update the ContactStore and send when complete, failure', function (done) {
+    populateStore(function (err) {
+      if (err) {
+        return done(err);
+      }
+
+      var mockFields = JSON.parse(JSON.stringify(fields));
+      mockFields.emulateError = true;
+
+      context.executeAction(contactAction, { fields: mockFields, complete: true }, function (err) {
+        if (err) {
+          return done(err);
+        }
+
+        var data = getContactData();
+
+        expect(data.fields).to.deep.equal(fields);
+        expect(data.failure).to.be.true;
+
+        done();
+      });
+    });
   });
 });

@@ -8,9 +8,9 @@ var mail = require('./mail');
 
 module.exports = {
   name: 'contact',
+
   // at least one of the CRUD methods is required
   create: function(req, resource, params, body, config, callback) {
-
     return mail.send(params, callback);
   }
   

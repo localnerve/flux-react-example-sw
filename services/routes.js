@@ -8,9 +8,9 @@ var data = require('./data');
 
 module.exports = {
   name: 'routes',
+
   // at least one of the CRUD methods is required
   read: function(req, resource, params, config, callback) {
-
     return data.fetch(params, callback);
   }
   

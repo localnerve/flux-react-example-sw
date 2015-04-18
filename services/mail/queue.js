@@ -19,9 +19,11 @@ function sendMail (input, callback) {
       debug('AMQP channel created');
 
       var q = contact.queue.name();
-      ch.assertQueue(q);
-      ch.sendToQueue(q, new Buffer(JSON.stringify(input)));
-      debug('AMQP message sent', input);
+
+      return ch.assertQueue(q).then(function () {
+        ch.sendToQueue(q, new Buffer(JSON.stringify(input)));
+        debug('AMQP message sent', input);
+      });
     });
   })
   .then(callback, function (err) {

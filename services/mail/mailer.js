@@ -5,24 +5,24 @@
 'use strict';
 
 var mailer = require('nodemailer');
-var config = require('../../configs').create().get('mail');
+var contact = require('../../configs').create().get('contact');
 
 // TODO: add sanitizer
 
 function send (payload, done) {
   var transport = mailer.createTransport({
-    service: config.mail.service(),
+    service: contact.mail.service(),
     auth: {
-      user: config.mail.username(),
-      pass: config.mail.password()
+      user: contact.mail.username(),
+      pass: contact.mail.password()
     }
   });
 
   transport.sendMail({
-    from: config.mail.from(),
-    to: config.mail.to(),
+    from: contact.mail.from(),
+    to: contact.mail.to(),
     replyTo: payload.name + ' <' + payload.email + '>',
-    subject: config.mail.subject,
+    subject: contact.mail.subject,
     text: payload.message
   }, done);
 }

@@ -7,9 +7,11 @@
  * Environment variables can override the following:
  *   MAIL_SERVICE - A string that denotes a mail service known to nodemailer, default Mandrill
  *   MAIL_USERNAME - The authenticated service user of the mail service, default MANDRILL_USERNAME from env
- *   MAIL_PASSWORD - The authenticated service pass for the mail service, default MANDRILL_PASSWORD from env
+ *   MAIL_PASSWORD - The authenticated service pass for the mail service, default MANDRILL_APIKEY from env
  *   MAIL_TO - The mailto of all mail messages from this app, defaults to NODE_ENV chosen headers
  *   MAIL_FROM - The mailfrom of all mail messages from this app, defaults to NODE_ENV chosen headers
+ *   QUEUE_NAME - The name of the outgoing mail queue, defaults to 'outgoing-mail'
+ *   QUEUE_URL - The url of the queue service, defaults to NODE_ENV chosen url
  */
 'use strict';
 

@@ -5,12 +5,12 @@
 'use strict';
 
 var debug = require('debug')('Example:Mail:Queue');
-var config = require('../../configs').create().get('mail');
+var contact = require('../../configs').create().get('contact');
 var amqp = require('amqplib');
 var mailer = require('./mailer');
 
 function sendMail (input, callback) {
-  var open = amqp.connect(config.queue.url());
+  var open = amqp.connect(contact.queue.url());
 
   open.then(function (conn) {
     debug('AMQP connection open');
@@ -18,7 +18,7 @@ function sendMail (input, callback) {
     return conn.createChannel().then(function (ch) {
       debug('AMQP channel created');
 
-      var q = config.queue.name();
+      var q = contact.queue.name();
       ch.assertQueue(q);
       ch.sendToQueue(q, new Buffer(JSON.stringify(input)));
       debug('AMQP message sent', input);
@@ -30,14 +30,14 @@ function sendMail (input, callback) {
   });
 }
 
-function mailService () {
-  amqp.connect(config.queue.url()).then(function (conn) {
+function contactWorker () {
+  amqp.connect(contact.queue.url()).then(function (conn) {
     process.once('SIGINT', function () {
       conn.close();
     });
 
     return conn.createChannel().then(function (ch) {
-      var q = config.queue.name();
+      var q = contact.queue.name();
       
       ch.assertQueue(q).then(function () {
         ch.prefetch(1);
@@ -59,5 +59,5 @@ function mailService () {
 
 module.exports = {
   sendMail: sendMail,
-  mailService: mailService
+  contactWorker: contactWorker
 };

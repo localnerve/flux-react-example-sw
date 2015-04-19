@@ -6,21 +6,27 @@
 'use strict';
 
 // var expect = require('chai').expect;
-// var mocks = require('../../../utils/mocks');
+var mocks = require('../../../utils/mocks');
 
 describe('mail/index', function () {
   var mail;
 
   before(function () {
-    // mocks.send.begin();
-    mail = require('../../../../services/mail/index');
-    // cache = require('./cache');
+    mocks.mail.begin();
+    mail = require('../../../../services/mail/index');    
   });
 
   after(function () {
-    // mocks.send.end();
+    mocks.mail.end();
   });
 
-  it.skip('should behave correctly', function () {
+  it('should send mail without error', function (done) {
+    mail.send({
+      name: 'tom',
+      email: 'tom@heaven.org',
+      message: 'thinking of you'
+    }, function(err) {
+      done(err);
+    });
   });
 });

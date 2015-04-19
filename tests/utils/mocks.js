@@ -5,13 +5,19 @@
 'use strict';
 
 var mockery = require('mockery');
+var debug = require('debug')('Test:Mocks');
 var serviceData = require('../fixtures/service-data');
+var serviceMail = require('../fixtures/service-mail');
 var superAgent = require('../fixtures/superagent');
+var amqplib = require('../fixtures/amqplib');
 var cache = require('../fixtures/cache');
 var fetch = require('../fixtures/fetch');
+var queue = require('../fixtures/queue');
+var mailer = require('../fixtures/mailer');
 
 function mockModuleBegin(mocks) {
   mocks.forEach(function(mock) {
+    debug('registering mock "' + mock.pattern + '"');
     mockery.registerMock(mock.pattern, mock.module);
   });
 
@@ -22,11 +28,11 @@ function mockModuleBegin(mocks) {
 }
 
 function mockModuleEnd(mocks) {
+  mockery.disable();
+
   mocks.forEach(function(mock) {
     mockery.deregisterMock(mock.pattern);
   });
-  
-  mockery.disable();
 }
 
 function mockServiceDataBegin () {
@@ -39,6 +45,19 @@ function mockServiceDataBegin () {
 function mockServiceDataEnd () { 
   mockModuleEnd([{
     pattern: './data'
+  }]);
+}
+
+function mockServiceMailBegin () {
+  mockModuleBegin([{
+    pattern: './mail',
+    module: serviceMail
+  }]);
+}
+
+function mockServiceMailEnd () {
+  mockModuleEnd([{
+    pattern: './mail'
   }]);
 }
 
@@ -78,6 +97,37 @@ function mockFetchEnd () {
   }]);
 }
 
+function mockMailBegin () {
+  mockModuleBegin([{
+    pattern: './queue',
+    module: queue
+  }]);
+}
+
+function mockMailEnd () {
+  mockModuleEnd([{
+    pattern: './queue'
+  }]);
+}
+
+function mockQueueBegin () {  
+  mockModuleBegin([{
+    pattern: 'amqplib',
+    module: amqplib
+  }, {
+    pattern: './mailer',
+    module: mailer
+  }]);
+}
+
+function mockQueueEnd () {
+  mockModuleEnd([{
+    pattern: 'amqplib'
+  }, {
+    pattern: './mailer'
+  }]);
+}
+
 module.exports = {
   serviceData: {
     begin: mockServiceDataBegin,
@@ -90,5 +140,17 @@ module.exports = {
   fetch: {
     begin: mockFetchBegin,
     end: mockFetchEnd
+  },
+  serviceMail: {
+    begin: mockServiceMailBegin,
+    end: mockServiceMailEnd
+  },
+  mail: {
+    begin: mockMailBegin,
+    end: mockMailEnd
+  },
+  queue: {
+    begin: mockQueueBegin,
+    end: mockQueueEnd
   }
 };

@@ -32,6 +32,9 @@ function sendMail (input, callback) {
   });
 }
 
+/**
+ * This is the main proc of the contact worker process.
+ */
 function contactWorker () {
   amqp.connect(contact.queue.url()).then(function (conn) {
     process.once('SIGINT', function () {
@@ -41,7 +44,7 @@ function contactWorker () {
     return conn.createChannel().then(function (ch) {
       var q = contact.queue.name();
       
-      ch.assertQueue(q).then(function () {
+      return ch.assertQueue(q).then(function () {
         ch.consume(q, function (msg) {
           if (msg !== null) {
             mailer.send(JSON.parse(msg.content.toString()), function(err) {

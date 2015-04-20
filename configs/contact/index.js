@@ -60,7 +60,9 @@ function QUEUE_URL (env) {
   return process.env.QUEUE_URL || mailQueue[env];
 }
 
-function makeConfig(env) {
+function makeConfig(nconf) {
+  var env = nconf.get('NODE_ENV');
+
   return {
     mail: {
       service: MAIL_SERVICE,

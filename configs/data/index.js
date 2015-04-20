@@ -37,7 +37,9 @@ function addBranch(url, env) {
   return url +'?' + qs.stringify({ ref: FRED_BRANCH(env) });
 }
 
-function makeConfig (env) {
+function makeConfig (nconf) {
+  var env = nconf.get('NODE_ENV');
+
   return {
     FRED: {
       url: function () {

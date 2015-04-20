@@ -19,7 +19,9 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) 
 __UAREF__("create", "__UAID__", "auto"); \
 __UAREF__("send", "pageview");';
 
-function makeConfig(env) {
+function makeConfig (nconf) {
+  var env = nconf.get('NODE_ENV');
+
   return {
     snippet: trackingTemplate
       .replace(/__UAID__/g, uaID[env])

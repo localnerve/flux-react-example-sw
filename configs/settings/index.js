@@ -16,8 +16,8 @@ var publicbase = '/public';
  * Prepends a path to object values.
  * Returns a new object result.
  */
-function prependPathToObject(fromObj, prePath) {
-  return Object.keys(fromObj).reduce(function(obj, key) {
+function prependPathToObject (fromObj, prePath) {
+  return Object.keys(fromObj).reduce(function (obj, key) {
     var fromValue = fromObj[key];
     if (typeof fromValue === 'string') {
       obj[key] = path.join(prePath, fromValue);
@@ -31,18 +31,18 @@ function prependPathToObject(fromObj, prePath) {
 /**
  * A configuration for loading and decorating assets json at a later time
  */
-function assetsConfig(baseDir) {
-  function Config(dir) {
+function assetsConfig (baseDir) {
+  function Config (dir) {
     this.baseDir = dir;
   }
   Config.prototype = {
-    load: function() {
+    load: function () {
       if (!this.assets) {
         this.assets = require(assetsJsonFile).assets;
       }
       return this;
     },
-    mainScript: function() {
+    mainScript: function () {
       this.load();
       var main = Array.isArray(this.assets.main) ? this.assets.main[0] : this.assets.main;
       return path.join(this.baseDir, main);
@@ -94,29 +94,37 @@ var srcFiles = {
 /**
  * Settings to override by environment
  */
-var overrides = {
-  production: {
-    dist: {
-      baseDir: path.join(distbase, 'release')
-    },
-    loggerFormat: 'tiny',
-    web: {
-      // ssl: true,
-      assetAge: 31556926000
+function overrides (env, baseDir) {
+  var envOverrides = {
+    production: {
+      dist: {
+        baseDir: path.join(baseDir, distbase, 'release')
+      },
+      loggerFormat: 'tiny',
+      web: {
+        // ssl: true,
+        assetAge: 31556926000
+      }
     }
-  }
-};
+  };
+  return envOverrides[env];
+}
 
-function makeConfig(env) {
+function makeConfig (nconf) {
+  var env = nconf.get('NODE_ENV');
+
+  // Update baseDir if defined
+  var baseDir = nconf.get('baseDir') || '.';
+  
   /**
    * The exported settings config
    */
   var config = {
     dist: {
-      baseDir: path.join(distbase, 'debug')
+      baseDir: path.join(baseDir, distbase, 'debug')
     },
     src: {
-      baseDir: '.'
+      baseDir: baseDir
     },
     web: {
       baseDir: publicbase,
@@ -134,7 +142,7 @@ function makeConfig(env) {
   };
 
   // Environment overrides
-  _.merge(config, overrides[env]);
+  _.merge(config, overrides(env, baseDir));
 
   // Assemble config.src
   _.assign(
@@ -146,7 +154,7 @@ function makeConfig(env) {
   );
 
   // Assemble config.dist and config.web
-  [config.dist, config.web].forEach(function(config) {
+  [config.dist, config.web].forEach(function (config) {
     _.assign(
       config,
       prependPathToObject(commonDirs, config.baseDir),

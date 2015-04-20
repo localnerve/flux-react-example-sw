@@ -18,26 +18,26 @@ var exclude = [ 'index.js', localEnv ];
  * Loads modules in this directory.
  * Return an object keyed by name.
  */
-function configs(env) {
+function configs (nconf) {
   var result = {};
-  fs.readdirSync(__dirname).forEach(function(item) {
+  fs.readdirSync(__dirname).forEach(function (item) {
     var name = path.basename(item);
     if (exclude.indexOf(name) === -1) {
-      result[name] = require('./' + name)(env);
+      result[name] = require('./' + name)(nconf);
     }
   });
   return result;
 }
 
 // Create a new configuration with overrides
-function create(overrides) {
+function create (overrides) {
   var nconf = require('nconf');
 
   nconf
     .overrides(overrides || {})
     .env()
     .file({ file: path.join(__dirname, localEnv) })
-    .defaults(configs(nconf.get('NODE_ENV')));
+    .defaults(configs(nconf));
 
   return nconf;
 }

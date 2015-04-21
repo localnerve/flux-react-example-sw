@@ -5,7 +5,7 @@
 'use strict';
 
 var debug = require('debug')('Example:Mail:Queue');
-var contact = require('../../configs').create().get('contact');
+var contact = require('../../configs').create().contact;
 var amqp = require('amqplib');
 var mailer = require('./mailer');
 

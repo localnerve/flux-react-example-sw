@@ -8,7 +8,7 @@ var request = require('superagent');
 var debug = require('debug')('Example:Data:Fetch');
 
 var cache = require('./cache');
-var config = require('../../configs').create().get('data');
+var config = require('../../configs').create().data;
 
 /**
  * Get a single resource from FRED and cache it.

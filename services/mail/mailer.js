@@ -5,7 +5,7 @@
 'use strict';
 
 var mailer = require('nodemailer');
-var contact = require('../../configs').create().get('contact');
+var contact = require('../../configs').create().contact;
 
 // TODO: add sanitizer
 

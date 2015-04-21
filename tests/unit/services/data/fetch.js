@@ -8,7 +8,7 @@
 var expect = require('chai').expect;
 var mocks = require('../../../utils/mocks');
 
-var config = require('../../../../configs').create().get('data');
+var config = require('../../../../configs').create().data;
 
 describe('data/fetch', function () {
   var fetch, cache, request;

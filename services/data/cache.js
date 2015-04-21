@@ -7,7 +7,9 @@
 var debug = require('debug')('Example:Data:Cache');
 var markdown = require('./markdown');
 
-// TODO: Change to Redis to support multiple processes
+// FIXME: 
+// Cache storage should not be in this process
+// in a real application (issue #9)
 var cache = {};
 
 function writeToCache (params, data) {  

@@ -352,7 +352,7 @@ module.exports = function (grunt) {
       });
     }
 
-    grunt.config('project', configLib.create(options.overrides).get('settings'));
+    grunt.config('project', configLib.create(options.overrides).settings);
   });  
 
   // debug nconfig, dump the config to the console
@@ -361,7 +361,7 @@ module.exports = function (grunt) {
     var config = require('./configs').create();
     var dump = {
       project: grunt.config('project'),
-      nconf: config.get()
+      nconf: config
     };
     console.log(util.inspect(dump));
   });

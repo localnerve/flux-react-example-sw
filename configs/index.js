@@ -9,6 +9,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var nconf = require('nconf');
 
 var localEnv = 'local.env.json';
 
@@ -31,15 +32,22 @@ function configs (nconf) {
 
 // Create a new configuration with overrides
 function create (overrides) {
-  var nconf = require('nconf');
-
   nconf
     .overrides(overrides || {})
     .env()
     .file({ file: path.join(__dirname, localEnv) })
     .defaults(configs(nconf));
 
-  return nconf;
+  var config = nconf.get();
+
+  // Remove all the items that pass the filter
+  Object.keys(config).filter(function (key) {
+    return /^(?:npm)?_/.test(key);
+  }).forEach(function (key) {
+    delete config[key];
+  });
+
+  return config;
 }
 
 module.exports = {

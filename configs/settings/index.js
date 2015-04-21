@@ -115,7 +115,7 @@ function makeConfig (nconf) {
 
   // Update baseDir if defined
   var baseDir = nconf.get('baseDir') || '.';
-  
+
   /**
    * The exported settings config
    */

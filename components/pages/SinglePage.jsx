@@ -10,7 +10,8 @@ var SinglePage = React.createClass({
   render: function() {
     return (
       <div className="page">
-        <div className="grid-container-center page-content" dangerouslySetInnerHTML={{__html: this.props.content || ''}}>
+        <div className="grid-container-center page-content"
+          dangerouslySetInnerHTML={{__html: this.props.content || ''}}>
         </div>
       </div>
     );

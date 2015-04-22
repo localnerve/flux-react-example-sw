@@ -20,12 +20,14 @@ var Html = React.createClass({
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta httpEquiv="x-dns-prefetch-control" content="on" />
           <link rel="dns-prefetch" href="http://fonts.gstatic.com" />
-          <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>          
-          <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>          
+          <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>
+          <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>
         </head>
         <body>
           <script dangerouslySetInnerHTML={{__html: this.props.headerScript}}></script>
-          <section id="application" className="app-frame" dangerouslySetInnerHTML={{__html: this.props.markup}}></section>
+          <section id="application" className="app-frame"
+            dangerouslySetInnerHTML={{__html: this.props.markup}}>
+          </section>
           <script dangerouslySetInnerHTML={{__html: this.props.state}}></script>
           <script src={this.props.mainScript}></script>
         </body>

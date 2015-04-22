@@ -33,7 +33,7 @@ var Application = React.createClass({
       pageTitle: appStore.getCurrentPageTitle(),
       pageContent: contentStore.getCurrentPageContent(),
       route: appStore.getCurrentRoute(),
-      pages: appStore.getPages(),
+      pages: appStore.getPages()
     };
   },
   onChange: function () {

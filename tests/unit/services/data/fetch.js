@@ -53,6 +53,21 @@ describe('data/fetch', function () {
     });
   });
 
+  describe('fetchMain', function () {
+    it('should fetch the main resource', function (done) {
+      fetch.fetchMain(function (err, res) {
+        if (err) {
+          return done(err);
+        }
+
+        expect(res).to.equal(cache.get());
+        expect(request.url).to.equal(config.FRED.url());
+
+        done();
+      });
+    });
+  });
+
   describe.skip('fetchAll', function () {
     it('should fetch all resources', function () {
     });

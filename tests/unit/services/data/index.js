@@ -13,7 +13,7 @@ describe('data/index', function () {
 
   before(function () {
     mocks.fetch.begin();
-    data = require('../../../../services/data/index');
+    data = require('../../../../services/data');
     cache = require('./cache');
   });
 
@@ -21,25 +21,33 @@ describe('data/index', function () {
     mocks.fetch.end();
   });
 
-  it('should pull from cache if exists', function (done) {
-    data.fetch({}, function (err, res) {
-      if (err) {
-        done(err);
-      }
+  describe('fetch', function () {
+    it('should pull from cache if exists', function (done) {
+      data.fetch({}, function (err, res) {
+        if (err) {
+          done(err);
+        }
 
-      expect(res).to.equal(cache.get());
-      done();
+        expect(res).to.equal(cache.get());
+        done();
+      });
+    });
+
+    it('should fetch if not in cache', function (done) {
+      data.fetch({ resource: 'miss' }, function (err, res) {
+        if (err) {
+          done(err);
+        }
+
+        expect(res).to.equal('fetch');
+        done();
+      });
     });
   });
 
-  it('should fetch if not in cache', function (done) {
-    data.fetch({ resource: 'miss' }, function (err, res) {
-      if (err) {
-        done(err);
-      }
-
-      expect(res).to.equal('fetch');
-      done();
+  describe('initialize', function () {
+    it('should initialize', function (done) {
+      data.initialize(done);
     });
   });
 });

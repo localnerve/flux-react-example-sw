@@ -34,8 +34,8 @@ function renderApp(res, context, app, props) {
   debug('Rendering app component into html');
   props.markup = React.renderToString(context.createElement());
   props.context = context.getComponentContext();
-  
-  res.send('<!DOCTYPE html>' + 
+
+  res.send('<!DOCTYPE html>' +
     React.renderToStaticMarkup(HtmlComponent(props))
   );
 }
@@ -53,10 +53,12 @@ function bootstrap (app) {
       xhrContext: {
         _csrf: req.csrfToken() // Make sure all XHR requests have the CSRF token
       }
-    });    
+    });
 
     debug('Executing routes action');
-    context.executeAction(routesAction, { resource: 'routes' })
+    context.executeAction(routesAction, {
+      resource: config.data.FRED.mainResource
+    })
     .then(function () {
       debug('Executing navigate action');
       return context.executeAction(navigateAction, {
@@ -71,7 +73,7 @@ function bootstrap (app) {
     })
     .then(function (result) {
       debug('Reading the header scripts from ' + settings.dist.headerScript);
-      renderProps.headerStyles = result;      
+      renderProps.headerStyles = result;
       return Q.nfcall(fs.readFile, settings.dist.headerScript, {
         encoding: 'utf8'
       });

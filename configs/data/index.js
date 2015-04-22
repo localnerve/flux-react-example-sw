@@ -33,7 +33,7 @@ function FRED_BRANCH (env) {
   return process.env.FRED_BRANCH || branches[env];
 }
 
-function addBranch(url, env) {
+function addBranch (url, env) {
   return url +'?' + qs.stringify({ ref: FRED_BRANCH(env) });
 }
 
@@ -45,6 +45,7 @@ function makeConfig (nconf) {
       url: function () {
         return addBranch(FRED_URL(), env);
       },
+      mainResource: 'routes',
       mediaType: function () {
         return FRED_MEDIATYPE();
       },

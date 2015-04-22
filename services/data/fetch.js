@@ -38,11 +38,20 @@ function fetchOne (params, callback) {
       debug('Content successfully retrieved for', params.url);
       cache.put(params, new Buffer(content, 'base64').toString());
       return callback(null, cache.get(params.resource));
-    } 
-      
+    }
+
     debug('Content not found for', params.url, res.body);
-    callback(new Error('Content not found for '+params.url));    
+    callback(new Error('Content not found for '+params.url));
   });
+}
+
+/**
+ * Get the main resource from FRED
+ */
+function fetchMain (callback) {
+  fetchOne({
+    resource: config.FRED.mainResource
+  }, callback);
 }
 
 /**
@@ -50,7 +59,7 @@ function fetchOne (params, callback) {
  * TODO: call from worker in one-off dyno.
  */
 function fetchAll () {
-  fetchOne({ resource: 'routes' }, function(err, routes) {
+  fetchMain(function (err, routes) {
     if (err) {
       return debug('fetchAll failed to get routes: '+err);
     }
@@ -66,6 +75,7 @@ function fetchAll () {
 }
 
 module.exports = {
+  fetchMain: fetchMain,
   fetchOne: fetchOne,
   fetchAll: fetchAll
 };

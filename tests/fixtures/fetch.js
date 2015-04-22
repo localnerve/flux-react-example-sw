@@ -7,5 +7,10 @@
 module.exports = {
   fetchOne: function (params, callback) {
     callback(null, 'fetch');
+  },
+  fetchMain: function (callback) {
+    callback(null, 'fetch');
+  },
+  fetchAll: function () {
   }
 };

@@ -7,7 +7,7 @@
 var routesResponse = require('./routes-response');
 
 module.exports = {
-  fetch: function(params, callback) {
+  fetch: function (params, callback) {
     if (params.emulateError) {
       callback(new Error('mock'));
     }
@@ -34,5 +34,8 @@ module.exports = {
       default:
         throw new Error('service-data test fixture recieved unexpected resource request');
     }
+  },
+  initialize: function (callback) {
+    callback();
   }
 };

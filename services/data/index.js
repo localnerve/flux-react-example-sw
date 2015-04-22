@@ -16,12 +16,23 @@ function fetch (params, callback) {
   debug('fetching resource "'+params.resource+'"');
 
   if (cache.get(params.resource)) {
+    debug('cache hit');
     return callback(null, cache.get(params.resource));
   }
 
   fetchLib.fetchOne(params, callback);
 }
 
+/**
+ * Initialize the data layer
+ */
+function initialize (callback) {
+  debug('initializing');
+
+  fetchLib.fetchMain(callback);
+}
+
 module.exports = {
-  fetch: fetch
+  fetch: fetch,
+  initialize: initialize
 };

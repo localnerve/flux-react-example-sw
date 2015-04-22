@@ -62,7 +62,8 @@ app.use(errorHandler({
   }
 }));
 
-data.fetch({ resource: 'routes' }, function (err) {
+// Initialize the data layer and start the server.
+data.initialize(function (err) {
   if (err) {
     throw err;
   }

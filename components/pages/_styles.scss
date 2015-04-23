@@ -8,7 +8,9 @@
 }
 .page-content {
   @include grid-content;
-  padding: 0 2rem;
+  @include breakpoint(medium) {
+    padding: 0 2rem;
+  }
 }
 .page h1 {
   margin: 0 auto;

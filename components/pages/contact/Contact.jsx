@@ -34,9 +34,9 @@ var Contact = React.createClass({
         <div className="grid-container-center page-content">
           <h2>{this.props.headingText}</h2>
           <p>{this.props.introductionText}</p>
-          <div className="contact-steps">
+          <ul className="contact-steps">
             {contactSteps}
-          </div>
+          </ul>
           {contactElements}
         </div>
       </div>
@@ -134,9 +134,9 @@ var Contact = React.createClass({
           hide: input.step === self.props.stepFinal
         });
         return (
-          <span className={classNames} key={input.name}>
-            {input.name}
-          </span>
+          <li className={classNames} key={input.name}>
+            <span>{input.name}</span>
+          </li>
         );
       });
   },

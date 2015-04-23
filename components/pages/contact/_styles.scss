@@ -2,3 +2,25 @@
 // Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
 //
 // Styles for the Contact component
+
+@import "steps";
+
+.contact-form {
+  label {
+    display: block;
+    padding-bottom: 0.2rem;
+  }
+  .form-value-element {
+  }
+}
+
+.form-navigation {
+  input {
+  }
+/*
+  [type=button] {
+  }
+  [type=submit] {
+  }
+*/
+}

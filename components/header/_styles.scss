@@ -3,6 +3,9 @@
 //
 // header styles
 // =========================
+.app-header {
+  @include grid-block(shrink, vertical);
+}
 .app-header a {
   text-decoration: none;
 }
@@ -10,16 +13,19 @@
 // ribbon styles
 // -------------------------
 .ribbon {
-  margin: 0.4rem auto 0.4rem auto;
+  margin: 0.5rem 0;
   @include breakpoint(medium) {
-    margin: 1rem auto 0.2rem auto;
+    margin: 1rem 0;
   }
 }
 .ribbon .contact, .ribbon .social {
   overflow-y: hidden;
 }
 .ribbon span {
-  font-size: 2rem;
+  font-size: 1.6rem; //2rem;
+  @include breakpoint(medium) {
+    font-size: 2rem;
+  }
 }
 
 // logo styles
@@ -44,24 +50,24 @@ $logo-color: #1450d2;
 }
 
 .logo a {
-  color: $logo-color;  
+  color: $logo-color;
 }
 
 .logo h1 {
-  padding: 0.3em 2.2em 0.7em 0em;
+  padding: 0.3em 2.2em 1em 0em;
   margin: 0;
 
-  font-size: 2.2em;
+  font-size: 1.8em;
 
   // png fallback
   background: image-url("logo.png") no-repeat 100% 50% / 35%;
-  background: none, inline-image("logo.svg", "image/svg+xml") no-repeat 100% 50%;
+  background: none, inline-image("logo.svg", "image/svg+xml") no-repeat 100% 80%;
 
   @include breakpoint(medium) {
     font-size: 3em;
   }
   @media #{$height-constrained-phone} {
-    font-size: 2em;
+    font-size: 1.4em;
   }
 }
 
@@ -85,7 +91,7 @@ $logo-color: #1450d2;
 .navigation {
   list-style: none;
   padding: 0;
-  margin: 0.8rem 0 1rem 0;
+  margin: 0.25rem 0;
 }
 .navigation-link {
   line-height: 1.4;

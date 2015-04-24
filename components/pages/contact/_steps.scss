@@ -2,6 +2,7 @@
 // Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
 //
 // Styles for the contact steps
+@import "arrows";
 
 // between 0 and 1
 $step-size-scale: 0.75;
@@ -15,50 +16,12 @@ $step-complete-color: #AAA;
 $step-incomplete-color: #888;
 $step-current-color: $info-color;
 
-@mixin step-pre-triangle($size, $color) {
-  content: "";
-  display: inline-block;
-  width: 0;
-  height: 0;
-  border: inset $size;
-  border-color: $color $color $color transparent;
-  border-style: solid;
-  margin-right: -($size * 0.75);
-  @include breakpoint(medium) {
-    border: inset step-size-unscale($size);
-    border-color: $color $color $color transparent;
-    border-style: solid;
-    margin-right: -( step-size-unscale($size) * 0.75 );
-  }
+@mixin step-text($color) {
+  @include arrow-text($step-size, step-size-unscale($step-size), $color);
 }
 
-@mixin step-post-triangle($size, $color) {
-  @include css-triangle($size, $color, left);
-  display: inline-block;
-  @include breakpoint(medium) {
-    @include css-triangle(step-size-unscale($size), $color, left);
-  }
-}
-
-@mixin step-text($size, $color) {
-  position: relative;
-  z-index: 1;
-  padding: ($size/2) 0;
-  background: $color;
-  flex-grow: 1;
-  min-width: 55%;
-  @include breakpoint(medium) {
-    padding: (step-size-unscale($size) / 2) 0;
-  }
-}
-
-@mixin step-arrows($size, $color) {
-  &::before {
-    @include step-pre-triangle($size, $color);
-  }
-  &::after {
-    @include step-post-triangle($size, $color);
-  }
+@mixin step-arrows($color) {
+  @include arrow-decorate($step-size, step-size-unscale($step-size), $color);
 }
 
 .contact-steps {
@@ -83,21 +46,21 @@ $step-current-color: $info-color;
   }
 
   .complete {
-    @include step-arrows($step-size, $step-complete-color);
+    @include step-arrows($step-complete-color);
     span {
-      @include step-text($step-size, $step-complete-color);
+      @include step-text($step-complete-color);
     }
   }
   .current {
-    @include step-arrows($step-size, $step-current-color);
+    @include step-arrows($step-current-color);
     span {
-      @include step-text($step-size, $step-current-color);
+      @include step-text($step-current-color);
     }
   }
   .incomplete {
-    @include step-arrows($step-size, $step-incomplete-color);
+    @include step-arrows($step-incomplete-color);
     span {
-      @include step-text($step-size, $step-incomplete-color);
+      @include step-text($step-incomplete-color);
     }
   }
 }

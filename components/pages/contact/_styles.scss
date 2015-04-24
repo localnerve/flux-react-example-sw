@@ -3,6 +3,7 @@
 //
 // Styles for the Contact component
 
+@import "arrows";
 @import "steps";
 
 .contact-form {
@@ -11,16 +12,28 @@
     padding-bottom: 0.2rem;
   }
   .form-value-element {
+    width: 100%;
   }
 }
 
 .form-navigation {
-  input {
+  @extend .grid-row-spaced;
+
+  button {
+    display: flex;
+    border: 0;
+    align-items: center;
+    flex: 1 1 0;
+    background: transparent;
+
+    span {
+      @include arrow-text($rem-base, $rem-base, #777);
+    }
   }
-/*
-  [type=button] {
+  button[type=submit] {
+    @include arrow-decorate($rem-base, $rem-base, #777, right);
   }
-  [type=submit] {
+  button[type=button] {
+    @include arrow-decorate($rem-base, $rem-base, #777, left);
   }
-*/
 }

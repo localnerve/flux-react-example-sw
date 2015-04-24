@@ -1,0 +1,72 @@
+// Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+// Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+
+@mixin pre-triangle($size, $medium-size, $color, $direction: left) {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border: inset $size;
+  border-style: solid;
+
+  @if ($direction == left) {
+    border-color: $color $color $color transparent;
+    margin-right: -($size * 0.75);
+  }
+  @if ($direction == right) {
+    border-color: $color transparent $color $color;
+    margin-left: -($size * 0.75);
+  }
+
+  @include breakpoint(medium) {
+    border: inset $medium-size;
+    border-style: solid;
+    @if ($direction == left) {
+      border-color: $color $color $color transparent;
+      margin-right: -($medium-size * 0.75);
+    }
+    @if ($direction == right) {
+      border-color: $color transparent $color $color;
+      margin-left: -($medium-size * 0.75);
+    }
+  }
+}
+
+@mixin post-triangle($size, $medium-size, $color, $direction: left) {
+  @include css-triangle($size, $color, $direction);
+  display: inline-block;
+  @include breakpoint(medium) {
+    @include css-triangle($medium-size, $color, $direction);
+  }
+}
+
+@mixin arrow-text($size, $medium-size, $color) {
+  position: relative;
+  z-index: 1;
+  padding: ($size/2) 0;
+  background: $color;
+  flex-grow: 1;
+  min-width: 55%;
+  @include breakpoint(medium) {
+    padding: ($medium-size / 2) 0;
+  }
+}
+
+@mixin arrow-decorate($size, $medium-size, $color, $direction: right) {
+  @if ($direction == right) {
+    &::before {
+      @include pre-triangle($size, $medium-size, $color, left);
+    }
+    &::after {
+      @include post-triangle($size, $medium-size, $color, left);
+    }
+  }
+  @if ($direction == left) {
+    &::before {
+      @include post-triangle($size, $medium-size, $color, right);
+    }
+    &::after {
+      @include pre-triangle($size, $medium-size, $color, right);
+    }
+  }
+}

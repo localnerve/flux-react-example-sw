@@ -112,7 +112,7 @@ var Contact = React.createClass({
             return React.createElement(
               element.tagName,
               element.props,
-              element.text
+              React.createElement('span', {}, element.text)
             );
           })
         )

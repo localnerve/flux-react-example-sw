@@ -18,13 +18,14 @@
 
 .form-navigation {
   @extend .grid-row-spaced;
+  margin: 1em 0;
 
   button {
     display: flex;
     border: 0;
+    background: transparent;
     align-items: center;
     flex: 1 1 0;
-    background: transparent;
 
     span {
       @include arrow-text($rem-base, $rem-base, #777);

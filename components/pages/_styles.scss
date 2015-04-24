@@ -4,7 +4,7 @@
 // styles for all pages
 
 .page {
-  @include grid-block(expand, horizontal, true, left);
+  @include vertical-block(spaced);
 }
 .page-content {
   @include grid-content;
@@ -12,7 +12,7 @@
     padding: 0 2rem;
   }
 }
-.page h2 {
+.page-content h2 {
   margin: 0.4rem auto;
 }
 

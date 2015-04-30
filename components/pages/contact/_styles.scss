@@ -10,6 +10,7 @@
   label {
     display: block;
     padding-bottom: 0.2rem;
+    font-size: larger;
   }
   .form-value-element {
     width: 100%;
@@ -21,20 +22,49 @@
   margin: 1em 0;
 
   button {
+    /*
     display: flex;
     border: 0;
     background: transparent;
     align-items: center;
     flex: 1 1 0;
+    */
+    display: inline-block;
+    border: 0;
+    background: transparent;
 
     span {
       @include arrow-text($rem-base, $rem-base, #777);
+      display: block;
+      float: left;
+      padding: $rem-base/2 !important;
+      min-width: 0;
     }
   }
   button[type=submit] {
-    @include arrow-decorate($rem-base, $rem-base, #777, right);
+    //@include arrow-decorate($rem-base, $rem-base, #777, right);
+    &::before {
+      @include pre-triangle($rem-base, $rem-base, #777, left);
+      display: block;
+      float: left;
+    }
+    &::after {
+      @include post-triangle($rem-base, $rem-base, #777, left);
+      display: block;
+      float: left;
+    }
   }
   button[type=button] {
-    @include arrow-decorate($rem-base, $rem-base, #777, left);
+    //@include arrow-decorate($rem-base, $rem-base, #777, left);
+    &::before {
+      display: block;
+      float: left;
+      @include post-triangle($rem-base, $rem-base, #777, right);
+    }
+    &::after {
+      display: block;
+      float: left;
+      @include pre-triangle($rem-base, $rem-base, #777, right);
+    }
   }
 }

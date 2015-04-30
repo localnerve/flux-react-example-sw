@@ -22,13 +22,6 @@
   margin: 1em 0;
 
   button {
-    /*
-    display: flex;
-    border: 0;
-    background: transparent;
-    align-items: center;
-    flex: 1 1 0;
-    */
     display: inline-block;
     border: 0;
     background: transparent;
@@ -42,7 +35,6 @@
     }
   }
   button[type=submit] {
-    //@include arrow-decorate($rem-base, $rem-base, #777, right);
     &::before {
       @include pre-triangle($rem-base, $rem-base, #777, left);
       display: block;
@@ -55,16 +47,15 @@
     }
   }
   button[type=button] {
-    //@include arrow-decorate($rem-base, $rem-base, #777, left);
     &::before {
+      @include post-triangle($rem-base, $rem-base, #777, right);
       display: block;
       float: left;
-      @include post-triangle($rem-base, $rem-base, #777, right);
     }
     &::after {
+      @include pre-triangle($rem-base, $rem-base, #777, right);
       display: block;
       float: left;
-      @include pre-triangle($rem-base, $rem-base, #777, right);
     }
   }
 }

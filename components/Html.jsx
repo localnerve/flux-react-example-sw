@@ -17,7 +17,7 @@ var Html = React.createClass({
         <head>
           <meta charSet="utf-8" />
           <title>{this.getStore(ApplicationStore).getCurrentPageTitle()}</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
           <meta httpEquiv="x-dns-prefetch-control" content="on" />
           <link rel="dns-prefetch" href="http://fonts.gstatic.com" />
           <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>

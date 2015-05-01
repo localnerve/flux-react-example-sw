@@ -12,6 +12,19 @@
   @include vertical-block(left);
 }
 
+$header-footer-color: #FFF;
+$header-footer-color-dark: #1B5E20;
+$header-footer-background: #43A047;
+$header-footer-background-accent: rgba(27, 94, 32, 0.7);
+
+%header-footer-text {
+  color: $header-footer-color;
+}
+%header-footer-link {
+  @extend %header-footer-text;
+  text-decoration: none;
+}
+
 @import "header/styles";
 @import "pages/styles";
 @import "footer/styles";

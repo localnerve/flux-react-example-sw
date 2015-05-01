@@ -11,6 +11,8 @@
   "icon-fonts",
   "fonts";
 
+$height-constrained-phone: "only screen and (orientation: portrait) and (max-height: 480px)";
+
 @mixin vertical-block($align: center, $size: expand) {
   @include grid-block($size, vertical, false, $align);
   @content;

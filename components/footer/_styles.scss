@@ -6,13 +6,21 @@
     max-height: 8rem;
     min-height: 8rem;
   }
+
+  background: $header-footer-background;
+  box-shadow: inset 0 8px 10px -7px $header-footer-background-accent;
+
+  span {
+    @extend %header-footer-text;
+  }
 }
 .footer-line {
-  @include grid-content;
-  max-width: 56.25rem;
-  margin: 0.2rem auto;
+  align-items: center;
+  padding: 0 1rem;
 }
-.att-line span {
-  line-height: 1.2;
-  font-size: 1.2rem;
+.att-line {
+  span {
+    line-height: 1.2;
+    font-size: 1.2rem;
+  }
 }

@@ -15,7 +15,7 @@ function webpackStatsPlugin(self) {
     var path = require('path');
     var fs = require('fs');
 
-    var data = stats.toJson();              
+    var data = stats.toJson();
     var assets = data.assetsByChunkName;
     var output = {
       assets: {}
@@ -43,20 +43,20 @@ module.exports = function (grunt) {
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
   grunt.initConfig({
-    
+
     pkg: grunt.file.readJSON('package.json'),
 
     autoprefixer: {
       options: {
         browsers: ['last 2 versions', '> 2% in US']
       },
-      all: {        
+      all: {
         src: '<%= project.dist.css %>'
       }
     },
 
     clean: ['<%= project.dist.baseDir %>'],
-    
+
     copy: {
       assets: {
         files: [{
@@ -67,7 +67,7 @@ module.exports = function (grunt) {
         }]
       }
     },
-    
+
     compass: {
       options: {
         sassDir: '<%= project.src.styles %>',
@@ -81,7 +81,7 @@ module.exports = function (grunt) {
           '<%= project.vendor.css %>',
           '<%= project.src.components %>'
         ],
-        environment: 'development',                
+        environment: 'development',
 
         httpGeneratedImagesPath: '<%= project.web.images %>'
       },
@@ -125,7 +125,7 @@ module.exports = function (grunt) {
     jshint: {
       options: {
         jshintrc: true
-      },      
+      },
       all: {
         src: [
           '*.js',
@@ -159,7 +159,7 @@ module.exports = function (grunt) {
         options: {
           ignore: ['node_modules/**', '<%= project.distbase %>/**'],
           ext: 'js,jsx,md'
-        },        
+        },
         script: './<%= pkg.main %>'
       }
     },
@@ -174,7 +174,7 @@ module.exports = function (grunt) {
       },
       mobile: {
         options: {
-          connectivity: '3G',          
+          connectivity: '3G',
           runs: 3,
           budget: {
             SpeedIndex: 1500
@@ -330,12 +330,12 @@ module.exports = function (grunt) {
         progress: false
       }
     }
-  
+
   });
 
   // Custom config task
   // Creates a config for the project, saves config(settings) in grunt.config('project')
-  // 
+  //
   // Options:
   //  overrides: An object with config settings that overrides all.
   //             example: settings:dist:images
@@ -347,13 +347,13 @@ module.exports = function (grunt) {
     var options = this.options();
 
     if (options.env) {
-      Object.keys(options.env).forEach(function(key) {        
+      Object.keys(options.env).forEach(function(key) {
         process.env[key] = options.env[key];
       });
     }
 
     grunt.config('project', configLib.create(options.overrides).settings);
-  });  
+  });
 
   // debug nconfig, dump the config to the console
   grunt.registerTask('_dumpconfigTask', function() {
@@ -369,7 +369,7 @@ module.exports = function (grunt) {
   grunt.registerTask('dumpconfig', 'Debug nconfig', function() {
     var isProd = this.args.shift() === 'prod';
     var tasks = ['nconfig:'+(isProd ? 'prod' : 'dev')];
-    
+
     grunt.task.run(tasks.concat('_dumpconfigTask'));
   });
 
@@ -379,12 +379,14 @@ module.exports = function (grunt) {
     var isProd = this.args.shift() === 'prod';
     var tasks = _nconfig ? [] : ['nconfig:'+(isProd ? 'prod' : 'dev')];
 
-    tasks = tasks.concat(['svg2png', 'svgmin', 'compass:'+(isProd ? 'prod' : 'dev')]);
+    tasks = tasks.concat([
+      'svg2png', 'svgmin', 'compass:'+(isProd ? 'prod' : 'dev'), 'autoprefixer'
+    ]);
     if (!isProd) {
       tasks = tasks.concat(['concurrent:css']);
     }
-    
-    grunt.task.run(isProd ? tasks.concat(['autoprefixer', 'cssmin:prod']) : tasks);
+
+    grunt.task.run(isProd ? tasks.concat(['cssmin:prod']) : tasks);
   });
 
   // build the header script

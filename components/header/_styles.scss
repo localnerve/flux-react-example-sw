@@ -40,13 +40,13 @@
     overflow-x: visible;
     align-items: center;
   }
-  margin: 0 2rem 0.6rem;
+  margin: 0 2rem 0.8rem;
 
   @include breakpoint(medium) {
     margin: 0 2rem 1.5rem;
   }
   @media #{$height-constrained-phone} {
-    margin: 0 1.2rem 0.4rem;
+    margin: 0 1.2rem 0.5rem;
   }
 }
 

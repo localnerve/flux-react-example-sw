@@ -1,4 +1,4 @@
-// Vendor Interface 
+// Vendor Interface
 // (Foundation for Apps imported at bottom)
 // =============================
 //
@@ -68,7 +68,7 @@
    title-bar: false,
    typography: false,
    utilities: false,
- ); 
+ );
 
 // 2. Global Styles
 // - - - - - - - - - - - - - - -
@@ -121,22 +121,23 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 
 // We use this for default spacing
 // $global-padding: 1rem;
-// $global-spacing: rem-calc(15); 
+// $global-spacing: rem-calc(15);
 
 // 3. Breakpoints
 // - - - - - - - - - - - - - - -
 
 // These are our named breakpoints. You can use them in our breakpoint function like this: @include breakpoint(medium) { // Medium and larger styles }
-// $breakpoints: (
-//   small: rem-calc(0),
-//   medium: rem-calc(640),
-//   large: rem-calc(1200),
-//   xlarge: rem-calc(1440),
-//   xxlarge: rem-calc(1920),
-// );
+// medium: rem-calc(640)
+$breakpoints: (
+   small: rem-calc(0),
+   medium: rem-calc(668),
+   large: rem-calc(1200),
+   xlarge: rem-calc(1440),
+   xxlarge: rem-calc(1920),
+);
 
 // All of the names in this list will be output as classes in your CSS, like small-12, medium-6, and so on.
-// $breakpoint-classes: (small medium large); 
+// $breakpoint-classes: (small medium large);
 
 // 4. Typography
 // - - - - - - - - - - - - - - -
@@ -234,7 +235,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $blockquote-cite-link-color: $blockquote-cite-font-color;
 
 // Acronym styles
-// $acronym-underline: 1px dotted #ddd; 
+// $acronym-underline: 1px dotted #ddd;
 
 // 5. Grid
 // - - - - - - - - - - - - - - -
@@ -242,7 +243,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $container-width: rem-calc(900);
 // $block-padding: $global-padding;
 // $total-columns: 12;
-// $block-grid-max-size: 6; 
+// $block-grid-max-size: 6;
 
 // 6. Button
 // - - - - - - - - - - - - - - -
@@ -262,7 +263,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // );
 // $button-font-size: 0.9rem;
 // $button-opacity-disabled: 0.5;
-// $button-tag-selector: false; 
+// $button-tag-selector: false;
 
 // 7. Accordion
 // - - - - - - - - - - - - - - -
@@ -276,7 +277,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $accordion-title-color-active: isitlight($accordion-title-background);
 
 // $accordion-title-padding: $global-padding;
-// $accordion-content-padding: $global-padding; 
+// $accordion-content-padding: $global-padding;
 
 // 8. Action Sheet
 // - - - - - - - - - - - - - - -
@@ -294,7 +295,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $actionsheet-popup-shadow: 0 0 10px rgba(black, 0.25);
 
 // $actionsheet-link-color: #000;
-// $actionsheet-link-background-hover: smartscale($actionsheet-background); 
+// $actionsheet-link-background-hover: smartscale($actionsheet-background);
 
 // 9. Block List
 // - - - - - - - - - - - - - - -
@@ -316,14 +317,14 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $blocklist-header-color: smartscale($blocklist-item-color, 40%);
 // $blocklist-header-uppercase: true;
 
-// $blocklist-check-icons: true; 
+// $blocklist-check-icons: true;
 
 // 10. Button Group
 // - - - - - - - - - - - - - - -
 
 // $btngroup-background: $primary-color;
 // $btngroup-color: #fff;
-// $btngroup-radius: $button-radius; 
+// $btngroup-radius: $button-radius;
 
 // 11. Card
 // - - - - - - - - - - - - - - -
@@ -336,7 +337,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $card-padding: $global-padding;
 // $card-margin: 0.5rem;
 
-// $card-divider-background: smartscale($card-background, 7%); 
+// $card-divider-background: smartscale($card-background, 7%);
 
 // 12. Extras
 // - - - - - - - - - - - - - - -
@@ -348,7 +349,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $closebutton-color-hover: #333;
 
 // $thumbnail-padding: 0.5rem;
-// $thumbnail-shadow: 0 3px 15px rgba(black, 0.25); 
+// $thumbnail-shadow: 0 3px 15px rgba(black, 0.25);
 
 // 13. Forms
 // - - - - - - - - - - - - - - -
@@ -402,7 +403,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $meter-fill-high: $success-color;
 // $meter-fill-medium: #e7cf00;
 // $meter-fill-low: $alert-color;
-// $meter-radius: 0; 
+// $meter-radius: 0;
 
 // 14. Iconic
 // - - - - - - - - - - - - - - -
@@ -410,7 +411,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $iconic-primary-fill: $primary-color;
 // $iconic-primary-stroke: $primary-color;
 // $iconic-accent-fill: $iconic-primary-fill;
-// $iconic-accent-stroke: $iconic-accent-fill; 
+// $iconic-accent-stroke: $iconic-accent-fill;
 
 // 15. Label
 // - - - - - - - - - - - - - - -
@@ -424,7 +425,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $badge-fontsize: 0.8em;
 // $badge-diameter: 1.5rem;
 // $badge-background: $primary-color;
-// $badge-color: #fff; 
+// $badge-color: #fff;
 
 // 16. Menu Bar
 // - - - - - - - - - - - - - - -
@@ -439,7 +440,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 
 // $menubar-item-padding: $global-padding;
 // $menubar-icon-size: 25px;
-// $menubar-icon-spacing: $menubar-item-padding; 
+// $menubar-icon-spacing: $menubar-item-padding;
 
 // 17. Modal
 // - - - - - - - - - - - - - - -
@@ -457,7 +458,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // );
 
 // $modal-overlay-class: 'modal-overlay';
-// $modal-overlay-background: rgba(#333, 0.7); 
+// $modal-overlay-background: rgba(#333, 0.7);
 
 // 18. Motion UI
 // - - - - - - - - - - - - - - -
@@ -520,7 +521,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $motion-delay-default: 0;
 // Short and long delay modifiers
 // $motion-delay-short: 300ms;
-// $motion-delay-long: 700ms; 
+// $motion-delay-long: 700ms;
 
 // 19. Notification
 // - - - - - - - - - - - - - - -
@@ -537,7 +538,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $notification-icon-size: 60px;
 // $notification-icon-margin: $global-padding;
 // $notification-icon-align: top;
- 
+
 
 // 20. Off-canvas
 // - - - - - - - - - - - - - - -
@@ -551,7 +552,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $offcanvas-shadow: 3px 0 10px rgba(black, 0.25);
 // $offcanvas-animation-speed: 0.25s;
 
-// $offcanvas-frame-selector: '.grid-frame'; 
+// $offcanvas-frame-selector: '.grid-frame';
 
 // 21. Panel
 // - - - - - - - - - - - - - - -
@@ -564,7 +565,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $panel-shadow: 3px 0 10px rgba(black, 0.25);
 
 // DEPRECATED: these variables will be removed in a future version.
-// $panel-animation-speed: 0.25s; 
+// $panel-animation-speed: 0.25s;
 
 // 22. Popup
 // - - - - - - - - - - - - - - -
@@ -573,7 +574,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $popup-background: #fff;
 // $popup-border: 0;
 // $popup-radius: 0;
-// $popup-shadow: 0 0 10px rgba(#000, 0.25); 
+// $popup-shadow: 0 0 10px rgba(#000, 0.25);
 
 // 23. Switch
 // - - - - - - - - - - - - - - -
@@ -587,7 +588,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $switch-animation-speed: 0.15s;
 
 // $switch-paddle-color: white;
-// $switch-paddle-offset: 4px; 
+// $switch-paddle-offset: 4px;
 
 // 24. Tabs
 // - - - - - - - - - - - - - - -
@@ -601,7 +602,7 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 // $tab-title-color-active: $tab-title-color;
 
 // $tab-title-padding: $global-padding;
-// $tab-content-padding: $global-padding; 
+// $tab-content-padding: $global-padding;
 
 // 25. Title Bar
 // - - - - - - - - - - - - - - -
@@ -617,6 +618,6 @@ $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 //   left: 'left',
 //   right: 'right',
 //   title: 'title',
-// ); 
+// );
 
 @import "foundation";

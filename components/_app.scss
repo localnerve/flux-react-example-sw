@@ -3,8 +3,10 @@
 //
 .app-frame {
   @include grid-frame(vertical);
-  // @include breakpoint(landscape) { }
-  @media only screen and (orientation: landscape) and (max-height: 767px) {
+  // If viewport height less than 742 AND landscape, float the footer
+  // under the content. Otherwise height is 100vh, and footer sticks to viewport
+  // bottom.
+  @media only screen and (orientation: landscape) and (max-height: 741px) {
     height: auto;
   }
 }

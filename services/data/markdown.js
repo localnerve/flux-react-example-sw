@@ -6,12 +6,16 @@
 
 var debug = require('debug')('Example:Markdown');
 
-var marked = require('marked');
+var Remarkable = require('remarkable');
+var remarkable = new Remarkable('full', {
+  html: true,
+  linkify: true
+});
 
 function markdown(input) {
   debug('parsing markdown');
 
-  return marked(input);
+  return remarkable.render(input);
 }
 
 module.exports = markdown;

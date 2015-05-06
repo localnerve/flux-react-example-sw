@@ -7,23 +7,23 @@
 var debug = require('debug')('Example:Data:Cache');
 var markdown = require('./markdown');
 
-// FIXME: 
+// FIXME:
 // Cache storage should not be in this process
 // in a real application (issue #9)
 var cache = {};
 
-function writeToCache (params, data) {  
+function writeToCache (params, data) {
   var obj = {
     models: params.models,
-    data: data    
+    data: data
   };
   cache[params.resource] = obj;
 
-  debug('wrote cache[' + params.resource + '] = '+require('util').inspect(obj, { depth: null }));
+  debug('wrote cache[' + params.resource + ']', require('util').inspect(obj, { depth: null }));
 }
 
 var formatToCache = {
-  markup: function (params, data) {    
+  markup: function (params, data) {
     writeToCache(params, data);
   },
   markdown: function (params, data) {
@@ -52,7 +52,7 @@ function readFromCache (cached) {
     }, {});
   }
 
-  debug('result', require('util').inspect(result, { depth: null}));
+  debug('read from cache', require('util').inspect(result, { depth: null}));
   return result;
 }
 
@@ -61,7 +61,7 @@ module.exports = {
     var result;
     var cached = cache[resource];
 
-    if (cached) {      
+    if (cached) {
       result = readFromCache(cached);
       // TODO: support returning formatted cached result
       result = result.data;

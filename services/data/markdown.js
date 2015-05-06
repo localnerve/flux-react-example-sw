@@ -12,7 +12,7 @@ var remarkable = new Remarkable('full', {
   linkify: true
 });
 
-function markdown(input) {
+function markdown (input) {
   debug('parsing markdown');
 
   return remarkable.render(input);

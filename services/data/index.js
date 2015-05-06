@@ -15,9 +15,11 @@ var fetchLib = require('./fetch');
 function fetch (params, callback) {
   debug('fetching resource "'+params.resource+'"');
 
-  if (cache.get(params.resource)) {
+  var resource = cache.get(params.resource);
+
+  if (resource) {
     debug('cache hit');
-    return callback(null, cache.get(params.resource));
+    return callback(null, resource);
   }
 
   fetchLib.fetchOne(params, callback);

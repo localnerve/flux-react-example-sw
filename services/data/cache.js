@@ -46,6 +46,7 @@ function readFromCache (cached) {
   };
 
   if (cached.models) {
+    // Expand a resource's model references to the model data
     result.models = cached.models.reduce(function(prev, curr) {
       prev[curr] = cache.models.data[curr];
       return prev;

@@ -12,8 +12,8 @@ var RouterMixin = require('flux-router-component').RouterMixin;
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 
 var pages = require('./pages');
-var Header = require('./header/Header.jsx');
-var Footer = require('./footer/Footer.jsx');
+var Header = require('./header');
+var Footer = require('./footer');
 
 var Application = React.createClass({
   mixins: [ RouterMixin, FluxibleMixin ],

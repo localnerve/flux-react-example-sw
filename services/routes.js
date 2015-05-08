@@ -10,10 +10,12 @@ module.exports = {
   name: 'routes',
 
   // at least one of the CRUD methods is required
-  read: function(req, resource, params, config, callback) {
-    return data.fetch(params, callback);
+  read: function (req, resource, params, config, callback) {
+    return data.fetch(params, function (err, res) {
+      callback(err, res ? res.data : null);
+    });
   }
-  
+
   // create: function(req, resource, params, body, config, callback) {},
   // update: function(resource, params, body, config, callback) {},
   // delete: function(resource, params, config, callback) {}

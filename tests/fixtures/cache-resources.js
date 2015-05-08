@@ -30,38 +30,93 @@ function makeResId () {
   return 'res' + (i++);
 }
 
-function makeResource (hasId, idValue, hasFormat, formatValue, hasModels, modelsValue, hasData, dataValue) {
+function makeResource (params) {
   var testRes = {};
 
-  if (hasId) {
-    testRes.resource = idValue || makeResId();
+  if (params.hasId) {
+    testRes.resource = params.idValue || makeResId();
   }
-  if (hasFormat) {
-    testRes.format = formatValue;
+  if (params.hasFormat) {
+    testRes.format = params.formatValue;
   }
-  if (hasModels) {
-    testRes.models = modelsValue;
+  if (params.hasModels) {
+    testRes.models = params.modelsValue;
   }
-  if (hasData) {
-    testRes.data = dataValue;
+  if (params.hasData) {
+    testRes.data = params.dataValue;
   }
 
   return testRes;
 }
 
 function makeMarkupResource (hasModels, modelsValue) {
-  return makeResource(true, null, true, 'markup', hasModels, modelsValue, true, markupData);
+  return makeResource({
+    hasId: true,
+    idValue: null,
+    hasFormat: true,
+    formatValue: 'markup',
+    hasModels: hasModels,
+    modelsValue: modelsValue,
+    hasData: true,
+    dataValue: markupData
+  });
 }
 
 module.exports = {
   markupData: markupData,
   markdownData: markdownData,
-  jsonData: jsonData,
-  models: makeResource(true, 'models', true, 'json', false, null, true, validModels),
-  nothing: makeResource(false, null, false, null, false, null, false, null),
-  noFormat: makeResource(true, 'test', false, null, false, null, true, jsonData),
-  badFormat: makeResource(true, 'test', true, 'bad', false, null, true, jsonData),
-  noData: makeResource(true, null, true, undefined, false, null, false, null),
+  jsonData: JSON.parse(jsonData),
+  validModels: JSON.parse(validModels),
+  models: makeResource({
+    hasId: true,
+    idValue: 'models',
+    hasFormat: true,
+    formatValue: 'json',
+    hasModels: false,
+    modelsValue: null,
+    hasData: true,
+    dataValue: validModels
+  }),
+  nothing: makeResource({
+    hasId: false,
+    idValue: null,
+    hasFormat: false,
+    formatValue: null,
+    hasModels: false,
+    modelsValue: null,
+    hasData: false,
+    dataValue: null
+  }),
+  noFormat: makeResource({
+    hasId: true,
+    idValue: 'test',
+    hasFormat: false,
+    formatValue: null,
+    hasModels: false,
+    modelsValue: null,
+    hasData: true,
+    dataValue: jsonData
+  }),
+  badFormat: makeResource({
+    hasId: true,
+    idValue: 'test',
+    hasFormat: true,
+    formatValue: 'bad',
+    hasModels: false,
+    modelsValue: null,
+    hasData: true,
+    dataValue: jsonData
+  }),
+  noData: makeResource({
+    hasId: true,
+    idValue: null,
+    hasFormat: true,
+    formatValue: undefined,
+    hasModels: false,
+    modelsValue: null,
+    hasData: false,
+    dataValue: null
+  }),
   markup: {
     validNone: makeMarkupResource(false, null),
     validSingle: makeMarkupResource(true, validModelRef),

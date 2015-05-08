@@ -10,32 +10,32 @@ var expect = require('chai').expect;
 var mocks = require('../../utils/mocks');
 var routesResponse = require('../../fixtures/routes-response');
 
-describe('routes service', function() {
+describe('routes service', function () {
   var routes;
 
-  before(function() {
+  before(function () {
     mocks.serviceData.begin();
     routes = require('../../../services/routes');
   });
 
-  after(function() {
+  after(function () {
     mocks.serviceData.end();
   });
 
-  describe('object', function() {
-    it('should have name and read members', function() {
+  describe('object', function () {
+    it('should have name and read members', function () {
       expect(routes.name).to.be.a('string');
       expect(routes.read).to.be.a('function');
     });
   });
 
-  describe('read', function() {
-    it('should return a valid response', function(done) {
-      routes.read(null, null, { resource: 'routes' }, null, function(err, data) {
+  describe('read', function () {
+    it('should return a valid response', function (done) {
+      routes.read(null, null, { resource: 'routes' }, null, function (err, data) {
         if (err) {
           done(err);
-        }      
-        expect(routes).to.be.an('object');
+        }
+        expect(data).to.be.an('object');
         expect(JSON.stringify(routesResponse.home)).to.equal(JSON.stringify(data.home));
         done();
       });

@@ -17,9 +17,13 @@ function writeToCache (params, data) {
     models: params.models,
     data: data
   };
+
   cache[params.resource] = obj;
 
-  debug('wrote cache[' + params.resource + ']', require('util').inspect(obj, { depth: null }));
+  debug(
+    'wrote cache[' + params.resource + ']',
+    require('util').inspect(obj, { depth: null })
+  );
 }
 
 var formatToCache = {
@@ -53,7 +57,11 @@ function readFromCache (cached) {
     }, {});
   }
 
-  debug('read from cache', require('util').inspect(result, { depth: null}));
+  debug(
+    'read from cache',
+    require('util').inspect(result, { depth: null})
+  );
+
   return result;
 }
 
@@ -64,8 +72,6 @@ module.exports = {
 
     if (cached) {
       result = readFromCache(cached);
-      // TODO: support returning formatted cached result
-      result = result.data;
     }
 
     return result;

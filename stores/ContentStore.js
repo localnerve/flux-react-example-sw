@@ -10,8 +10,8 @@ var ContentStore = createStore({
   handlers: {
     'RECEIVE_PAGE_CONTENT': 'receivePageContent'
   },
-  initialize: function () {    
-    this.contents = {};    
+  initialize: function () {
+    this.contents = {};
     this.currentResource = '';
   },
   receivePageContent: function (page) {
@@ -26,10 +26,13 @@ var ContentStore = createStore({
   get: function (resource) {
     return this.contents[resource];
   },
-  getCurrentPageContent: function() {
-    return this.get(this.currentResource);
+  getCurrentPageContent: function () {
+    return this.get(this.currentResource).data;
   },
-  dehydrate: function () {    
+  getCurrentPageModels: function () {
+    return this.get(this.currentResource).models;
+  },
+  dehydrate: function () {
     return {
       resource: this.currentResource,
       contents: this.contents

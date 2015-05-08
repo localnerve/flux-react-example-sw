@@ -14,7 +14,10 @@ module.exports = {
 
     switch (params.resource) {
       case 'routes':
-        callback(null, JSON.parse(JSON.stringify(routesResponse)));
+        callback(null, {
+          models: undefined,
+          data: JSON.parse(JSON.stringify(routesResponse))
+        });
         break;
 
       case 'business':
@@ -22,13 +25,22 @@ module.exports = {
         break;
 
       case 'about':
-        callback(null, '<h2>About</h2>');
+        callback(null, {
+          models: undefined,
+          data: '<h2>About</h2>'
+        });
         break;
       case 'contact':
-        callback(null, '<h2>Contact</h2>');
+        callback(null, {
+          models: undefined,
+          data: '<h2>Contact</h2>'
+        });
         break;
       case 'home':
-        callback(null, '<h2>Home</h2>');
+        callback(null, {
+          models: undefined,
+          data: '<h2>Home</h2>'
+        });
         break;
 
       default:

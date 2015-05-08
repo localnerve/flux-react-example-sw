@@ -8,32 +8,35 @@
 var expect = require('chai').expect;
 var mocks = require('../../utils/mocks');
 
-describe('page service', function() {
+describe('page service', function () {
   var page;
 
-  before(function() {
+  before(function () {
     mocks.serviceData.begin();
     page = require('../../../services/page');
   });
 
-  after(function() {
+  after(function () {
     mocks.serviceData.end();
   });
 
-  describe('object', function() {
-    it('should have name and read members', function() {
+  describe('object', function () {
+    it('should have name and read members', function () {
       expect(page.name).to.be.a('string');
       expect(page.read).to.be.a('function');
     });
   });
 
-  describe('read', function() {
-    it('should return a valid response', function(done) {
-      page.read(null, null, { resource: 'home' }, null, function(err, data) {
+  describe('read', function () {
+    it('should return a valid response', function (done) {
+      page.read(null, null, { resource: 'home' }, null, function (err, data) {
         if (err) {
           done(err);
-        }      
-        expect(data).to.be.a('string').that.is.not.empty;        
+        }
+        expect(data).to.be.an('object');
+        expect(data).to.have.property('models', undefined);
+        expect(data).to.have.property('data')
+          .that.is.a('string');
         done();
       });
     });

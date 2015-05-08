@@ -12,7 +12,10 @@ describe('content store', function () {
   var storeInstance;
   var content1 = {
     resource: 'home',
-    content: '<h2>home</h2>'
+    content: {
+      models: 'model',
+      data: '<h2>home</h2>'
+    }
   };
 
   beforeEach(function () {
@@ -22,7 +25,7 @@ describe('content store', function () {
   it('should instantiate correctly', function () {
     expect(storeInstance).to.be.an('object');
     expect(storeInstance.currentResource).to.equal('');
-    expect(storeInstance.contents).to.be.empty;    
+    expect(storeInstance.contents).to.be.empty;
   });
 
   it('should receive page content', function () {
@@ -37,18 +40,23 @@ describe('content store', function () {
 
   it('should get content by resource', function () {
     storeInstance.receivePageContent(content1);
-    expect(storeInstance.get(content1.resource)).to.equal(content1.content);
+    expect(storeInstance.get(content1.resource)).to.eql(content1.content);
   });
 
   it('should get the current content', function () {
     storeInstance.receivePageContent(content1);
-    expect(storeInstance.getCurrentPageContent()).to.eql(content1.content);
+    expect(storeInstance.getCurrentPageContent()).to.eql(content1.content.data);
+  });
+
+  it('should get the current models', function () {
+    storeInstance.receivePageContent(content1);
+    expect(storeInstance.getCurrentPageModels()).to.eql(content1.content.models);
   });
 
   it('should dehydrate', function () {
     storeInstance.receivePageContent(content1);
     var state = storeInstance.dehydrate();
-    
+
     expect(state.resource).to.equal(content1.resource);
     expect(Object.keys(state.contents).length).to.equal(1);
     expect(state.contents[state.resource]).to.eql(content1.content);

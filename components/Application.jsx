@@ -32,6 +32,7 @@ var Application = React.createClass({
       pageName: appStore.getCurrentPageName(),
       pageTitle: appStore.getCurrentPageTitle(),
       pageContent: contentStore.getCurrentPageContent(),
+      pageModels: contentStore.getCurrentPageModels(),
       route: appStore.getCurrentRoute(),
       pages: appStore.getPages()
     };
@@ -43,14 +44,19 @@ var Application = React.createClass({
   render: function () {
     var page = pages.createElement(
       this.state.route.config.component,
-      this.state.pageContent
+      this.state.pageContent,
+      this.state.pageModels
       );
 
     return (
       <div className="app-block">
-        <Header selected={this.state.pageName} links={this.state.pages} />
+        <Header
+          selected={this.state.pageName}
+          links={this.state.pages}
+          models={this.state.pageModels}
+        />
         {page}
-        <Footer />
+        <Footer models={this.state.pageModels} />
       </div>
     );
   },

@@ -9,6 +9,8 @@ var NavLink = require('flux-router-component').NavLink;
 
 var Ribbon = React.createClass({
   render: function() {
+    var uriTel = 'tel:+1-' + this.props.business.telephone;
+
     return (
       <div className="grid-row-spaced ribbon">
         <div className="grid-row-spaced contact">
@@ -16,16 +18,16 @@ var Ribbon = React.createClass({
             <span className="icon-envelop">
             </span>
           </NavLink>
-          <a className="phone" href="tel:1-207-370-8005">
+          <a className="phone" href={uriTel}>
             <span className="icon-phone">
             </span>
           </a>
         </div>
         <div className="grid-row-spaced social">
-          <a href="http://twitter.com/localnerve">
+          <a href={this.props.social.twitter}>
             <span className="icon-twitter"></span>
           </a>
-          <a href="http://github.com/localnerve/flux-react-example">
+          <a href={this.props.social.github}>
             <span className="icon-github4"></span>
           </a>
         </div>

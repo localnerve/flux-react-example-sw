@@ -12,9 +12,11 @@ var Logo = React.createClass({
     return (
       <div className="logo">
         <NavLink routeName="home" title="flux-react-example">
-          <h1>PedalPulse</h1>
+          <h1>
+            {this.props.site.name}
+          </h1>
           <span className="tagline">
-            A responsive, reactive demo web app with a good prognosis.
+            {this.props.site.tagLine}
           </span>
         </NavLink>
       </div>

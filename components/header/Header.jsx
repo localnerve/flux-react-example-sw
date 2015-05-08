@@ -14,8 +14,11 @@ var Header = React.createClass({
   render: function() {
     return (
       <header className="app-header">
-        <Ribbon />
-        <Logo />
+        <Ribbon
+          business={this.props.models.LocalBusiness}
+          social={this.props.models.SiteInfo.social}
+        />
+        <Logo site={this.props.models.SiteInfo.site} />
         <Nav selected={this.props.selected} links={this.props.links} />
       </header>
     );

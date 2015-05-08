@@ -5,31 +5,19 @@
 'use strict';
 
 var React = require('react');
+var ByLine = require('./ByLine.jsx');
+var SiteBullets = require('./SiteBullets.jsx');
+var License = require('./License.jsx');
+var LocalBusiness = require('./LocalBusiness.jsx');
 
 var Footer = React.createClass({
-  render: function() {
+  render: function () {
     return (
       <footer className="app-footer">
-        <div className="grid-row-spaced att-line footer-line">
-          <span>
-            React &bull; Fluxible &bull; Dynamic Data
-          </span>
-        </div>
-        <div className="grid-row-spaced business-line footer-line">
-          <span>
-            All code is licensed under the&nbsp;
-            <a href="https://github.com/localnerve/flux-react-example/blob/master/LICENSE.md">
-              BSD License
-            </a>, unless otherwise stated.
-          </span>
-        </div>
-        <div className="grid-row-spaced dev-line footer-line">
-          <span>
-            Developed by&nbsp;
-            <a href="http://localnerve.com" _target="blank">LocalNerve</a>
-            &nbsp;&copy;&nbsp;{(new Date()).getFullYear()}
-          </span>
-        </div>
+        <SiteBullets items={this.props.models.SiteInfo.site.bullets} />
+        <LocalBusiness business={this.props.models.LocalBusiness} />
+        <License license={this.props.models.SiteInfo.license} />
+        <ByLine author={this.props.models.SiteInfo.developer} />
       </footer>
     );
   }

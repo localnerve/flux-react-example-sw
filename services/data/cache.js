@@ -37,7 +37,8 @@ var formatToCache = {
     var obj = JSON.parse(data);
     Object.keys(obj).forEach(function(key) {
       writeToCache({
-        resource: key
+        resource: key,
+        models: params.models
       }, obj[key]);
     });
   }
@@ -82,6 +83,7 @@ module.exports = {
       'putting data into cache',
       'resource: '+params.resource,
       'format: '+params.format,
+      'models: '+params.models,
       'data: '+data
     );
 

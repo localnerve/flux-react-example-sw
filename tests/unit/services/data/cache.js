@@ -45,7 +45,7 @@ describe('data/cache', function () {
 
       expect(res).to.be.an('object');
       expect(res).to.have.property('models', undefined);
-      expect(res).to.have.property('data')
+      expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.jsonData.test);
     });
 
@@ -56,7 +56,7 @@ describe('data/cache', function () {
 
       expect(res).to.be.an('object');
       expect(res).to.have.property('models', undefined);
-      expect(res).to.have.property('data')
+      expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.validModels.models);
     });
 
@@ -69,7 +69,7 @@ describe('data/cache', function () {
 
       expect(res).to.be.an('object');
       expect(res).to.have.property('models', undefined);
-      expect(res).to.have.property('data')
+      expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.markupData);
     });
 
@@ -85,7 +85,7 @@ describe('data/cache', function () {
         .that.deep.equals({
           ValidModel1: cacheResources.validModels.models.ValidModel1
         });
-      expect(res).to.have.property('data')
+      expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.markupData);
     });
 
@@ -99,7 +99,7 @@ describe('data/cache', function () {
       expect(res).to.be.an('object');
       expect(res).to.have.property('models')
         .that.deep.equals(cacheResources.validModels.models);
-      expect(res).to.have.property('data')
+      expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.markupData);
     });
 
@@ -112,7 +112,7 @@ describe('data/cache', function () {
 
       expect(res).to.be.an('object');
       expect(res).to.have.property('models', undefined);
-      expect(res).to.have.property('data')
+      expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.markupData);
     });
   });
@@ -127,7 +127,7 @@ describe('data/cache', function () {
 
       expect(res).to.be.an('object');
       expect(res).to.have.property('models', undefined);
-      expect(res).to.have.property('data')
+      expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.validModels.models);
     });
   });

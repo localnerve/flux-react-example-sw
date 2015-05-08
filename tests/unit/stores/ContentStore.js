@@ -12,9 +12,9 @@ describe('content store', function () {
   var storeInstance;
   var content1 = {
     resource: 'home',
-    content: {
+    data: {
       models: 'model',
-      data: '<h2>home</h2>'
+      content: '<h2>home</h2>'
     }
   };
 
@@ -40,17 +40,17 @@ describe('content store', function () {
 
   it('should get content by resource', function () {
     storeInstance.receivePageContent(content1);
-    expect(storeInstance.get(content1.resource)).to.eql(content1.content);
+    expect(storeInstance.get(content1.resource)).to.eql(content1.data);
   });
 
   it('should get the current content', function () {
     storeInstance.receivePageContent(content1);
-    expect(storeInstance.getCurrentPageContent()).to.eql(content1.content.data);
+    expect(storeInstance.getCurrentPageContent()).to.eql(content1.data.content);
   });
 
   it('should get the current models', function () {
     storeInstance.receivePageContent(content1);
-    expect(storeInstance.getCurrentPageModels()).to.eql(content1.content.models);
+    expect(storeInstance.getCurrentPageModels()).to.eql(content1.data.models);
   });
 
   it('should dehydrate', function () {
@@ -59,19 +59,19 @@ describe('content store', function () {
 
     expect(state.resource).to.equal(content1.resource);
     expect(Object.keys(state.contents).length).to.equal(1);
-    expect(state.contents[state.resource]).to.eql(content1.content);
+    expect(state.contents[state.resource]).to.eql(content1.data);
   });
 
   it('should rehydrate', function () {
     var state = {
       resource: content1.resource,
-      contents: { home: content1.content }
+      contents: { home: content1.data }
     };
 
     storeInstance.rehydrate(state);
 
     expect(storeInstance.currentResource).to.equal(state.resource);
     expect(Object.keys(storeInstance.contents).length).to.equal(1);
-    expect(storeInstance.get(state.resource)).to.eql(content1.content);
+    expect(storeInstance.get(state.resource)).to.eql(content1.data);
   });
 });

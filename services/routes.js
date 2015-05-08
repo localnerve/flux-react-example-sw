@@ -12,7 +12,7 @@ module.exports = {
   // at least one of the CRUD methods is required
   read: function (req, resource, params, config, callback) {
     return data.fetch(params, function (err, res) {
-      callback(err, res ? res.data : null);
+      callback(err, res ? res.content : null);
     });
   }
 

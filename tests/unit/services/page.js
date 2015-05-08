@@ -35,7 +35,7 @@ describe('page service', function () {
         }
         expect(data).to.be.an('object');
         expect(data).to.have.property('models', undefined);
-        expect(data).to.have.property('data')
+        expect(data).to.have.property('content')
           .that.is.a('string');
         done();
       });

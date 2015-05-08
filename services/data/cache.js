@@ -15,7 +15,7 @@ var cache = {};
 function writeToCache (params, data) {
   var obj = {
     models: params.models,
-    data: data
+    content: data
   };
 
   cache[params.resource] = obj;
@@ -46,20 +46,20 @@ var formatToCache = {
 function readFromCache (cached) {
   var result = {
     models: cached.models,
-    data: cached.data
+    content: cached.content
   };
 
   if (cached.models) {
     // Expand a resource's model references to the model data
     result.models = cached.models.reduce(function(prev, curr) {
-      prev[curr] = cache.models.data[curr];
+      prev[curr] = cache.models.content[curr];
       return prev;
     }, {});
   }
 
   debug(
     'read from cache',
-    require('util').inspect(result, { depth: null})
+    require('util').inspect(result, { depth: null })
   );
 
   return result;
@@ -78,7 +78,12 @@ module.exports = {
   },
 
   put: function (params, data) {
-    debug('putting data into cache', 'resource: '+params.resource, 'format: '+params.format, 'data: '+data);
+    debug(
+      'putting data into cache',
+      'resource: '+params.resource,
+      'format: '+params.format,
+      'data: '+data
+    );
 
     if (!params || !params.resource || !data) {
       throw new Error('Invalid arguments to cache put');

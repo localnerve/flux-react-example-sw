@@ -43,11 +43,11 @@ describe('application component', function() {
   before(function() {
     testUtils = ReactAddons.addons.TestUtils;
 
-    serviceData.fetch(homePage, function(err, content) {
+    serviceData.fetch(homePage, function(err, data) {
       if (err) {
         throw err;
       }
-      homePage.content = content;
+      homePage.data = data;
     });
   });
 

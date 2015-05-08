@@ -16,7 +16,7 @@ module.exports = {
       case 'routes':
         callback(null, {
           models: undefined,
-          data: JSON.parse(JSON.stringify(routesResponse))
+          content: JSON.parse(JSON.stringify(routesResponse))
         });
         break;
 
@@ -27,19 +27,19 @@ module.exports = {
       case 'about':
         callback(null, {
           models: undefined,
-          data: '<h2>About</h2>'
+          content: '<h2>About</h2>'
         });
         break;
       case 'contact':
         callback(null, {
           models: undefined,
-          data: '<h2>Contact</h2>'
+          content: '<h2>Contact</h2>'
         });
         break;
       case 'home':
         callback(null, {
           models: undefined,
-          data: '<h2>Home</h2>'
+          content: '<h2>Home</h2>'
         });
         break;
 

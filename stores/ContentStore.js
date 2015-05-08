@@ -20,14 +20,14 @@ var ContentStore = createStore({
     }
 
     this.currentResource = page.resource;
-    this.contents[page.resource] = page.content;
+    this.contents[page.resource] = page.data;
     this.emitChange();
   },
   get: function (resource) {
     return this.contents[resource];
   },
   getCurrentPageContent: function () {
-    return this.get(this.currentResource).data;
+    return this.get(this.currentResource).content;
   },
   getCurrentPageModels: function () {
     return this.get(this.currentResource).models;

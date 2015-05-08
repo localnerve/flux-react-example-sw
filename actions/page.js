@@ -8,21 +8,21 @@ var debug = require('debug')('Example:PageAction');
 var ContentStore = require('../stores/ContentStore');
 var defaultPageTitle = 'Default Page Title';
 
-function dispatchActions(context, resource, title, content) {
+function dispatchActions (context, resource, title, data) {
   context.dispatch('RECEIVE_PAGE_CONTENT', {
     resource: resource,
-    content: content
+    data: data
   });
 
   context.dispatch('UPDATE_PAGE_TITLE', {
     title: title
-  });  
+  });
 }
 
-function serviceRequest(context, payload, done) {
+function serviceRequest (context, payload, done) {
   debug('Page service request start');
 
-  context.service.read('page', payload, {}, function(err, data) {
+  context.service.read('page', payload, {}, function (err, data) {
     debug('Page service request complete');
 
     if (err) {
@@ -41,13 +41,13 @@ function serviceRequest(context, payload, done) {
   });
 }
 
-function page(context, payload, done) {
+function page (context, payload, done) {
   payload.pageTitle = payload.pageTitle || defaultPageTitle;
 
-  var content = context.getStore(ContentStore).get(payload.resource);
-  if (content) {
+  var data = context.getStore(ContentStore).get(payload.resource);
+  if (data) {
     debug('Found '+payload.resource+' in cache');
-    dispatchActions(context, payload.resource, payload.pageTitle, content);
+    dispatchActions(context, payload.resource, payload.pageTitle, data);
     return done();
   }
 

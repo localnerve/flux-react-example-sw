@@ -14,10 +14,10 @@ A data-driven, isomorphic example application using [Fluxible](http://fluxible.i
 
 ## Integrations
 This example demonstrates a full CI/CD integration on the master branch. Pushes to the master branch run the following workflow:
-1. Run unit tests w/coverage
-2. Build and deploy to Heroku staging container
-3. Run cross-browser/platform functional tests on SauceLabs
-4. Run performance budget tests against webpagetest.org
+  1. Run unit tests w/coverage
+  2. Build and deploy to Heroku staging container
+  3. Run cross-browser/platform functional tests on SauceLabs
+  4. Run performance budget tests against webpagetest.org
 
 ## Services
 

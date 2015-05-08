@@ -21,11 +21,37 @@
 .footer-line {
   align-items: center;
   padding: 0 1rem;
+
+  .contact-text {
+    font-size: 85%;
+    padding-right: 1em;
+  }
+  .contact-links {
+    a {
+      display: block;
+      padding: 0.25em 0;
+      text-align: right;
+    }
+  }
 }
+
+.contact-line {
+  @include grid-container;
+
+  margin: 0;
+  @include breakpoint(medium) {
+    margin: 0 auto;
+  }
+}
+
 .att-line {
   span {
     line-height: 1.2;
     font-size: 1.2rem;
     font-weight: bold;
   }
+}
+
+.license {
+  font-size: 75%;
 }

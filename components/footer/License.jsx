@@ -14,7 +14,7 @@ var License = React.createClass({
 
     return (
       <div className="grid-row-spaced footer-line">
-        <span>
+        <span className="license">
           {statements[0]}
           <a href={this.props.license.url}>
             {this.props.license.type}

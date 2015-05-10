@@ -6,14 +6,13 @@
 .page {
   @include vertical-block(spaced);
 }
+
 .page-content {
   @include grid-content;
   @include breakpoint(medium) {
     padding: 0 2rem;
+    min-height: 20rem;
   }
-}
-.page-content h2 {
-  margin: 0.4rem auto;
 }
 
 @import "contact/styles";

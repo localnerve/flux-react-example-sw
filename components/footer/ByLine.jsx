@@ -13,7 +13,7 @@ var ByLine = React.createClass({
     );
 
     return (
-      <div className="grid-row-spaced footer-line">
+      <div className="grid-row-spaced footer-line by-line">
         <span>
           {byLine}&nbsp;
           <a href={this.props.author.url} _target="blank">

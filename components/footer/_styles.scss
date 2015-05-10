@@ -5,6 +5,10 @@
   @include vertical-block(left) {
     max-height: 8rem;
     min-height: 8rem;
+    @media #{$height-constrained-phone} {
+      max-height: 6rem;
+      min-height: 6rem;
+    }
   }
 
   background: $header-footer-background;
@@ -25,6 +29,10 @@
   .contact-text {
     font-size: 85%;
     padding-right: 1em;
+
+    @media #{$height-constrained-phone} {
+      font-size: 80%;
+    }
   }
   .contact-links {
     a {
@@ -49,9 +57,20 @@
     line-height: 1.2;
     font-size: 1.2rem;
     font-weight: bold;
+
+    @media #{$height-constrained-phone} {
+      font-size: inherit;
+    }
   }
 }
 
 .license {
   font-size: 75%;
+}
+
+.by-line {
+  @media #{$height-constrained-phone} {
+    font-size: 75%;
+    overflow-y: visible;
+  }
 }

@@ -24,6 +24,7 @@ function renderApp(res, context, app, props) {
   var state;
 
   props.mainScript = settings.web.assets.mainScript();
+  props.images = settings.web.images;
   props.trackingSnippet = config.analytics.snippet;
 
   debug('Creating app state');

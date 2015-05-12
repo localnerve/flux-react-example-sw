@@ -1,5 +1,5 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
-<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 194 220">
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 248 256">
  <metadata>
   <rdf:RDF>
    <cc:Work rdf:about="">
@@ -9,12 +9,7 @@
    </cc:Work>
   </rdf:RDF>
  </metadata>
- <g transform="translate(-259.03116,-234.36218)">
-  <path style="fill:#FFFFFF;" d="m371,272c0,27.6-6.72,64-15,64s-15-36.4-15-64,6.72-36,15-36,15,8.39,15,36z"/>
-  <path style="fill:#FFFFFF;" d="m426,321c-23.9,13.8-58.8,26.2-62.9,19-4.14-7.17,24-31.2,47.9-45s34.5-12.2,38.7-5.01c4.14,7.17,0.238,17.2-23.7,31z"/>
-  <path style="fill:#FFFFFF;" d="m411,393c-23.9-13.8-52.1-37.8-47.9-45,4.14-7.17,39,5.2,62.9,19s27.8,23.8,23.7,31c-4.14,7.17-14.8,8.8-38.7-5.01z"/>
-  <path style="fill:#FFFFFF;" d="m341,416c0.00002-27.6,6.72-64,15-64s15,36.4,15,64-6.72,36-15,36c-8.28-0.00001-15-8.39-15-36z"/>
-  <path style="fill:#FFFFFF;" d="m286,367c23.9-13.8,58.8-26.2,62.9-19,4.14,7.17-24,31.2-47.9,45s-34.5,12.2-38.7,5.01c-4.14-7.17-0.238-17.2,23.7-31z"/>
-  <path style="fill:#FFFFFF;" d="m301,295c23.9,13.8,52.1,37.8,47.9,45-4.14,7.17-39-5.2-62.9-19s-27.8-23.8-23.7-31c4.14-7.17,14.8-8.8,38.7,5.01z"/>
+ <g transform="translate(-212.4911,-407.1801)">
+  <path style="fill:#ffffff;" d="m212,664,65.2-69.4-60.8-20,150-83.8-54.6-14.4,148-68.8-52.2,46.4,32.3,20.8-116,89.7,58.5,9.39z"/>
  </g>
 </svg>

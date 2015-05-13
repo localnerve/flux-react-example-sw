@@ -11,7 +11,7 @@ var routrPlugin = require('fluxible-plugin-dynamic-routr');
 var ApplicationStore = require('./stores/ApplicationStore');
 var ContentStore = require('./stores/ContentStore');
 var ContactStore = require('./stores/ContactStore');
-var tranformer = require('./utils').createFluxibleRouteTransformer({
+var transformer = require('./utils').createFluxibleRouteTransformer({
   actions: require('./actions')
 });
 
@@ -23,8 +23,8 @@ var app = new FluxibleApp({
 debug('Adding Plugins');
 app.plug(fetchrPlugin({ xhrPath: '/_api' }));
 app.plug(routrPlugin({
-  dehydrateRoutes: tranformer.fluxibleToJson,
-  rehydrateRoutes: tranformer.jsonToFluxible,
+  dehydrateRoutes: transformer.fluxibleToJson,
+  rehydrateRoutes: transformer.jsonToFluxible,
   storeName: ApplicationStore.storeName,
   storeEvent: ApplicationStore.routesEvent
 }));

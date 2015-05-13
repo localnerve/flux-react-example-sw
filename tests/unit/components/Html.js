@@ -21,6 +21,7 @@ describe('html component', function() {
   var htmlComponent;
 
   var testProps = {
+    images: 'path/to/images',
     mainScript: 'path/to/mainScript',
     trackingSnippet: 'someTrackingCode',
     headerStyles: '@charset "UTF-8";',
@@ -29,7 +30,7 @@ describe('html component', function() {
     markup: 'Hello World'
   };
 
-  before(function() {    
+  before(function() {
     testUtils = React.addons.TestUtils;
   });
 

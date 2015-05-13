@@ -9,7 +9,10 @@ var expect = require('chai').expect;
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var routesResponseFixture = require('../../fixtures/routes-response');
 var helperTests = require('../../utils/tests');
-var transformers = require('../../../utils/transformers');
+
+var transformer = require('../../../utils').createFluxibleRouteTransformer({
+  actions: require('../../../actions')
+});
 
 describe('application store', function () {
   var storeInstance;
@@ -32,13 +35,13 @@ describe('application store', function () {
     done();
   });
 
-  describe('with routes', function() {
+  describe('with routes', function () {
     var routesResponse;
 
-    beforeEach(function() {
+    beforeEach(function () {
       // clone the routes-response fixture data
       routesResponse = JSON.parse(JSON.stringify(routesResponseFixture));
-      storeInstance.receiveRoutes(transformers.jsonToFluxible(routesResponse));
+      storeInstance.receiveRoutes(transformer.jsonToFluxible(routesResponse));
     });
 
     it('should handle navigate', function (done) {
@@ -93,7 +96,7 @@ describe('application store', function () {
       storeInstance.handleNavigate(homeRoute);
       var page = { title: 'Fluxible Rocks' };
       storeInstance.updatePageTitle(page);
-      
+
       var state = storeInstance.dehydrate();
 
       expect(state.pageName).to.equal(homeRoute.config.page);
@@ -115,7 +118,7 @@ describe('application store', function () {
       storeInstance.rehydrate(state);
 
       helperTests.testTransform(
-        expect, storeInstance.pages, transformers.jsonToFluxible(routesResponse)
+        expect, storeInstance.pages, transformer.jsonToFluxible(routesResponse)
       );
       expect(storeInstance.getCurrentPageName()).to.equal(homeRoute.config.page);
       expect(storeInstance.getCurrentRoute()).to.equal(homeRoute);

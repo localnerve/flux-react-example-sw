@@ -9,11 +9,13 @@ var expect = require('chai').expect;
 var routesResponseFixture = require('../../fixtures/routes-response');
 var fluxibleRoutesFixture = require('../../fixtures/fluxible-routes');
 var helperTests = require('../../utils/tests');
-var transformers = require('../../../utils/transformers');
+
+var transformer = require('../../../utils').createFluxibleRouteTransformer({
+  actions: require('../../../actions')
+});
 
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var ContentStore = require('../../../stores/ContentStore');
-
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 var createMockActionContext = require('fluxible/utils').createMockActionContext;
 
@@ -26,18 +28,18 @@ describe('transformers', function () {
   var testResource = 'test';
   var mockError = new Error('mock');
 
-  function createMockContext() {
+  function createMockContext () {
     context = createMockActionContext({
       stores: [ApplicationStore, ContentStore]
     });
     context.service = new MockService();
-    context.service.setService('routes', function(method, params, config, callback) {
+    context.service.setService('routes', function (method, params, config, callback) {
       if (params.emulateError) {
         return callback(mockError);
       }
       callback(null, fluxibleRoutes);
     });
-    context.service.setService('page', function(method, params, config, callback) {
+    context.service.setService('page', function (method, params, config, callback) {
       if (params.emulateError) {
         return callback(mockError);
       }
@@ -45,7 +47,7 @@ describe('transformers', function () {
     });
   }
 
-  function cloneFixtures() {
+  function cloneFixtures () {
     // clone routesResponse so we don't disrupt routes-response in require cache.
     jsonRoutes = JSON.parse(JSON.stringify(routesResponseFixture));
     // Fluxible routes are not serializable, that's the whole point.
@@ -54,37 +56,37 @@ describe('transformers', function () {
     fluxibleRoutes = fluxibleRoutesFixture;
   }
 
-  before(function() {
-    jsonToFluxible = transformers.jsonToFluxible;
-    fluxibleToJson = transformers.fluxibleToJson;
+  before(function () {
+    jsonToFluxible = transformer.jsonToFluxible;
+    fluxibleToJson = transformer.fluxibleToJson;
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     cloneFixtures();
   });
 
-  describe('test fixtures', function() {
+  describe('test fixtures', function () {
     beforeEach(function() {
       createMockContext();
     });
 
-    it('json routes should be correct', function() {
+    it('json routes should be correct', function () {
       expect(jsonRoutes).to.be.an('object');
       expect(jsonRoutes[testKey].action).to.be.an('object');
     });
 
-    it('fluxible routes should be correct', function() {
+    it('fluxible routes should be correct', function () {
       expect(fluxibleRoutes).to.be.an('object');
       expect(fluxibleRoutes[testKey].action).to.be.a('function');
     });
   });
 
-  describe('jsonToFluxible', function() {
-    beforeEach(function() {      
+  describe('jsonToFluxible', function () {
+    beforeEach(function () {
       createMockContext();
     });
 
-    it('should transform json routes to fluxible routes', function(done) {
+    it('should transform json routes to fluxible routes', function (done) {
       var fluxibleRoutes = jsonToFluxible(jsonRoutes);
 
       // check output types
@@ -96,12 +98,11 @@ describe('transformers', function () {
         Object.keys(fluxibleRoutes).length
       );
 
-      // check that the output action is workable      
+      // check that the output action is workable
       fluxibleRoutes[testKey].action(context, { emulateError: true }, done);
-      
     });
 
-    it('should throw if an unknown action is specified', function() {
+    it('should throw if an unknown action is specified', function () {
       jsonRoutes.home.action.name = 'unknown_action';
 
       expect(function() {
@@ -109,9 +110,9 @@ describe('transformers', function () {
       }).to.throw(Error, /not found/);
     });
   });
-  
+
   describe('fluxibleToJson', function() {
-    it('should transform fluxible routes to json routes', function() {
+    it('should transform fluxible routes to json routes', function () {
       var jsonRoutes = fluxibleToJson(fluxibleRoutes);
 
       // check output types
@@ -130,23 +131,23 @@ describe('transformers', function () {
     });
   });
 
-  describe('roundtrip', function() {
+  describe('roundtrip', function () {
     beforeEach(function() {
       createMockContext();
     });
 
-    it('should reproduce the json routes', function() {
+    it('should reproduce the json routes', function () {
       var roundtrip = fluxibleToJson(jsonToFluxible(jsonRoutes));
       cloneFixtures();
       expect(roundtrip).to.eql(jsonRoutes);
     });
 
-    it('should reproduce the fluxible routes', function(done) {
+    it('should reproduce the fluxible routes', function (done) {
       var roundtrip = jsonToFluxible(fluxibleToJson(fluxibleRoutes));
       cloneFixtures();
 
       helperTests.testTransform(expect, roundtrip, fluxibleRoutes);
-      
+
       // check that the output action is workable
       roundtrip[testKey].action(context, {}, done);
     });

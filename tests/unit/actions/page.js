@@ -11,7 +11,7 @@ var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 var ApplicationStore = require('../../../stores/ApplicationStore');
 var ContentStore = require('../../../stores/ContentStore');
-var pageAction = require('../../../actions/page');
+var pageAction = require('../../../actions').page;
 var serviceData = require('../../fixtures/service-data');
 
 describe('page action', function () {

@@ -6,9 +6,9 @@
 
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
-var ContactStore = require('../../../stores/ContactStore');
-var contactAction = require('../../../actions/contact');
 var cx = require('classnames');
+var ContactStore = require('../../../stores/ContactStore');
+var contactAction = require('../../../actions').contact;
 
 var Contact = React.createClass({
   mixins: [ FluxibleMixin ],

@@ -14,13 +14,13 @@ var React = require('react');
 var navigateAction = require('flux-router-component').navigateAction;
 
 var HtmlComponent = React.createFactory(require(baseDir + '/components/Html.jsx'));
-var routesAction = require(baseDir + '/actions/routes');
+var routesAction = require(baseDir + '/actions').routes;
 var config = require(baseDir + '/configs').create({
   baseDir: baseDir
 });
 var settings = config.settings;
 
-function renderApp(res, context, app, props) {
+function renderApp (res, context, app, props) {
   var state;
 
   props.mainScript = settings.web.assets.mainScript();

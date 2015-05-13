@@ -5,11 +5,13 @@
 'use strict';
 
 var debug = require('debug')('Example:RoutesAction');
-var jsonToFluxible = require('../utils/transformers').jsonToFluxible;
+var createFluxibleRouteTransformer = require('../utils').createFluxibleRouteTransformer;
 
-function routes(context, payload, done) {
-  var transformer = (typeof payload.transform === 'function' ? 
-        payload.transform : jsonToFluxible);
+function routes (context, payload, done) {
+  var transformer = (typeof payload.transform === 'function' ?
+        payload.transform : createFluxibleRouteTransformer({
+          actions: require('./')
+        }).jsonToFluxible);
 
   if (payload.routes) {
     var fluxibleRoutes = payload.routes;
@@ -25,13 +27,13 @@ function routes(context, payload, done) {
   }
 
   debug('Routes request start');
-  context.service.read('routes', payload, {}, function(err, routes) {
+  context.service.read('routes', payload, {}, function (err, routes) {
     debug('Routes request complete');
-    
+
     if (err) {
       return done(err);
     }
-    
+
     var fluxibleRoutes = transformer(routes);
     context.dispatch('RECEIVE_ROUTES', fluxibleRoutes);
     done(null, fluxibleRoutes);

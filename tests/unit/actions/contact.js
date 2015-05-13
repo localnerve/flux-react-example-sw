@@ -11,11 +11,11 @@ var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 var ContactStore = require('../../../stores/ContactStore');
 var serviceMail = require('../../fixtures/service-mail');
-var contactAction = require('../../../actions/contact');
+var contactAction = require('../../../actions').contact;
 
 describe('contact action', function () {
   var context;
-  
+
   var fields = {
     name: 'alex',
     email: 'alex@test.domain',
@@ -71,13 +71,13 @@ describe('contact action', function () {
         return done(err);
       }
 
-      var data = getContactData();      
+      var data = getContactData();
 
       expect(data.fields).to.deep.equal(fields);
       expect(data.failure).to.be.false;
 
       done();
-    });    
+    });
   });
 
   it('should send and clear the ContactStore when complete, success', function (done) {

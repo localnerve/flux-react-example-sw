@@ -11,9 +11,11 @@ var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 
 var ApplicationStore = require('../../../stores/ApplicationStore');
-var routes = require('../../../actions/routes');
+var routes = require('../../../actions').routes;
 var routesResponse = require('../../fixtures/routes-response');
-var jsonToFluxible = require('../../../utils/transformers').jsonToFluxible;
+var transformer = require('../../../utils').createFluxibleRouteTransformer({
+  actions: require('../../../actions')
+});
 var testUtils = require('../../utils/tests');
 
 describe('routes action', function () {
@@ -28,9 +30,9 @@ describe('routes action', function () {
     expect(pages).to.not.be.empty;
     expect(pages[testPage]).to.be.an('object');
   }
-  
+
   // create the action context wired to ApplicationStore
-  beforeEach(function () {    
+  beforeEach(function () {
     context = createMockActionContext({
       stores: [ApplicationStore]
     });
@@ -42,8 +44,10 @@ describe('routes action', function () {
     };
 
     // clone the response fixture, set it to a fluxible state.
-    beforeEach(function () {      
-      response = jsonToFluxible(JSON.parse(JSON.stringify(routesResponse)));
+    beforeEach(function () {
+      response = transformer.jsonToFluxible(
+        JSON.parse(JSON.stringify(routesResponse))
+      );
       params.routes = response;
     });
 
@@ -60,12 +64,12 @@ describe('routes action', function () {
 
     it('should use a custom transformer if supplied', function (done) {
       var custom;
-      
+
       params.transform = function (input) {
         custom = input;
         return custom;
       };
-      
+
       context.executeAction(routes, params, function (err) {
         if (err) {
           done(err);
@@ -85,7 +89,7 @@ describe('routes action', function () {
     // clone the response fixture, set it to a wire state.
     beforeEach(function () {
       response = JSON.parse(JSON.stringify(routesResponse));
-      fluxibleRoutesFixture = jsonToFluxible(response);
+      fluxibleRoutesFixture = transformer.jsonToFluxible(response);
 
       context.service = new MockService();
       context.service.setService('routes', function (method, params, config, callback) {

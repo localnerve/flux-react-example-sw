@@ -4,9 +4,7 @@
  */
 'use strict';
 
-var actions = {
-  page: require('../../actions/page')
-};
+var actions = require('../../actions');
 
 var params = {
   resource: 'test',

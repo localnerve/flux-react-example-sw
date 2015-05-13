@@ -5,8 +5,8 @@
  */
 'use strict';
 
-function testTransform(expect, actual, expected) {
-  Object.keys(expected).forEach(function(key) {
+function testTransform (expect, actual, expected) {
+  Object.keys(expected).forEach(function (key) {
     expect(actual[key].page).to.eql(expected[key].page);
     expect(actual[key].path).to.eql(expected[key].path);
     expect(actual[key].method).to.eql(expected[key].method);

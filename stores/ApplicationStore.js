@@ -4,7 +4,9 @@
  */
 'use strict';
 var createStore = require('fluxible/addons').createStore;
-var transformers = require('../utils/transformers');
+var transformer = require('../utils').createFluxibleRouteTransformer({
+  actions: require('../actions')
+});
 
 var ApplicationStore = createStore({
   storeName: 'ApplicationStore',
@@ -34,16 +36,16 @@ var ApplicationStore = createStore({
     this.currentRoute = route;
     this.emitChange();
   },
-  updatePageTitle: function(page) {
+  updatePageTitle: function (page) {
     this.currentPageTitle = page.title;
     this.emitChange();
   },
-  receiveRoutes: function(routes) {
+  receiveRoutes: function (routes) {
     this.pages = routes;
     this.emit(ApplicationStore.routesEvent, { routes: routes });
     this.emitChange();
   },
-  getPages: function() {
+  getPages: function () {
     return this.pages;
   },
   getCurrentPageName: function () {
@@ -55,19 +57,19 @@ var ApplicationStore = createStore({
   getCurrentRoute: function () {
     return this.currentRoute;
   },
-  dehydrate: function () {    
+  dehydrate: function () {
     return {
-      pageName: this.currentPageName,      
+      pageName: this.currentPageName,
       route: this.currentRoute,
       pageTitle: this.currentPageTitle,
-      pages: transformers.fluxibleToJson(this.pages)
+      pages: transformer.fluxibleToJson(this.pages)
     };
   },
   rehydrate: function (state) {
-    this.currentPageName = state.pageName;    
+    this.currentPageName = state.pageName;
     this.currentRoute = state.route;
     this.currentPageTitle = state.pageTitle;
-    this.pages = transformers.jsonToFluxible(state.pages);
+    this.pages = transformer.jsonToFluxible(state.pages);
   }
 });
 

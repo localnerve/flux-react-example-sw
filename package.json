@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "An isomorphic flux-react example application",
   "main": "./server",
   "scripts": {

@@ -6,145 +6,104 @@
 
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
-var cx = require('classnames');
 var ContactStore = require('../../../stores/ContactStore');
 var contactAction = require('../../../actions').contact;
+var ContactSteps = require('./Steps.jsx');
+var ContactNav = require('./Nav.jsx');
+var elements = require('./elements');
 
 var Contact = React.createClass({
   mixins: [ FluxibleMixin ],
   statics: {
     storeListeners: [ ContactStore ]
   },
-
+  propTypes: {
+    name: React.PropTypes.string,
+    headingText: React.PropTypes.string.isRequired,
+    introductionText: React.PropTypes.string.isRequired,
+    stepFinal: React.PropTypes.number.isRequired,
+    steps: React.PropTypes.array.isRequired
+  },
+  getDefaultProps: function () {
+    return {
+      headingText: '',
+      introductionText: '',
+      stepFinal: 0,
+      steps: [{
+        name: 'Name'
+      }]
+    };
+  },
   getInitialState: function () {
-    var state = this._getStateFromStore();
+    var state = this.getStateFromStore();
     state.step = 0;
     return state;
   },
+  setInputElement: function (component) {
+    this.inputElement = component;
+  },
   render: function () {
-    var contactSteps = '', contactElements = '';
-
-    if (this.props.steps) {
-      contactSteps = this._renderContactSteps();
-      contactElements = this._renderContactElements();
-    }
+    var step = this.props.steps[this.state.step];
+    var contactElement = elements.createElement(step.name, {
+      fieldValue: this.state.fields[step.name] || null,
+      setInputReference: this.setInputElement,
+      failure: this.state.failure,
+      message: this.state.fields.message
+    });
 
     return (
       <div className="page">
         <div className="grid-container-center page-content">
           <h2>{this.props.headingText}</h2>
           <p>{this.props.introductionText}</p>
-          <ul className="contact-steps">
-            {contactSteps}
-          </ul>
-          {contactElements}
+          <ContactSteps
+            steps={this.props.steps}
+            stepCurrent={this.state.step}
+            stepFinal={this.props.stepFinal}
+            failure={this.state.failure} />
+          <form className="contact-form" onSubmit={this.handleSubmit}>
+            {contactElement}
+            <ContactNav
+              stepCurrent={this.state.step}
+              stepFinal={this.props.stepFinal}
+              navFormKey='tbd'
+              onPrevious={this.handlePrevious} />
+          </form>
         </div>
       </div>
     );
   },
   onChange: function () {
-    this.setState(this._getStateFromStore());
+    this.setState(this.getStateFromStore());
   },
-
-  _saveFields: function (fields) {
+  saveFields: function (fields) {
     this.executeAction(contactAction, {
       fields: fields,
       complete: (this.state.step === (this.props.stepFinal - 1))
     });
   },
-  _getStateFromStore: function () {
+  getStateFromStore: function () {
     var store = this.getStore(ContactStore);
     return {
       fields: store.getContactFields(),
       failure: store.getContactFailure()
     };
   },
-  _nextStep: function () {
+  nextStep: function () {
     this.setState({
       step: this.state.step + 1
     });
   },
-  _prevStep: function () {
+  prevStep: function () {
     this.setState({
       step: this.state.step - 1
     });
   },
-  _renderContactElements: function () {
-    // make a copy of this step
-    var step = JSON.parse(JSON.stringify(this.props.steps[this.state.step]));
-
-    if (step.step < this.props.stepFinal) {
-      // wire up event handlers and value field
-      step.container.props.onSubmit = this._handleSubmit;
-      step.value.props.defaultValue = this.state.fields[step.name] || null;
-      if (step.previousElement >= 0) {
-        step.navigation.elements[step.previousElement].props.onClick = this._handlePrevious;
-      }
-    } else {
-      if (this.state.failure) {
-        step.description.text = step.description.failureText;
-        step.value.text = step.value.failureText;
-      }
-    }
-
-    var children = [
-      React.createElement(
-        step.description.tagName,
-        step.description.props,
-        step.description.text
-      ),
-      React.createElement(
-        step.value.tagName,
-        step.value.props,
-        step.value.text
-      )
-    ];
-
-    return React.createElement(
-      step.container.tagName,
-      step.container.props,
-      !step.navigation ? children : children.concat(
-        React.createElement(
-          step.navigation.container.tagName,
-          step.navigation.container.props,
-          step.navigation.elements
-          .map(function (element) {
-            return React.createElement(
-              element.tagName,
-              element.props,
-              React.createElement('span', {}, element.text)
-            );
-          })
-        )
-      )
-    );
-  },
-  _renderContactSteps: function () {
-    var self = this;
-
-    return this.props.steps
-      .sort(function (a, b) {
-        return a.step - b.step;
-      })
-      .map(function (input) {
-        var classNames = cx({
-          complete: input.step < self.state.step,
-          current: input.step === self.state.step,
-          incomplete: input.step > self.state.step,
-          hide: input.step === self.props.stepFinal
-        });
-        return (
-          <li className={classNames} key={input.name}>
-            <span>{input.name}</span>
-          </li>
-        );
-      });
-  },
-  _handleSubmit: function (event) {
+  handleSubmit: function (event) {
     event.preventDefault();
     var step = this.props.steps[this.state.step];
 
-    var fieldValue = React.findDOMNode(this.refs[step.name]).value.trim();
+    var fieldValue = React.findDOMNode(this.inputElement).value.trim();
     if (!fieldValue) {
       return;
     }
@@ -152,13 +111,13 @@ var Contact = React.createClass({
     var fields = this.state.fields;
     fields[step.name] = fieldValue;
 
-    this._saveFields(fields);
-    this._nextStep();
+    this.saveFields(fields);
+    this.nextStep();
   },
-  _handlePrevious: function (event) {
+  handlePrevious: function (event) {
     event.preventDefault();
 
-    this._prevStep();
+    this.prevStep();
   }
 });
 

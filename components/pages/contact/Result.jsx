@@ -92,10 +92,10 @@ var ContactResult = React.createClass({
     );
   },
   encodeURIMailTo: function () {
-    var subject = encodeURIComponent(this.props.business.alternateName + ' direct email');
+    var subject = encodeURIComponent(this.props.business.alternateName + ' contact email');
     var body = this.props.failure ? encodeURIComponent(this.props.failedMessage) : '';
 
-    return "mailto:" + this.props.business.email + '/?subject=' + subject + '&body=' + body;
+    return "mailto:" + this.props.business.email + '?subject=' + subject + '&body=' + body;
   }
 });
 

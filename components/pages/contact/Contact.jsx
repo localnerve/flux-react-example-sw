@@ -6,6 +6,7 @@
 
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var cx = require('classnames');
 var ContactStore = require('../../../stores/ContactStore');
 var contactAction = require('../../../actions').contact;
 var ContactSteps = require('./Steps.jsx');
@@ -20,18 +21,50 @@ var Contact = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
     headingText: React.PropTypes.string.isRequired,
-    introductionText: React.PropTypes.string.isRequired,
     stepFinal: React.PropTypes.number.isRequired,
-    steps: React.PropTypes.array.isRequired
+    steps: React.PropTypes.array.isRequired,
+    resultMessageFail: React.PropTypes.string.isRequired,
+    resultMessageSuccess: React.PropTypes.string.isRequired,
+    navigation: React.PropTypes.object.isRequired
   },
   getDefaultProps: function () {
     return {
       headingText: '',
-      introductionText: '',
       stepFinal: 0,
       steps: [{
-        name: 'Name'
-      }]
+        name: 'name',
+        introduction: {
+          text: ''
+        }
+      }, {
+        name: 'email',
+        introduction: {
+          text: ''
+        }
+      }, {
+        name: 'message',
+        introduction: {
+          text: ''
+        }
+      }, {
+        name: 'result',
+        introduction: {
+          text: ''
+        }
+      }],
+      resultMessageFail: '',
+      resultMessageSuccess: '',
+      navigation: {
+        previous: {
+          text: '',
+          help: ''
+        },
+        next: {
+          text: '',
+          help: '',
+          last: ''
+        }
+      }
     };
   },
   getInitialState: function () {
@@ -47,27 +80,37 @@ var Contact = React.createClass({
     var contactElement = elements.createElement(step.name, {
       fieldValue: this.state.fields[step.name] || null,
       setInputReference: this.setInputElement,
+      label: step.label,
+      message: step.message,
+      business: this.props.models.LocalBusiness,
       failure: this.state.failure,
-      message: this.state.fields.message
+      failedMessage: this.state.fields.message
     });
 
     return (
       <div className="page">
         <div className="grid-container-center page-content">
           <h2>{this.props.headingText}</h2>
-          <p>{this.props.introductionText}</p>
+          <p className={cx({
+            'contact-heading': true,
+            hide: this.state.step === this.props.stepFinal
+          })}>{step.introduction.text}</p>
           <ContactSteps
             steps={this.props.steps}
             stepCurrent={this.state.step}
             stepFinal={this.props.stepFinal}
-            failure={this.state.failure} />
+            failure={this.state.failure}
+            resultMessage={this.state.failure ? this.props.resultMessageFail :
+              this.props.resultMessageSuccess}
+            retry={this.handleRetry} />
           <form className="contact-form" onSubmit={this.handleSubmit}>
             {contactElement}
             <ContactNav
               stepCurrent={this.state.step}
               stepFinal={this.props.stepFinal}
-              navFormKey='tbd'
-              onPrevious={this.handlePrevious} />
+              navFormKey={'nav-form-' + step.name}
+              onPrevious={this.handlePrevious}
+              nav={this.props.navigation} />
           </form>
         </div>
       </div>
@@ -94,9 +137,15 @@ var Contact = React.createClass({
       step: this.state.step + 1
     });
   },
-  prevStep: function () {
+  prevStep: function (cb) {
     this.setState({
       step: this.state.step - 1
+    }, cb);
+  },
+  handleRetry: function () {
+    this.prevStep(function () {
+      this.saveFields(this.state.fields);
+      this.nextStep();
     });
   },
   handleSubmit: function (event) {
@@ -116,7 +165,6 @@ var Contact = React.createClass({
   },
   handlePrevious: function (event) {
     event.preventDefault();
-
     this.prevStep();
   }
 });

@@ -14,6 +14,13 @@
   @include vertical-block(left);
 }
 
+$app-alert-bgcolor: #E53935;
+$app-primary-bgcolor: #43A047;
+$app-accent-light-bgcolor: #FFAB00;
+$app-accent-dark-bgcolor: #1B5E20;
+$app-primary-light-color: rgba(255, 255, 255, 0.87);
+$app-primary-dark-color: rgba(0, 0, 0, 0.87);
+
 $header-footer-color: #FFF;
 $header-footer-color-dark: #1B5E20;
 $header-footer-background: #43A047;

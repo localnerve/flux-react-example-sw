@@ -40,11 +40,12 @@
   }
 }
 
-@mixin arrow-text($size, $medium-size, $color) {
+@mixin arrow-text($size, $medium-size, $bgcolor, $color) {
   position: relative;
   z-index: 1;
   padding: ($size/2) 0;
-  background: $color;
+  background: $bgcolor;
+  color: $color;
   flex-grow: 1;
   min-width: 55%;
   @include breakpoint(medium) {

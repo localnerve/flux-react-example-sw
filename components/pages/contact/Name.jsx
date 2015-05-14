@@ -9,22 +9,27 @@ var React = require('react');
 var ContactName = React.createClass({
   propTypes: {
     fieldValue: React.PropTypes.string,
-    setInputReference: React.PropTypes.func.isRequired
+    setInputReference: React.PropTypes.func.isRequired,
+    label: React.PropTypes.object.isRequired
   },
   getDefaultProps: function () {
     return {
       fieldValue: null,
-      setInputReference: function () {}
+      setInputReference: function () {},
+      label: {
+        text: '',
+        help: ''
+      }
     };
   },
   render: function () {
     return (
       <div>
         <label htmlFor="name-input" key="name-label">
-          What is your name?
+          {this.props.label.text}
         </label>
         <input type="text"
-          title="Enter your name" placeholder="Enter your name"
+          title={this.props.label.help} placeholder={this.props.label.help}
           id="name-input" name="name-input" key="name-input"
           ref={this.props.setInputReference}
           className="form-value-element"

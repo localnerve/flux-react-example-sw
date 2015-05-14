@@ -12,12 +12,16 @@ $step-size: $rem-base * $step-size-scale;
   @return $rem-base;
 }
 
-$step-complete-color: #AAA;
-$step-incomplete-color: #888;
-$step-current-color: $info-color;
+$step-complete-bgcolor: $app-accent-light-bgcolor;
+$step-complete-color: $app-primary-dark-color;
+$step-incomplete-bgcolor: $app-accent-dark-bgcolor;
+$step-incomplete-color: $app-primary-light-color;
+$step-current-bgcolor: $app-primary-bgcolor;
+$step-current-color: $app-primary-light-color;
 
-@mixin step-text($color) {
-  @include arrow-text($step-size, step-size-unscale($step-size), $color);
+
+@mixin step-text($bgcolor, $color) {
+  @include arrow-text($step-size, step-size-unscale($step-size), $bgcolor, $color);
 }
 
 @mixin step-arrows($color) {
@@ -43,24 +47,36 @@ $step-current-color: $info-color;
 
     width: 100%;
     text-align: center;
+
+    &.result-message {
+      background: $app-primary-bgcolor;
+      color: $app-primary-light-color;
+      padding: 0.5rem;
+      justify-content: center;
+      font-weight: bold;
+
+      &.failure {
+        background: $app-alert-bgcolor;
+      }
+    }
   }
 
   .complete {
-    @include step-arrows($step-complete-color);
+    @include step-arrows($step-complete-bgcolor);
     span {
-      @include step-text($step-complete-color);
+      @include step-text($step-complete-bgcolor, $step-complete-color);
     }
   }
   .current {
-    @include step-arrows($step-current-color);
+    @include step-arrows($step-current-bgcolor);
     span {
-      @include step-text($step-current-color);
+      @include step-text($step-current-bgcolor, $step-current-color);
     }
   }
   .incomplete {
-    @include step-arrows($step-incomplete-color);
+    @include step-arrows($step-incomplete-bgcolor);
     span {
-      @include step-text($step-incomplete-color);
+      @include step-text($step-incomplete-bgcolor, $step-incomplete-color);
     }
   }
 }

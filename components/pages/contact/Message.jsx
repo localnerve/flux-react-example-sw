@@ -9,22 +9,27 @@ var React = require('react');
 var ContactMessage = React.createClass({
   propTypes: {
     fieldValue: React.PropTypes.string,
-    setInputReference: React.PropTypes.func.isRequired
+    setInputReference: React.PropTypes.func.isRequired,
+    label: React.PropTypes.object.isRequired
   },
   getDefaultProps: function () {
     return {
       fieldValue: null,
-      setInputReference: function () {}
+      setInputReference: function () {},
+      label: {
+        text: '',
+        help: ''
+      }
     };
   },
   render: function () {
     return (
       <div>
         <label htmlFor="message-input" key="message-label">
-          What is your message?
+          {this.props.label.text}
         </label>
         <textarea type="text"
-          title="Enter your message" placeholder="Enter your message"
+          title={this.props.label.help} placeholder={this.props.label.help}
           id="message-input" name="message-input" key="message-input"
           ref={this.props.setInputReference}
           className="form-value-element"

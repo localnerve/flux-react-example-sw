@@ -12,14 +12,26 @@ var ContactNav = React.createClass({
     navFormKey: React.PropTypes.string.isRequired,
     stepCurrent: React.PropTypes.number.isRequired,
     stepFinal: React.PropTypes.number.isRequired,
-    onPrevious: React.PropTypes.func.isRequired
+    onPrevious: React.PropTypes.func.isRequired,
+    nav: React.PropTypes.object.isRequired
   },
   getDefaultProps: function () {
     return {
       navFormKey: 'nav-form',
       stepCurrent: 0,
       stepFinal: 0,
-      onPrevious: function () {}
+      onPrevious: function () {},
+      nav: {
+        previous: {
+          text: '',
+          help: ''
+        },
+        next: {
+          text: '',
+          help: '',
+          last: ''
+        }
+      }
     };
   },
   render: function () {
@@ -38,20 +50,22 @@ var ContactNav = React.createClass({
   },
   renderContactNav: function () {
     var complete = this.props.stepCurrent === this.props.stepFinal - 1;
-    var lastText = complete ? 'Submit' : 'Next';
+    var nextText = complete ? this.props.nav.next.last :
+      this.props.nav.next.text;
 
     return [
       <button type="button"
-        id="previous" name="previous" key="previous" value="Back"
-        title="Press here if you would like to go back to the previous form"
+        id="previous" name="previous" key="previous"
+        value={this.props.nav.previous.text}
+        title={this.props.nav.previous.help}
         className={cx({hide: this.props.stepCurrent === 0})}
         onClick={this.props.onPrevious}>
-        <span>Back</span>
+        <span>{this.props.nav.previous.text}</span>
       </button>,
       <button type="submit"
-        id="submit" name="submit" key="submit" value={lastText}
-        title="Press here after you've filled out all form elements">
-        <span>{lastText}</span>
+        id="submit" name="submit" key="submit" value={nextText}
+        title={this.props.nav.next.help}>
+        <span>{nextText}</span>
       </button>
     ];
   }

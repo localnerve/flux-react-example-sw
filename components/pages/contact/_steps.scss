@@ -60,6 +60,9 @@ $step-current-color: $app-primary-light-color;
       }
     }
   }
+  li:not(:first-child) {
+    margin-left: -10px;
+  }
 
   .complete {
     @include step-arrows($step-complete-bgcolor);

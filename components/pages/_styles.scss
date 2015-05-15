@@ -9,9 +9,11 @@
 
 .page-content {
   @include grid-content;
+  min-width: 20rem;
   @include breakpoint(medium) {
     padding: 0 2rem;
     min-height: 20rem;
+    min-width: 26rem;
   }
 }
 

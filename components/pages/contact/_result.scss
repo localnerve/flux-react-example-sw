@@ -1,0 +1,17 @@
+// Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+// Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+//
+// styles for the result component
+
+.contact-result-contact {
+  a {
+    display: block;
+    text-decoration: none;
+    span {
+      padding-left: 1rem;
+    }
+  }
+  a:not(:last-child) {
+    margin-bottom: 0.7rem;
+  }
+}

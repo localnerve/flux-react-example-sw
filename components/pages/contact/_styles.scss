@@ -3,8 +3,11 @@
 //
 // Styles for the Contact component
 
+// import styles for supportive components
 @import "arrows";
 @import "steps";
+@import "result";
+@import "nav";
 
 .contact-form {
   label {
@@ -17,81 +20,5 @@
   }
   .form-value-element {
     width: 100%;
-  }
-}
-
-.contact-heading {
-  min-width: rem-calc(288px);
-}
-
-.contact-result-contact {
-  a {
-    display: block;
-    text-decoration: none;
-    span {
-      padding-left: 1rem;
-    }
-  }
-  a:not(:last-child) {
-    margin-bottom: 0.7rem;
-  }
-}
-
-@mixin button-span() {
-  display: block;
-  float: left;
-  padding: $rem-base/2 !important;
-  min-width: 0;
-}
-
-$button-submit-bgcolor: $app-accent-dark-bgcolor;
-$button-submit-color: $app-primary-light-color;
-$button-prev-bgcolor: $app-accent-light-bgcolor;
-$button-prev-color: $app-primary-dark-color;
-
-.form-navigation {
-  @extend .grid-row-spaced;
-  margin: 1em 0;
-
-  button {
-    display: inline-block;
-    border: 0;
-    background: transparent;
-  }
-  button[type=submit] {
-    &::before {
-      @include pre-triangle($rem-base, $rem-base, $button-submit-bgcolor, left);
-      display: block;
-      float: left;
-    }
-    &::after {
-      @include post-triangle($rem-base, $rem-base, $button-submit-bgcolor, left);
-      display: block;
-      float: left;
-    }
-    span {
-      @include arrow-text(
-        $rem-base, $rem-base, $button-submit-bgcolor, $button-submit-color
-      );
-      @include button-span;
-    }
-  }
-  button[type=button] {
-    &::before {
-      @include post-triangle($rem-base, $rem-base, $button-prev-bgcolor, right);
-      display: block;
-      float: left;
-    }
-    &::after {
-      @include pre-triangle($rem-base, $rem-base, $button-prev-bgcolor, right);
-      display: block;
-      float: left;
-    }
-    span {
-      @include arrow-text(
-        $rem-base, $rem-base, $button-prev-bgcolor, $button-prev-color
-      );
-      @include button-span;
-    }
   }
 }

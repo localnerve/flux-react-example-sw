@@ -32,11 +32,22 @@
   }
 }
 
+@mixin clip-triangle($direction) {
+  @if ($direction == left) {
+    border-right-width: 0;
+  }
+  @if ($direction == right) {
+    border-left-width: 0;
+  }
+}
+
 @mixin post-triangle($size, $medium-size, $color, $direction: left) {
   display: inline-block;
   @include css-triangle($size, $color, $direction);
+  @include clip-triangle($direction);
   @include breakpoint(medium) {
     @include css-triangle($medium-size, $color, $direction);
+    @include clip-triangle($direction);
   }
 }
 

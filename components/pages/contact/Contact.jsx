@@ -27,46 +27,6 @@ var Contact = React.createClass({
     resultMessageSuccess: React.PropTypes.string.isRequired,
     navigation: React.PropTypes.object.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      headingText: '',
-      stepFinal: 0,
-      steps: [{
-        name: 'name',
-        introduction: {
-          text: ''
-        }
-      }, {
-        name: 'email',
-        introduction: {
-          text: ''
-        }
-      }, {
-        name: 'message',
-        introduction: {
-          text: ''
-        }
-      }, {
-        name: 'result',
-        introduction: {
-          text: ''
-        }
-      }],
-      resultMessageFail: '',
-      resultMessageSuccess: '',
-      navigation: {
-        previous: {
-          text: '',
-          help: ''
-        },
-        next: {
-          text: '',
-          help: '',
-          last: ''
-        }
-      }
-    };
-  },
   getInitialState: function () {
     var state = this.getStateFromStore();
     state.step = 0;
@@ -76,6 +36,10 @@ var Contact = React.createClass({
     this.inputElement = component;
   },
   render: function () {
+    if (!this.props.steps || this.props.steps.length === 0) {
+      return null;
+    }
+
     var step = this.props.steps[this.state.step];
     var contactElement = elements.createElement(step.name, {
       fieldValue: this.state.fields[step.name] || null,
@@ -116,6 +80,9 @@ var Contact = React.createClass({
       </div>
     );
   },
+  shouldComponentUpdate: function (nextProps) {
+    return nextProps.name === 'contact';
+  },
   onChange: function () {
     this.setState(this.getStateFromStore());
   },
@@ -137,10 +104,10 @@ var Contact = React.createClass({
       step: this.state.step + 1
     });
   },
-  prevStep: function (cb) {
+  prevStep: function (done) {
     this.setState({
       step: this.state.step - 1
-    }, cb);
+    }, done);
   },
   handleRetry: function () {
     this.prevStep(function () {

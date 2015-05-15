@@ -21,6 +21,11 @@ var Application = React.createClass({
     storeListeners: [ ApplicationStore ]
   },
 
+  getDefaultProps: function () {
+    return {
+      enableScroll: false
+    };
+  },
   getInitialState: function () {
     return this.getState();
   },

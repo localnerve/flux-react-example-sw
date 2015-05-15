@@ -28,7 +28,7 @@ var ContactEmail = React.createClass({
         <label htmlFor="email-input" key="email-label">
           {this.props.label.text}
         </label>
-        <input type="text"
+        <input type="email"
           title={this.props.label.help} placeholder={this.props.label.help}
           id="email-input" name="email-input" key="email-input"
           ref={this.props.setInputReference}

@@ -41,6 +41,7 @@ var Contact = React.createClass({
     }
 
     var step = this.props.steps[this.state.step];
+
     var contactElement = elements.createElement(step.name, {
       fieldValue: this.state.fields[step.name] || null,
       setInputReference: this.setInputElement,

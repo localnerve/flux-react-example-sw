@@ -5,24 +5,40 @@
 'use strict';
 
 var React = require('react');
-var Name = require('./Name.jsx');
-var Email = require('./Email.jsx');
-var Message = require('./Message.jsx');
+var Input = require('./Input.jsx');
 var Result = require('./Result.jsx');
+var merge = require('lodash/object/merge');
 
 var classes = {
-  name: Name,
-  email: Email,
-  message: Message,
+  name: Input,
+  email: Input,
+  message: Input,
   result: Result
 };
 
-function getClass (component) {
-  return classes[component];
-}
+var inputProps = {
+  name: {
+    inputElement: 'input',
+    inputType: 'text',
+    inputId: 'name-input'
+  },
+  email: {
+    inputElement: 'input',
+    inputType: 'email',
+    inputId: 'email-input'
+  },
+  message: {
+    inputElement: 'textarea',
+    inputId: 'message-input'
+  },
+  result: {}
+};
 
 module.exports = {
   createElement: function (component, props) {
-    return React.createElement(getClass(component), props);
+    return React.createElement(
+      classes[component],
+      merge(props, inputProps[component])
+    );
   }
 };

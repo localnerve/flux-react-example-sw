@@ -16,8 +16,11 @@ var NotFound = React.createClass({
             Sorry, but the page you are trying to view does not exist.
           </p>
         </div>
-      </div>      
+      </div>
     );
+  },
+  shouldComponentUpdate: function () {
+    return false;
   }
 });
 

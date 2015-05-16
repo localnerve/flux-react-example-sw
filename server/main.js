@@ -14,7 +14,7 @@ var React = require('react');
 var navigateAction = require('flux-router-component').navigateAction;
 
 var HtmlComponent = React.createFactory(require(baseDir + '/components/Html.jsx'));
-var routesAction = require(baseDir + '/actions').routes;
+var routesAction = require(baseDir + '/actions/routes');
 var config = require(baseDir + '/configs').create({
   baseDir: baseDir
 });

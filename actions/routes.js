@@ -10,7 +10,7 @@ var createFluxibleRouteTransformer = require('../utils').createFluxibleRouteTran
 function routes (context, payload, done) {
   var transformer = (typeof payload.transform === 'function' ?
         payload.transform : createFluxibleRouteTransformer({
-          actions: require('./')
+          actions: require('./interface')
         }).jsonToFluxible);
 
   if (payload.routes) {

@@ -12,7 +12,7 @@ var ApplicationStore = require('./stores/ApplicationStore');
 var ContentStore = require('./stores/ContentStore');
 var ContactStore = require('./stores/ContactStore');
 var transformer = require('./utils').createFluxibleRouteTransformer({
-  actions: require('./actions')
+  actions: require('./actions/interface')
 });
 
 debug('Creating FluxibleApp');

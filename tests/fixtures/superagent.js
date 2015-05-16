@@ -17,7 +17,7 @@ SuperAgent.prototype = {
   },
   end: function (cb) {
     var body = {
-      content: 'aGVsbG8gd29ybGQK'      
+      content: 'aGVsbG8gd29ybGQK'
     };
 
     cb(null, { body: body });

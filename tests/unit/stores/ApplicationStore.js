@@ -11,7 +11,7 @@ var routesResponseFixture = require('../../fixtures/routes-response');
 var helperTests = require('../../utils/tests');
 
 var transformer = require('../../../utils').createFluxibleRouteTransformer({
-  actions: require('../../../actions')
+  actions: require('../../../actions/interface')
 });
 
 describe('application store', function () {

@@ -5,7 +5,7 @@
 'use strict';
 var createStore = require('fluxible/addons').createStore;
 var transformer = require('../utils').createFluxibleRouteTransformer({
-  actions: require('../actions')
+  actions: require('../actions/interface')
 });
 
 var ApplicationStore = createStore({

@@ -4,7 +4,7 @@
  */
 'use strict';
 
-var actions = require('../../actions');
+var actions = require('../../actions/interface');
 
 var params = {
   resource: 'test',

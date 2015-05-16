@@ -11,10 +11,10 @@ var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 
 var ApplicationStore = require('../../../stores/ApplicationStore');
-var routes = require('../../../actions').routes;
+var routes = require('../../../actions/routes');
 var routesResponse = require('../../fixtures/routes-response');
 var transformer = require('../../../utils').createFluxibleRouteTransformer({
-  actions: require('../../../actions')
+  actions: require('../../../actions/interface')
 });
 var testUtils = require('../../utils/tests');
 

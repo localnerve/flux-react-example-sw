@@ -12,7 +12,7 @@ var ContactInput = React.createClass({
     setInputReference: React.PropTypes.func.isRequired,
     label: React.PropTypes.object.isRequired,
     inputElement: React.PropTypes.string.isRequired,
-    inputType: React.PropTypes.string.isRequired,
+    inputType: React.PropTypes.string,
     inputId: React.PropTypes.string.isRequired
   },
   render: function () {

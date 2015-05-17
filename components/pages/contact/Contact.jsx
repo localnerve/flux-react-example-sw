@@ -5,6 +5,7 @@
 'use strict';
 
 var React = require('react');
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var cx = require('classnames');
 var ContactStore = require('../../../stores/ContactStore');
@@ -56,10 +57,13 @@ var Contact = React.createClass({
       <div className="page">
         <div className="grid-container-center page-content">
           <h2>{this.props.headingText}</h2>
-          <p className={cx({
-            'contact-heading': true,
-            hide: this.state.step === this.props.stepFinal
-          })}>{step.introduction.text}</p>
+          <ReactCSSTransitionGroup className='contact-intro' transitionName="contact-intro">
+            <p key={step.introduction.text} className={cx({
+              hide: this.state.step === this.props.stepFinal
+            })}>
+              {step.introduction.text}
+            </p>
+          </ReactCSSTransitionGroup>
           <ContactSteps
             steps={this.props.steps}
             stepCurrent={this.state.step}

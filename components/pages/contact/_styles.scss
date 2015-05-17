@@ -21,3 +21,37 @@
     width: 100%;
   }
 }
+
+.contact-intro {
+  display: block;
+  max-width: 352px;
+  height: 2.2rem;
+  overflow: hidden;
+  p {
+    margin-top: 0;
+    margin-bottom: 0;
+    transform: TranslateZ(0);
+  }
+}
+.contact-intro-enter {
+  margin-left: 100%;
+  margin-right: -100%;
+  display: inline-block;
+  transition: all 0.2s linear;
+  transition-property: margin-left, margin-right;
+  &.contact-intro-enter-active {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.contact-intro-leave {
+  margin-left: -100%;
+  color: #FFF;
+  display: inline-block;
+  transition: margin-left 0.2s linear;
+  transition-property: margin-left, margin-right, width;
+  &.contact-intro-leave-active {
+    margin-left: -200%;
+  }
+}

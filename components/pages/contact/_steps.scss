@@ -53,7 +53,10 @@ $step-current-color: $app-primary-light-color;
       color: $app-primary-light-color;
       padding: 0.5rem;
       justify-content: center;
+
       font-weight: bold;
+      line-height: 1.2;
+      font-size: 1.2rem;
 
       &.failure {
         background: $app-alert-bgcolor;

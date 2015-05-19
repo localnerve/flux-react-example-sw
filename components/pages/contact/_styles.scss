@@ -33,25 +33,22 @@
     transform: TranslateZ(0);
   }
 }
-.contact-intro-enter {
+.contact-intro-next-enter {
   margin-left: 100%;
   margin-right: -100%;
   display: inline-block;
   transition: all 0.2s linear;
   transition-property: margin-left, margin-right;
-  &.contact-intro-enter-active {
+  &.contact-intro-next-enter-active {
     margin-left: 0;
     margin-right: 0;
   }
 }
-
-.contact-intro-leave {
+.contact-intro-prev-enter {
   margin-left: -100%;
-  color: #FFF;
   display: inline-block;
   transition: margin-left 0.2s linear;
-  transition-property: margin-left, margin-right, width;
-  &.contact-intro-leave-active {
-    margin-left: -200%;
+  &.contact-intro-prev-enter-active {
+    margin-left: 0;
   }
 }

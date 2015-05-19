@@ -31,6 +31,7 @@ var Contact = React.createClass({
   getInitialState: function () {
     var state = this.getStateFromStore();
     state.step = 0;
+    state.direction = 'next';
     return state;
   },
   setInputElement: function (component) {
@@ -57,10 +58,15 @@ var Contact = React.createClass({
       <div className="page">
         <div className="grid-container-center page-content">
           <h2>{this.props.headingText}</h2>
-          <ReactCSSTransitionGroup className='contact-intro' transitionName="contact-intro">
-            <p key={step.introduction.text} className={cx({
+          <ReactCSSTransitionGroup
+            className={cx({
+              'contact-intro': true,
               hide: this.state.step === this.props.stepFinal
-            })}>
+            })}
+            transitionEnter={this.state.step < this.props.stepFinal}
+            transitionLeave={false}
+            transitionName={'contact-intro-' + this.state.direction}>
+            <p key={step.introduction.text}>
               {step.introduction.text}
             </p>
           </ReactCSSTransitionGroup>
@@ -105,12 +111,14 @@ var Contact = React.createClass({
   },
   nextStep: function () {
     this.setState({
-      step: this.state.step + 1
+      step: this.state.step + 1,
+      direction: 'next'
     });
   },
   prevStep: function (done) {
     this.setState({
-      step: this.state.step - 1
+      step: this.state.step - 1,
+      direction: 'prev'
     }, done);
   },
   handleRetry: function () {

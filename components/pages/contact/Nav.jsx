@@ -9,7 +9,6 @@ var cx = require('classnames');
 
 var ContactNav = React.createClass({
   propTypes: {
-    navFormKey: React.PropTypes.string.isRequired,
     stepCurrent: React.PropTypes.number.isRequired,
     stepFinal: React.PropTypes.number.isRequired,
     onPrevious: React.PropTypes.func.isRequired,
@@ -17,7 +16,6 @@ var ContactNav = React.createClass({
   },
   getDefaultProps: function () {
     return {
-      navFormKey: 'nav-form',
       stepCurrent: 0,
       stepFinal: 0,
       onPrevious: function () {},
@@ -42,8 +40,7 @@ var ContactNav = React.createClass({
       <div className={cx({
           'form-navigation': true,
           hide: last
-        })}
-        key={this.props.navFormKey}>
+        })}>
         {nav}
       </div>
     );

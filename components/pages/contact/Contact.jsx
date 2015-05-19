@@ -77,7 +77,6 @@ var Contact = React.createClass({
             <ContactNav
               stepCurrent={this.state.step}
               stepFinal={this.props.stepFinal}
-              navFormKey={'nav-form-' + step.name}
               onPrevious={this.handlePrevious}
               nav={this.props.navigation} />
           </form>

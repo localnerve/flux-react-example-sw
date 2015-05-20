@@ -35,7 +35,9 @@ var Contact = React.createClass({
     return state;
   },
   setInputElement: function (component) {
-    this.inputElement = component;
+    if (component) {
+      this.inputElement = component;
+    }
   },
   render: function () {
     if (!this.props.steps || this.props.steps.length === 0) {
@@ -48,6 +50,7 @@ var Contact = React.createClass({
       fieldValue: this.state.fields[step.name] || null,
       setInputReference: this.setInputElement,
       label: step.label,
+      key: step.name,
       message: step.message,
       business: this.props.models.LocalBusiness,
       failure: this.state.failure,
@@ -59,33 +62,35 @@ var Contact = React.createClass({
         <div className="grid-container-center page-content">
           <h2>{this.props.headingText}</h2>
           <ReactCSSTransitionGroup
-            className={cx({
-              'contact-intro': true,
-              hide: this.state.step === this.props.stepFinal
-            })}
-            transitionEnter={this.state.step < this.props.stepFinal}
+            component="div"
+            className="contact-anim-container"
             transitionLeave={false}
-            transitionName={'contact-intro-' + this.state.direction}>
-            <p key={step.introduction.text}>
-              {step.introduction.text}
-            </p>
+            transitionName={'contact-anim-' + this.state.direction}>
+            <div className="contact-anim" key={step.name}>
+              <p className={cx({
+                'contact-intro': true,
+                hide: this.state.step === this.props.stepFinal
+                })}>
+                {step.introduction.text}
+              </p>
+              <ContactSteps
+                steps={this.props.steps}
+                stepCurrent={this.state.step}
+                stepFinal={this.props.stepFinal}
+                failure={this.state.failure}
+                resultMessage={this.state.failure ? this.props.resultMessageFail :
+                  this.props.resultMessageSuccess}
+                retry={this.handleRetry} />
+              <form className="contact-form" onSubmit={this.handleSubmit}>
+                {contactElement}
+                <ContactNav
+                  stepCurrent={this.state.step}
+                  stepFinal={this.props.stepFinal}
+                  onPrevious={this.handlePrevious}
+                  nav={this.props.navigation} />
+              </form>
+            </div>
           </ReactCSSTransitionGroup>
-          <ContactSteps
-            steps={this.props.steps}
-            stepCurrent={this.state.step}
-            stepFinal={this.props.stepFinal}
-            failure={this.state.failure}
-            resultMessage={this.state.failure ? this.props.resultMessageFail :
-              this.props.resultMessageSuccess}
-            retry={this.handleRetry} />
-          <form className="contact-form" onSubmit={this.handleSubmit}>
-            {contactElement}
-            <ContactNav
-              stepCurrent={this.state.step}
-              stepFinal={this.props.stepFinal}
-              onPrevious={this.handlePrevious}
-              nav={this.props.navigation} />
-          </form>
         </div>
       </div>
     );

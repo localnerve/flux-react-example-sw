@@ -1,0 +1,39 @@
+// Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+// Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+//
+
+.contact-anim-container {
+  transform: TranslateZ(0);
+}
+.contact-anim-next-enter {
+  transform: translate3d(4999px, 0, 1px);
+  transition-duration: 0.25s;
+  &.contact-anim-next-enter-active {
+    transform: translate3d(0, 0, 0);
+  }
+}
+/*
+.contact-anim-next-leave {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 0.25s;
+  &.contact-anim-next-leave-active {
+    transform: translate3d(-9999px, 0, 1px);
+  }
+}
+*/
+.contact-anim-prev-enter {
+  transform: translate3d(-4999px, 0, 1px);
+  transition-duration: 0.25s;
+  &.contact-anim-prev-enter-active {
+    transform: translate3d(0, 0, 0);
+  }
+}
+/*
+.contact-anim-prev-leave {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 0.25s;
+  &.contact-anim-prev-leave-active {
+    transform: translate3d(9999px, 0, 0);
+  }
+}
+*/

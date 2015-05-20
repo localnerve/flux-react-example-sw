@@ -12,20 +12,22 @@ $step-size: $rem-base * $step-size-scale;
   @return $rem-base;
 }
 
-$step-complete-bgcolor: $app-accent-light-bgcolor;
-$step-complete-color: $app-primary-dark-color;
+$step-tighten-size: 10px;
+
+$step-complete-bgcolor: $app-accent-dark-bgcolor;
+$step-complete-color: $app-primary-light-color;
 $step-incomplete-bgcolor: $app-accent-dark-bgcolor;
 $step-incomplete-color: $app-primary-light-color;
 $step-current-bgcolor: $app-primary-bgcolor;
 $step-current-color: $app-primary-light-color;
 
 
-@mixin step-text($bgcolor, $color) {
-  @include arrow-text($step-size, step-size-unscale($step-size), $bgcolor, $color);
+@mixin step-text($bgcolor, $color, $fatten: false) {
+  @include arrow-text($step-size, step-size-unscale($step-size), $bgcolor, $color, $fatten);
 }
 
-@mixin step-arrows($color) {
-  @include arrow-decorate($step-size, step-size-unscale($step-size), $color);
+@mixin step-arrows($color, $fatten: false) {
+  @include arrow-decorate($step-size, step-size-unscale($step-size), $color, right, $fatten);
 }
 
 .contact-steps {
@@ -64,7 +66,10 @@ $step-current-color: $app-primary-light-color;
     }
   }
   li:not(:first-child) {
-    margin-left: -10px;
+    margin-left: -$step-tighten-size;
+    &.current {
+      margin-left: -($step-tighten-size + $arrow-fatten-size);
+    }
   }
 
   .complete {
@@ -74,9 +79,9 @@ $step-current-color: $app-primary-light-color;
     }
   }
   .current {
-    @include step-arrows($step-current-bgcolor);
+    @include step-arrows($step-current-bgcolor, true);
     span {
-      @include step-text($step-current-bgcolor, $step-current-color);
+      @include step-text($step-current-bgcolor, $step-current-color, true);
     }
   }
   .incomplete {

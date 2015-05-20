@@ -61,7 +61,8 @@ var ContactNav = React.createClass({
       </button>,
       <button type="submit"
         id="submit" name="submit" key="submit" value={nextText}
-        title={this.props.nav.next.help}>
+        title={this.props.nav.next.help}
+        className={cx({last: complete})}>
         <span>{nextText}</span>
       </button>
     ];

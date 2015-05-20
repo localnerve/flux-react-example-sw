@@ -13,8 +13,12 @@
 
 $button-submit-bgcolor: $app-accent-dark-bgcolor;
 $button-submit-color: $app-primary-light-color;
-$button-prev-bgcolor: $app-accent-light-bgcolor;
-$button-prev-color: $app-primary-dark-color;
+
+$button-submit-last-bgcolor: $app-accent-light-bgcolor;
+$button-submit-last-color: $app-primary-dark-color;
+
+$button-prev-bgcolor: $app-primary-bgcolor;
+$button-prev-color: $app-primary-light-color;
 
 .form-navigation {
   @extend .grid-row-spaced;
@@ -41,6 +45,24 @@ $button-prev-color: $app-primary-dark-color;
         $rem-base, $rem-base, $button-submit-bgcolor, $button-submit-color
       );
       @include button-span;
+    }
+    &.last {
+      &::before {
+        @include pre-triangle($rem-base, $rem-base, $button-submit-last-bgcolor, left);
+        display: block;
+        float: left;
+      }
+      &::after {
+        @include post-triangle($rem-base, $rem-base, $button-submit-last-bgcolor, left);
+        display: block;
+        float: left;
+      }
+      span {
+        @include arrow-text(
+          $rem-base, $rem-base, $button-submit-last-bgcolor, $button-submit-last-color
+        );
+        @include button-span;
+      }
     }
   }
   button[type=button] {

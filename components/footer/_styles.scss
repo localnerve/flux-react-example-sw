@@ -49,6 +49,7 @@
   margin: 0;
   @include breakpoint(medium) {
     margin: 0 auto;
+    min-width: 40rem;
   }
 }
 

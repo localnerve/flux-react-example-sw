@@ -22,35 +22,11 @@
     width: 100%;
   }
 }
-/*
 .contact-intro {
-  display: block;
-  max-width: 352px;
   height: 2.2rem;
-  overflow: hidden;
-  p {
-    margin-top: 0;
-    margin-bottom: 0;
-    transform: TranslateZ(0);
+
+  // Set the min width only for not skinny phones
+  @media only screen and (min-width: 350px) {
+    min-width: rem-calc(328px);
   }
 }
-.contact-intro-next-enter {
-  margin-left: 100%;
-  margin-right: -100%;
-  display: inline-block;
-  transition: all 0.2s linear;
-  transition-property: margin-left, margin-right;
-  &.contact-intro-next-enter-active {
-    margin-left: 0;
-    margin-right: 0;
-  }
-}
-.contact-intro-prev-enter {
-  margin-left: -100%;
-  display: inline-block;
-  transition: margin-left 0.2s linear;
-  &.contact-intro-prev-enter-active {
-    margin-left: 0;
-  }
-}
-*/

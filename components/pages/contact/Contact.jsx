@@ -60,37 +60,43 @@ var Contact = React.createClass({
     return (
       <div className="page">
         <div className="grid-container-center page-content">
-          <h2>{this.props.headingText}</h2>
-          <ReactCSSTransitionGroup
-            component="div"
-            className="contact-anim-container"
-            transitionLeave={false}
-            transitionName={'contact-anim-' + this.state.direction}>
-            <div className="contact-anim" key={step.name}>
-              <p className={cx({
-                'contact-intro': true,
-                hide: this.state.step === this.props.stepFinal
-                })}>
-                {step.introduction.text}
-              </p>
-              <ContactSteps
-                steps={this.props.steps}
-                stepCurrent={this.state.step}
-                stepFinal={this.props.stepFinal}
-                failure={this.state.failure}
-                resultMessage={this.state.failure ? this.props.resultMessageFail :
-                  this.props.resultMessageSuccess}
-                retry={this.handleRetry} />
-              <form className="contact-form" onSubmit={this.handleSubmit}>
+          <h2>
+            {this.props.headingText}
+          </h2>
+          <p className={cx({
+            'contact-intro': true,
+            hide: this.state.step === this.props.stepFinal
+            })}>
+            {step.introduction.text}
+          </p>
+          <ContactSteps
+            steps={this.props.steps}
+            stepCurrent={this.state.step}
+            stepFinal={this.props.stepFinal}
+            failure={this.state.failure}
+            resultMessage={this.state.failure ? this.props.resultMessageFail :
+              this.props.resultMessageSuccess}
+            retry={this.handleRetry} />
+          <form className="contact-form" onSubmit={this.handleSubmit}>
+            <ReactCSSTransitionGroup
+              component="div"
+              className={cx({
+                'contact-anim-container': true,
+                'final': this.state.step === this.props.stepFinal
+              })}
+              transitionEnter={this.state.step < this.props.stepFinal}
+              transitionLeave={false}
+              transitionName={'contact-anim-' + this.state.direction}>
+              <div className="contact-anim" key={step.name}>
                 {contactElement}
-                <ContactNav
-                  stepCurrent={this.state.step}
-                  stepFinal={this.props.stepFinal}
-                  onPrevious={this.handlePrevious}
-                  nav={this.props.navigation} />
-              </form>
-            </div>
-          </ReactCSSTransitionGroup>
+              </div>
+            </ReactCSSTransitionGroup>
+            <ContactNav
+              stepCurrent={this.state.step}
+              stepFinal={this.props.stepFinal}
+              onPrevious={this.handlePrevious}
+              nav={this.props.navigation} />
+          </form>
         </div>
       </div>
     );

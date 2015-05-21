@@ -10,6 +10,11 @@
 .page-content {
   @include grid-content;
   min-width: 20rem;
+
+  // set a layout boundary
+  height: 22rem;
+  width: 100%;
+
   @include breakpoint(medium) {
     padding: 0 2rem;
     min-height: 20rem;

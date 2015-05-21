@@ -2,31 +2,35 @@
 // Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
 //
 
+$transition-duration: 0.25s;
+$transition-start: 4999px;
+
 .contact-anim-container {
   transform: TranslateZ(0);
 /*
  * Add layout bounderizer
  */
-  height: 4rem;
+  height: 4.5rem;
   width: 100%;
-  overflow: scroll;
+  overflow: hidden;
   &.final {
     height: auto;
+    overflow: auto;
   }
 }
 .contact-anim {
   will-change: transform;
 }
 .contact-anim-next-enter {
-  transform: translate3d(4999px, 0, 1px);
-  transition: transform 0.25s linear;
+  transform: translate3d($transition-start, 0, 1px);
+  transition: transform $transition-duration linear;
   &.contact-anim-next-enter-active {
     transform: translate3d(0, 0, 0);
   }
 }
 .contact-anim-prev-enter {
-  transform: translate3d(-4999px, 0, 1px);
-  transition: transform 0.25s linear;
+  transform: translate3d(-$transition-start, 0, 1px);
+  transition: transform $transition-duration linear;
   &.contact-anim-prev-enter-active {
     transform: translate3d(0, 0, 0);
   }

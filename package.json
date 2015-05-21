@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "An isomorphic flux-react example application",
   "main": "./server",
   "scripts": {
@@ -108,6 +108,7 @@
     "nodemailer": "^1.3.4",
     "q": "^1.2.0",
     "react": "^0.13.x",
+    "react-components": "git://github.com/khan/react-components",
     "remarkable": "^1.6.0",
     "serialize-javascript": "^1.0.0",
     "serve-favicon": "^2.2.0",

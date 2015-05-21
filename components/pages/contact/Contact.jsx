@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+var TimeoutTransitionGroup = require('react-components/js/timeout-transition-group');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var cx = require('classnames');
 var ContactStore = require('../../../stores/ContactStore');
@@ -78,19 +78,21 @@ var Contact = React.createClass({
               this.props.resultMessageSuccess}
             retry={this.handleRetry} />
           <form className="contact-form" onSubmit={this.handleSubmit}>
-            <ReactCSSTransitionGroup
+            <TimeoutTransitionGroup
               component="div"
               className={cx({
                 'contact-anim-container': true,
                 'final': this.state.step === this.props.stepFinal
               })}
+              enterTimeout="250"
+              leaveTimeout="250"
               transitionEnter={this.state.step < this.props.stepFinal}
               transitionLeave={false}
               transitionName={'contact-anim-' + this.state.direction}>
               <div className="contact-anim" key={step.name}>
                 {contactElement}
               </div>
-            </ReactCSSTransitionGroup>
+            </TimeoutTransitionGroup>
             <ContactNav
               stepCurrent={this.state.step}
               stepFinal={this.props.stepFinal}

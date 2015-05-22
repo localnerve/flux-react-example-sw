@@ -84,8 +84,8 @@ var Contact = React.createClass({
                 'contact-anim-container': true,
                 'final': this.state.step === this.props.stepFinal
               })}
-              enterTimeout="250"
-              leaveTimeout="250"
+              enterTimeout={250}
+              leaveTimeout={250}
               transitionEnter={this.state.step < this.props.stepFinal}
               transitionLeave={false}
               transitionName={'contact-anim-' + this.state.direction}>

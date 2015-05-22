@@ -15,7 +15,7 @@ $transition-start: 4999px;
   overflow: hidden;
   &.final {
     height: auto;
-    overflow: auto;
+    overflow: visible;
   }
 }
 .contact-anim {

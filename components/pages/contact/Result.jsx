@@ -5,6 +5,7 @@
 'use strict';
 
 var React = require('react');
+var ReactZeroClipboard = require('react-zeroclipboard');
 var cx = require('classnames');
 
 var ContactResult = React.createClass({
@@ -20,18 +21,11 @@ var ContactResult = React.createClass({
       failure: false,
       failedMessage: '',
       label: {
-        failure: {
-          text: ''
-        },
         success: {
           text: ''
         }
       },
       message: {
-        failure: {
-          text: '',
-          help: ''
-        },
         success: {
           text: ''
         }
@@ -44,52 +38,70 @@ var ContactResult = React.createClass({
     };
   },
   render: function () {
-    var resultLabel =
-      this.props.label[this.props.failure ? 'failure' : 'success'].text;
-    var resultMessage =
-      this.props.message[this.props.failure ? 'failure' : 'success'].text;
-    var uriMailTo = this.encodeURIMailTo();
-    var uriTel = 'tel:+1-' + this.props.business.telephone;
+    var links = this.renderLinks();
 
     return (
       <div className="contact-result">
         <h3 className={cx({
           hide: this.props.failure
         })}>
-          {resultLabel}
+          {this.props.label.success.text}
         </h3>
         <p>
-          {resultMessage}
+          {this.props.message[this.props.failure ? 'failure' : 'success'].text}
         </p>
         <p className="contact-result-contact">
-          <a className="icon-envelop" href={uriMailTo}>
-            <span>
-              {this.props.business.email}
-            </span>
-          </a>
-          <a className="icon-phone" href={uriTel}>
-            <span>
-              {this.props.business.telephone}
-            </span>
-          </a>
+          {links}
         </p>
-        <div className={cx({
-          hide: !this.props.failure,
-          failure: this.props.failure
-        })}>
-          <label htmlFor="failed-message-input" key="failed-message-label">
-            {this.props.message.failure.help}
-          </label>
-          <textarea type="text"
-            title={this.props.message.failure.help}
-            id="failed-message-input" name="failed-message-input" key="failed-message-input"
-            className="form-value-element"
-            readOnly="true"
-            value={this.props.failedMessage}>
-          </textarea>
-        </div>
       </div>
     );
+  },
+  renderLinks: function () {
+    var uriMailTo = this.encodeURIMailTo();
+    var uriTel = 'tel:+1-' + this.props.business.telephone;
+
+    if (!this.props.failure) {
+      return [
+        <a key="link-email" className="icon-envelop" href={uriMailTo}>
+          <span>
+            {this.props.business.email}
+          </span>
+        </a>,
+        <a key="link-phone" className="icon-phone" href={uriTel}>
+          <span>
+            {this.props.business.telephone}
+          </span>
+        </a>
+      ];
+    } else {
+      return [
+        <a key="link-email" className="icon-envelop" href={uriMailTo}>
+          <span>
+            {this.props.message.failure.email}
+          </span>
+          <small className="help-note">
+            {this.props.message.failure.emailHelp}
+          </small>
+        </a>,
+        <ReactZeroClipboard
+          key="link-copy"
+          text={this.props.failedMessage}>
+          <a className="icon-copy">
+            <span>
+              {this.props.message.failure.copy}
+            </span>
+            <small className="help-note">
+              {this.props.message.failure.copyHelp}
+            </small>
+          </a>
+        </ReactZeroClipboard>,
+        <a key="link-phone" className="icon-phone" href={uriTel}>
+          <span>
+            {this.props.message.failure.call}
+          </span>
+        </a>
+      ];
+    }
   },
   encodeURIMailTo: function () {
     var subject = encodeURIComponent(this.props.business.alternateName + ' contact email');

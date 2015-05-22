@@ -3,15 +3,32 @@
 //
 // styles for the result component
 
+.contact-result {
+  h3, p:first-child {
+    margin-top: 0.5rem;
+  }
+  .failure label {
+    font-size: inherit;
+  }
+}
 .contact-result-contact {
+  margin-bottom: 0;
+  margin-left: 1.2rem;
+
   a {
     display: block;
     text-decoration: none;
     span {
       padding-left: 1rem;
     }
+    .help-note {
+      display: block;
+    }
   }
   a:not(:last-child) {
     margin-bottom: 0.7rem;
+    @media only screen and (min-height: 600px) {
+      margin-bottom: 1.2rem;
+    }
   }
 }

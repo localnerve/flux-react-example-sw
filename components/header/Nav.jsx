@@ -5,6 +5,7 @@
 'use strict';
 var React = require('react');
 var NavLink = require('flux-router-component').NavLink;
+var cx = require('classnames');
 
 var Nav = React.createClass({
   propTypes: {
@@ -23,12 +24,14 @@ var Nav = React.createClass({
     var selected = this.props.selected,
         links = this.props.links,
         linkHTML = Object.keys(links).map(function (name) {
-          var className = 'navigation-link', link = links[name];
-          if (selected === name) {
-            className += ' selected';
-          }
+          var link = links[name];
           return (
-            <li className={className} key={link.path}>
+            <li
+              className={cx({
+                'navigation-link': true,
+                selected: selected === name
+              })}
+              key={link.path}>
               <NavLink routeName={link.page}>{link.label}</NavLink>
             </li>
           );

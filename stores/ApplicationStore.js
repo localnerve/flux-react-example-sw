@@ -7,6 +7,7 @@ var createStore = require('fluxible/addons').createStore;
 var transformer = require('../utils').createFluxibleRouteTransformer({
   actions: require('../actions/interface')
 });
+var debounce = require('lodash/function/debounce');
 
 var ApplicationStore = createStore({
   storeName: 'ApplicationStore',
@@ -22,6 +23,9 @@ var ApplicationStore = createStore({
     this.currentRoute = null;
     this.currentPageTitle = '';
     this.pages = {};
+    this.pageChange = debounce(function pageChange () {
+      this.emitChange();
+    }.bind(this), 50);
   },
   handleNavigate: function (route) {
     var pageId = route.params.key;
@@ -34,11 +38,11 @@ var ApplicationStore = createStore({
     this.currentPageId = pageId;
     this.currentPageName = pageName;
     this.currentRoute = route;
-    this.emitChange();
+    this.pageChange();
   },
   updatePageTitle: function (page) {
     this.currentPageTitle = page.title;
-    this.emitChange();
+    this.pageChange();
   },
   receiveRoutes: function (routes) {
     this.pages = routes;

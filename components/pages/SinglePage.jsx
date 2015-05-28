@@ -17,7 +17,7 @@ var SinglePage = React.createClass({
     );
   },
   shouldComponentUpdate: function (nextProps) {
-    return this.props.content === nextProps.content;
+    return this.props.content !== nextProps.content;
   }
 });
 

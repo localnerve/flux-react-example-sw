@@ -85,6 +85,8 @@ $arrow-fatten-size: 2;
   color: $color;
   flex-grow: 1;
   min-width: 55%;
+  font-weight: bold;
+
   @include breakpoint(medium) {
     @if $fatten {
       padding: (($medium-size/2) + $arrow-fatten-size) 0;

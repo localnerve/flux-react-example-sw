@@ -22,6 +22,7 @@ var Contact = React.createClass({
   },
   propTypes: {
     name: React.PropTypes.string,
+    spinner: React.PropTypes.bool,
     headingText: React.PropTypes.string.isRequired,
     stepFinal: React.PropTypes.number.isRequired,
     steps: React.PropTypes.array.isRequired,
@@ -121,6 +122,26 @@ var Contact = React.createClass({
   shouldComponentUpdate: function (nextProps) {
     return nextProps.name === 'contact';
   },
+  /*
+   * TODO: Set focus only when element is visible
+   *       - It can't set focus when transitioning away
+  setFocus: function () {
+    if (this.inputElement) {
+      setTimeout(function (self) {
+        var el = React.findDOMNode(self.inputElement);
+        if (el.offsetWidth && el.offsetHeight) {
+          el.focus();
+        }
+      }, 250, this);
+    }
+  },
+  componentDidMount: function () {
+    this.setFocus();
+  },
+  componentDidUpdate: function () {
+    this.setFocus();
+  },
+  */
   onChange: function () {
     this.setState(this.getStateFromStore());
   },

@@ -3,7 +3,7 @@
 //
 
 $transition-duration: 0.25s;
-$transition-start: 4999px;
+$transition-start: 100%;
 
 .contact-anim-container {
   transform: TranslateZ(0);
@@ -17,9 +17,6 @@ $transition-start: 4999px;
     height: auto;
     overflow: visible;
   }
-}
-.contact-anim {
-  will-change: transform;
 }
 .contact-anim-next-enter {
   transform: translate3d($transition-start, 0, 1px);

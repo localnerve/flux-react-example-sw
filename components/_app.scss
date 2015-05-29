@@ -14,6 +14,10 @@
   @include vertical-block(left);
 }
 
+.page {
+  @include vertical-block(spaced);
+}
+
 $app-alert-bgcolor: #E53935;
 $app-primary-bgcolor: #43A047;
 $app-accent-light-bgcolor: #FFAB00;

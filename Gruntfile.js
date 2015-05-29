@@ -79,7 +79,8 @@ module.exports = function (grunt) {
         httpPath: '/',
         importPath: [
           '<%= project.vendor.css %>',
-          '<%= project.src.components %>'
+          '<%= project.src.components %>',
+          'node_modules/react-spinner'
         ],
         environment: 'development',
 

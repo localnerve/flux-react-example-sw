@@ -10,6 +10,8 @@ var ApplicationStore = require('../stores/ApplicationStore');
 var ContentStore = require('../stores/ContentStore');
 var RouterMixin = require('flux-router-component').RouterMixin;
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var ReactSwipe = require('react-swipe');
+var navigateAction = require('flux-router-component').navigateAction;
 
 var pages = require('./pages');
 var Header = require('./header');
@@ -45,13 +47,25 @@ var Application = React.createClass({
   onChange: function () {
     this.setState(this.getState());
   },
+  handleSwipe: function (index) {
+    if (this.state.route.config.order !== index) {
+      var pages = this.state.pages;
 
+      var nextPageName = Object.keys(pages).filter(function (page) {
+        return pages[page].order === index;
+      })[0];
+
+      this.context.executeAction(navigateAction, {
+        name: nextPageName,
+        url: pages[nextPageName].path,
+        config: pages[nextPageName]
+      });
+    }
+  },
   render: function () {
-    var page = pages.createElement(
-      this.state.route.config.component,
-      this.state.pageContent,
-      this.state.pageModels
-      );
+    var pageElements = pages.createElements(
+      this.state.pages, this.getStore(ContentStore)
+    );
 
     return (
       <div className="app-block">
@@ -60,7 +74,14 @@ var Application = React.createClass({
           links={this.state.pages}
           models={this.state.pageModels}
         />
-        {page}
+        <div className="page">
+          <ReactSwipe
+            callback={this.handleSwipe}
+            startSlide={this.state.route.config.order}
+            slideToIndex={this.state.route.config.order}>
+            {pageElements}
+          </ReactSwipe>
+        </div>
         <Footer models={this.state.pageModels} />
       </div>
     );

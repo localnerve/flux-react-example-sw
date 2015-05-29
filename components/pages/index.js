@@ -20,15 +20,36 @@ function getClass (component) {
 }
 
 function getProps (content, models) {
-  var contentClass = Object.prototype.toString.call(content);
-  return contentClass === '[object Object]' ? merge(content, { models: models }) : {
-    models: models,
-    content: content
-  };
+  var props;
+
+  if (content) {
+    props = Object.prototype.toString.call(content) === '[object Object]' ?
+      merge(content, { models: models }) : {
+        models: models,
+        content: content
+      };
+  } else {
+    props = {
+      spinner: true
+    };
+  }
+
+  return props;
+}
+
+function createElements (pages, contentStore) {
+  return Object.keys(pages).map(function (page) {
+    var data = contentStore.get(page) || {};
+
+    return React.createElement('div', { key: page },
+      React.createElement(
+        getClass(pages[page].component),
+        getProps(data.content, data.models)
+      )
+    );
+  });
 }
 
 module.exports = {
-  createElement: function (component, content, models) {
-    return React.createElement(getClass(component), getProps(content, models));
-  }
+  createElements: createElements
 };

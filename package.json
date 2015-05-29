@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "An isomorphic flux-react example application",
   "main": "./server",
   "scripts": {
@@ -109,10 +109,12 @@
     "q": "^1.2.0",
     "react": "^0.13.x",
     "react-components": "git://github.com/khan/react-components",
-    "react-zeroclipboard": "^1.1.0",
+    "react-spinner": "git://github.com/localnerve/react-spinner",
+    "react-swipe": "^2.1.0",
     "remarkable": "^1.6.0",
     "serialize-javascript": "^1.0.0",
     "serve-favicon": "^2.2.0",
-    "superagent": "^1.1.0"
+    "superagent": "^1.1.0",
+    "swipe-js-iso": "^2.0.1"
   }
 }

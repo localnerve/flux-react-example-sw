@@ -5,19 +5,32 @@
 'use strict';
 
 var React = require('react');
+var Spinner = require('./Spinner.jsx');
 
 var SinglePage = React.createClass({
-  render: function() {
+  render: function () {
+    var content = this.renderContent();
+
     return (
-      <div className="page">
-        <div className="grid-container-center page-content"
-          dangerouslySetInnerHTML={{__html: this.props.content || ''}}>
-        </div>
+      <div className="grid-container-center page-content">
+        {content}
       </div>
     );
   },
   shouldComponentUpdate: function (nextProps) {
     return this.props.content !== nextProps.content;
+  },
+  renderContent: function () {
+    if (this.props.spinner) {
+      return (
+        <Spinner />
+      );
+    } else {
+      return (
+        <div key="content" dangerouslySetInnerHTML={{__html: this.props.content || ''}}>
+        </div>
+      );
+    }
   }
 });
 

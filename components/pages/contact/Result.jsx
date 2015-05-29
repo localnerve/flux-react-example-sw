@@ -5,7 +5,6 @@
 'use strict';
 
 var React = require('react');
-var ReactZeroClipboard = require('react-zeroclipboard');
 var cx = require('classnames');
 
 var ContactResult = React.createClass({
@@ -83,18 +82,6 @@ var ContactResult = React.createClass({
             {this.props.message.failure.emailHelp}
           </small>
         </a>,
-        <ReactZeroClipboard
-          key="link-copy"
-          text={this.props.failedMessage}>
-          <a className="icon-copy">
-            <span>
-              {this.props.message.failure.copy}
-            </span>
-            <small className="help-note">
-              {this.props.message.failure.copyHelp}
-            </small>
-          </a>
-        </ReactZeroClipboard>,
         <a key="link-phone" className="icon-phone" href={uriTel}>
           <span>
             {this.props.message.failure.call}

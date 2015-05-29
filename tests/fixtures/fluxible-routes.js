@@ -20,6 +20,8 @@ module.exports = {
     method: 'get',
     page: 'home',
     label: 'Home',
+    component: 'SinglePage',
+    order: 0,
     action: function (context, payload, done) {
       context.executeAction(action, params, done);
     }

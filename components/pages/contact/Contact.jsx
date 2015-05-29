@@ -12,6 +12,7 @@ var ContactStore = require('../../../stores/ContactStore');
 var contactAction = require('../../../actions/contact');
 var ContactSteps = require('./Steps.jsx');
 var ContactNav = require('./Nav.jsx');
+var Spinner = require('../Spinner.jsx');
 var elements = require('./elements');
 
 var Contact = React.createClass({
@@ -40,6 +41,22 @@ var Contact = React.createClass({
     }
   },
   render: function () {
+    var content = this.renderContent();
+
+    return (
+      <div className="grid-container-center page-content">
+        {content}
+      </div>
+    );
+  },
+  renderContent: function () {
+    if (this.props.spinner) {
+      return <Spinner />;
+    } else {
+      return this.renderContact();
+    }
+  },
+  renderContact: function () {
     if (!this.props.steps || this.props.steps.length === 0) {
       return null;
     }
@@ -58,48 +75,46 @@ var Contact = React.createClass({
     });
 
     return (
-      <div className="page">
-        <div className="grid-container-center page-content">
-          <h2>
-            {this.props.headingText}
-          </h2>
-          <p className={cx({
-            'contact-intro': true,
-            hide: this.state.step === this.props.stepFinal
-            })}>
-            {step.introduction.text}
-          </p>
-          <ContactSteps
-            steps={this.props.steps}
+      <div key="contact">
+        <h2>
+          {this.props.headingText}
+        </h2>
+        <p className={cx({
+          'contact-intro': true,
+          hide: this.state.step === this.props.stepFinal
+          })}>
+          {step.introduction.text}
+        </p>
+        <ContactSteps
+          steps={this.props.steps}
+          stepCurrent={this.state.step}
+          stepFinal={this.props.stepFinal}
+          failure={this.state.failure}
+          resultMessage={this.state.failure ? this.props.resultMessageFail :
+            this.props.resultMessageSuccess}
+          retry={this.handleRetry} />
+        <form className="contact-form" onSubmit={this.handleSubmit}>
+          <TimeoutTransitionGroup
+            component="div"
+            className={cx({
+              'contact-anim-container': true,
+              'final': this.state.step === this.props.stepFinal
+            })}
+            enterTimeout={250}
+            leaveTimeout={250}
+            transitionEnter={this.state.step < this.props.stepFinal}
+            transitionLeave={false}
+            transitionName={'contact-anim-' + this.state.direction}>
+            <div className="contact-anim" key={step.name}>
+              {contactElement}
+            </div>
+          </TimeoutTransitionGroup>
+          <ContactNav
             stepCurrent={this.state.step}
             stepFinal={this.props.stepFinal}
-            failure={this.state.failure}
-            resultMessage={this.state.failure ? this.props.resultMessageFail :
-              this.props.resultMessageSuccess}
-            retry={this.handleRetry} />
-          <form className="contact-form" onSubmit={this.handleSubmit}>
-            <TimeoutTransitionGroup
-              component="div"
-              className={cx({
-                'contact-anim-container': true,
-                'final': this.state.step === this.props.stepFinal
-              })}
-              enterTimeout={250}
-              leaveTimeout={250}
-              transitionEnter={this.state.step < this.props.stepFinal}
-              transitionLeave={false}
-              transitionName={'contact-anim-' + this.state.direction}>
-              <div className="contact-anim" key={step.name}>
-                {contactElement}
-              </div>
-            </TimeoutTransitionGroup>
-            <ContactNav
-              stepCurrent={this.state.step}
-              stepFinal={this.props.stepFinal}
-              onPrevious={this.handlePrevious}
-              nav={this.props.navigation} />
-          </form>
-        </div>
+            onPrevious={this.handlePrevious}
+            nav={this.props.navigation} />
+        </form>
       </div>
     );
   },

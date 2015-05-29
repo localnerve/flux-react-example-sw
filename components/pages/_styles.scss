@@ -3,10 +3,6 @@
 //
 // styles for all pages
 
-.page {
-  @include vertical-block(spaced);
-}
-
 .page-content {
   @include grid-content;
   min-width: 20rem;

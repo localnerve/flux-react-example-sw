@@ -5,11 +5,11 @@
 
 @charset "UTF-8";
 
-@import "vendor";
-
 @import
+  "vendor",
   "icon-fonts",
-  "fonts";
+  "fonts",
+  "react-spinner";
 
 $height-constrained-phone: "only screen and (orientation: portrait) and (max-height: 480px)";
 

@@ -110,7 +110,7 @@
     "react": "^0.13.x",
     "react-components": "git://github.com/khan/react-components",
     "react-spinner": "git://github.com/localnerve/react-spinner",
-    "react-swipe": "^2.1.0",
+    "react-swipe": "git://github.com/localnerve/react-swipe",
     "remarkable": "^1.6.0",
     "serialize-javascript": "^1.0.0",
     "serve-favicon": "^2.2.0",

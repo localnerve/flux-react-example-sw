@@ -41,8 +41,10 @@ function createElements (pages, contentStore) {
   return Object.keys(pages).map(function (page) {
     var data = contentStore.get(page) || {};
 
-    return React.createElement('div', { key: page },
-      React.createElement(
+    return React.createElement('div', {
+        key: page,
+        id: page
+      }, React.createElement(
         getClass(pages[page].component),
         getProps(data.content, data.models)
       )

@@ -38,7 +38,9 @@ function getProps (content, models) {
 }
 
 function createElements (pages, contentStore) {
-  return Object.keys(pages).map(function (page) {
+  return Object.keys(pages).filter(function (page) {
+    return pages[page].priority === 1;
+  }).map(function (page) {
     var data = contentStore.get(page) || {};
 
     return React.createElement('div', {

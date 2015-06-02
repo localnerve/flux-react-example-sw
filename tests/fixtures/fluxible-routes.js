@@ -22,6 +22,7 @@ module.exports = {
     label: 'Home',
     component: 'SinglePage',
     order: 0,
+    priority: 1,
     action: function (context, payload, done) {
       context.executeAction(action, params, done);
     }

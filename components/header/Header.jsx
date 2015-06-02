@@ -11,7 +11,13 @@ var Logo = require('./Logo.jsx');
 var Nav = require('./Nav.jsx');
 
 var Header = React.createClass({
-  render: function() {
+  propTypes: {
+    selected: React.PropTypes.string.isRequired,
+    links: React.PropTypes.object.isRequired,
+    models: React.PropTypes.object.isRequired
+  },
+
+  render: function () {
     return (
       <header className="app-header">
         <Ribbon

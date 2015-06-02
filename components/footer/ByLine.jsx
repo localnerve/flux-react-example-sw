@@ -7,6 +7,10 @@
 var React = require('react');
 
 var ByLine = React.createClass({
+  propTypes: {
+    author: React.PropTypes.object.isRequired
+  },
+
   render: function () {
     var byLine = this.props.author.byLine.replace(
       ' '+this.props.author.name, ''

@@ -8,7 +8,12 @@ var React = require('react');
 var NavLink = require('flux-router-component').NavLink;
 
 var Ribbon = React.createClass({
-  render: function() {
+  propTypes: {
+    social: React.PropTypes.object.isRequired,
+    business: React.PropTypes.object.isRequired
+  },
+
+  render: function () {
     var uriTel = 'tel:+1-' + this.props.business.telephone;
 
     return (

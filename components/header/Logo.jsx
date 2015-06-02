@@ -8,7 +8,11 @@ var React = require('react');
 var NavLink = require('flux-router-component').NavLink;
 
 var Logo = React.createClass({
-  render: function() {
+  propTypes: {
+    site: React.PropTypes.object.isRequired
+  },
+
+  render: function () {
     return (
       <div className="logo">
         <NavLink routeName="home" title="flux-react-example">

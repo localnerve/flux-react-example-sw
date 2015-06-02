@@ -7,6 +7,10 @@
 var React = require('react');
 
 var LocalBusiness = React.createClass({
+  propTypes: {
+    business: React.PropTypes.object.isRequired
+  },
+
   render: function () {
     var uriMailTo = 'mailto:' + this.props.business.email;
     var uriTel = 'tel:+1-' + this.props.business.telephone;

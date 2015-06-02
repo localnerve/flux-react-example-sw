@@ -7,6 +7,10 @@
 var React = require('react');
 
 var License = React.createClass({
+  propTypes: {
+    license: React.PropTypes.object.isRequired
+  },
+
   render: function () {
     var statements = this.props.license.statement.split(
       this.props.license.type

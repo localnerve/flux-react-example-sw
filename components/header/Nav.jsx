@@ -9,18 +9,11 @@ var cx = require('classnames');
 
 var Nav = React.createClass({
   propTypes: {
-    selected: React.PropTypes.string,
-    links: React.PropTypes.object
+    selected: React.PropTypes.string.isRequired,
+    links: React.PropTypes.object.isRequired
   },
 
-  getDefaultProps: function () {
-    return {
-      selected: 'home',
-      links: {}
-    };
-  },
-
-  render: function() {
+  render: function () {
     var selected = this.props.selected,
         links = this.props.links,
         linkHTML = Object.keys(links).map(function (name) {

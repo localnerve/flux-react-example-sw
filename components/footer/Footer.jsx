@@ -11,6 +11,10 @@ var License = require('./License.jsx');
 var LocalBusiness = require('./LocalBusiness.jsx');
 
 var Footer = React.createClass({
+  propTypes: {
+    models: React.PropTypes.object.isRequired
+  },
+
   render: function () {
     return (
       <footer className="app-footer">

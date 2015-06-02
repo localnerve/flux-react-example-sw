@@ -7,6 +7,10 @@
 var React = require('react');
 
 var SiteBullets = React.createClass({
+  propTypes: {
+    items: React.PropTypes.array.isRequired
+  },
+
   render: function () {
     var items = this.props.items.map(function (item, index, arr) {
       var bullet = index < (arr.length - 1) ?

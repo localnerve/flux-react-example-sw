@@ -38,7 +38,6 @@ var Application = React.createClass({
     return {
       pageName: appStore.getCurrentPageName(),
       pageTitle: appStore.getCurrentPageTitle(),
-      pageContent: contentStore.getCurrentPageContent(),
       pageModels: contentStore.getCurrentPageModels(),
       route: appStore.getCurrentRoute(),
       pages: appStore.getPages()

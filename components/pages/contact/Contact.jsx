@@ -14,6 +14,7 @@ var ContactSteps = require('./Steps.jsx');
 var ContactNav = require('./Nav.jsx');
 var Spinner = require('../Spinner.jsx');
 var elements = require('./elements');
+var animTimeout = 250;
 
 var Contact = React.createClass({
   mixins: [ FluxibleMixin ],
@@ -101,8 +102,8 @@ var Contact = React.createClass({
               'contact-anim-container': true,
               'final': this.state.step === this.props.stepFinal
             })}
-            enterTimeout={250}
-            leaveTimeout={250}
+            enterTimeout={animTimeout}
+            leaveTimeout={animTimeout}
             transitionEnter={this.state.step < this.props.stepFinal}
             transitionLeave={false}
             transitionName={'contact-anim-' + this.state.direction}>
@@ -122,26 +123,16 @@ var Contact = React.createClass({
   shouldComponentUpdate: function (nextProps) {
     return nextProps.name === 'contact';
   },
-  /*
-   * TODO: Set focus only when element is visible
-   *       - It can't set focus when transitioning away
   setFocus: function () {
-    if (this.inputElement) {
-      setTimeout(function (self) {
+    setTimeout(function (self, final) {
+      if (!final && self.inputElement) {
         var el = React.findDOMNode(self.inputElement);
         if (el.offsetWidth && el.offsetHeight) {
           el.focus();
         }
-      }, 250, this);
-    }
+      }
+    }, animTimeout, this, this.state.step === this.props.stepFinal);
   },
-  componentDidMount: function () {
-    this.setFocus();
-  },
-  componentDidUpdate: function () {
-    this.setFocus();
-  },
-  */
   onChange: function () {
     this.setState(this.getStateFromStore());
   },
@@ -162,13 +153,16 @@ var Contact = React.createClass({
     this.setState({
       step: this.state.step + 1,
       direction: 'next'
-    });
+    }, this.setFocus);
   },
   prevStep: function (done) {
     this.setState({
       step: this.state.step - 1,
       direction: 'prev'
-    }, done);
+    }, function() {
+      this.setFocus();
+      done && done();
+    }.bind(this));
   },
   handleRetry: function () {
     this.prevStep(function () {

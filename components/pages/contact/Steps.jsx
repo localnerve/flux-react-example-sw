@@ -6,8 +6,7 @@
 
 var React = require('react');
 var cx = require('classnames');
-
-var noop = function () {};
+var noop = require('lodash/utility/noop');
 
 var ContactSteps = React.createClass({
   propTypes: {

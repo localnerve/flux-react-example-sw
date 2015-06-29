@@ -15,8 +15,8 @@ var fetch = require('../fixtures/fetch');
 var queue = require('../fixtures/queue');
 var mailer = require('../fixtures/mailer');
 
-function mockModuleBegin(mocks) {
-  mocks.forEach(function(mock) {
+function mockModuleBegin (mocks) {
+  mocks.forEach(function (mock) {
     debug('registering mock "' + mock.pattern + '"');
     mockery.registerMock(mock.pattern, mock.module);
   });
@@ -27,10 +27,10 @@ function mockModuleBegin(mocks) {
   });
 }
 
-function mockModuleEnd(mocks) {
+function mockModuleEnd (mocks) {
   mockery.disable();
 
-  mocks.forEach(function(mock) {
+  mocks.forEach(function (mock) {
     mockery.deregisterMock(mock.pattern);
   });
 }
@@ -42,7 +42,7 @@ function mockServiceDataBegin () {
   }]);
 }
 
-function mockServiceDataEnd () { 
+function mockServiceDataEnd () {
   mockModuleEnd([{
     pattern: './data'
   }]);
@@ -110,7 +110,7 @@ function mockMailEnd () {
   }]);
 }
 
-function mockQueueBegin () {  
+function mockQueueBegin () {
   mockModuleBegin([{
     pattern: 'amqplib',
     module: amqplib

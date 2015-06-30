@@ -230,6 +230,7 @@ module.exports = function (grunt) {
           path: '<%= project.dist.scripts %>',
           filename: 'header.js'
         },
+        module: {},
         stats: {
           colors: true
         }
@@ -240,6 +241,7 @@ module.exports = function (grunt) {
           path: '<%= project.dist.scripts %>',
           filename: 'header.js'
         },
+        module: {},
         plugins: [
           new webpack.DefinePlugin({
             'process.env': {

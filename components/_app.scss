@@ -22,16 +22,12 @@ $app-alert-bgcolor: #E53935;
 $app-primary-bgcolor: #43A047;
 $app-accent-light-bgcolor: #FFAB00;
 $app-accent-dark-bgcolor: #1B5E20;
+$app-accent-dark-shadow: rgba($app-accent-dark-bgcolor, 0.7);
 $app-primary-light-color: rgba(255, 255, 255, 0.87);
 $app-primary-dark-color: rgba(0, 0, 0, 0.87);
 
-$header-footer-color: #FFF;
-$header-footer-color-dark: #1B5E20;
-$header-footer-background: #43A047;
-$header-footer-background-accent: rgba(27, 94, 32, 0.7);
-
 %header-footer-text {
-  color: $header-footer-color;
+  color: $app-primary-light-color;
 }
 %header-footer-link {
   @extend %header-footer-text;

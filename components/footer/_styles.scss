@@ -11,8 +11,8 @@
     }
   }
 
-  background: $header-footer-background;
-  box-shadow: inset 0 8px 10px -7px $header-footer-background-accent;
+  background: $app-primary-bgcolor;
+  box-shadow: inset 0 8px 10px -7px $app-accent-dark-shadow;
 
   span {
     @extend %header-footer-text;

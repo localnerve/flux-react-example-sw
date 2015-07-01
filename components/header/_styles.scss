@@ -6,8 +6,8 @@
 
 .app-header {
   @include grid-block(shrink, vertical);
-  background: $header-footer-background;
-  box-shadow: inset 0 -8px 10px -7px $header-footer-background-accent;
+  background: $app-primary-bgcolor;
+  box-shadow: inset 0 -8px 10px -7px $app-accent-dark-shadow;
 }
 .app-header a {
   @extend %header-footer-link;
@@ -108,9 +108,9 @@
 
   &.selected {
     background: #FFF;
-    box-shadow: 0 7px 9px 4px $header-footer-background-accent;
+    box-shadow: 0 7px 9px 4px $app-accent-dark-shadow;
     a {
-      color: $header-footer-color-dark;
+      color: $app-accent-dark-bgcolor;
     }
   }
 

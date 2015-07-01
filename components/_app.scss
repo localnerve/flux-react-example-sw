@@ -32,6 +32,10 @@ $app-primary-dark-color: rgba(0, 0, 0, 0.87);
 %header-footer-link {
   @extend %header-footer-text;
   text-decoration: none;
+  outline: 0;
+}
+%header-footer-bg {
+  background: $app-primary-bgcolor;
 }
 
 @import "header/styles";

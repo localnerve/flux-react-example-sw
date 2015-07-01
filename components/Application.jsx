@@ -16,6 +16,7 @@ var navigateAction = require('flux-router-component').navigateAction;
 var pages = require('./pages');
 var Header = require('./header');
 var Footer = require('./footer');
+var Background = require('./Background.jsx');
 
 var Application = React.createClass({
   mixins: [ RouterMixin, FluxibleMixin ],
@@ -68,6 +69,7 @@ var Application = React.createClass({
 
     return (
       <div className="app-block">
+        <Background pageOrdinal={this.state.route.config.order} />
         <Header
           selected={this.state.pageName}
           links={this.state.pages}

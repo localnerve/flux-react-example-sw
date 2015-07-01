@@ -6,8 +6,9 @@
 
 .app-header {
   @include grid-block(shrink, vertical);
-  background: $app-primary-bgcolor;
-  box-shadow: inset 0 -8px 10px -7px $app-accent-dark-shadow;
+}
+.app-header-bg {
+  @extend %header-footer-bg;
 }
 .app-header a {
   @extend %header-footer-link;
@@ -102,13 +103,18 @@
   flex-grow: 1;
   text-align: center;
 
+  background: $app-primary-bgcolor;
+  box-shadow: inset 0 -8px 6px -7px $app-accent-dark-shadow;
+  z-index: 1;
+
   @include breakpoint(medium) {
     font-size: 1.8rem;
   }
 
   &.selected {
-    background: #FFF;
-    box-shadow: 0 7px 9px 4px $app-accent-dark-shadow;
+    background: transparent;
+    box-shadow: 0 7px 6px 4px $app-accent-dark-shadow;
+    z-index: 2;
     a {
       color: $app-accent-dark-bgcolor;
     }

@@ -5,7 +5,6 @@
 'use strict';
 
 var React = require('react');
-
 var Ribbon = require('./Ribbon.jsx');
 var Logo = require('./Logo.jsx');
 var Nav = require('./Nav.jsx');
@@ -20,11 +19,13 @@ var Header = React.createClass({
   render: function () {
     return (
       <header className="app-header">
-        <Ribbon
-          business={this.props.models.LocalBusiness}
-          social={this.props.models.SiteInfo.social}
-        />
-        <Logo site={this.props.models.SiteInfo.site} />
+        <div className="app-header-bg">
+          <Ribbon
+            business={this.props.models.LocalBusiness}
+            social={this.props.models.SiteInfo.social}
+          />
+          <Logo site={this.props.models.SiteInfo.site} />
+        </div>
         <Nav selected={this.props.selected} links={this.props.links} />
       </header>
     );

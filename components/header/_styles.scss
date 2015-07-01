@@ -105,11 +105,17 @@
   @include breakpoint(medium) {
     font-size: 1.8rem;
   }
+
   &.selected {
     background: #FFF;
     box-shadow: 0 7px 9px 4px $header-footer-background-accent;
     a {
       color: $header-footer-color-dark;
     }
+  }
+
+  a {
+    display: block;
+    width: 100%;
   }
 }

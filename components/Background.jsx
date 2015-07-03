@@ -26,7 +26,7 @@ var Background = React.createClass({
       var theme = 'nature';
 
       return 'http://lorempixel.com/'+width+'/'+height+'/'+theme+'/'+
-        ((page+3) % 10);
+        ((page+3) % 10)+'/';
     }
   },
 

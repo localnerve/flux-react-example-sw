@@ -176,9 +176,10 @@ module.exports = function (grunt) {
       mobile: {
         options: {
           connectivity: '3G',
+          emulateMobile: true,
           runs: 3,
           budget: {
-            SpeedIndex: 1500
+            SpeedIndex: 2500
           }
         }
       }

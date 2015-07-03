@@ -10,9 +10,6 @@
 .app-header-bg {
   @extend %header-footer-bg;
 }
-.app-header a {
-  @extend %header-footer-link;
-}
 
 // ribbon styles
 // -------------------------
@@ -115,9 +112,6 @@
     background: transparent;
     box-shadow: 0 7px 6px 4px $app-accent-dark-shadow;
     z-index: 2;
-    a {
-      color: $app-accent-dark-bgcolor;
-    }
   }
 
   a {

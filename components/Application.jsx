@@ -69,7 +69,10 @@ var Application = React.createClass({
 
     return (
       <div className="app-block">
-        <Background pageOrdinal={this.state.route.config.order} />
+        <Background
+          pageOrdinal={this.state.route.config.order}
+          pageSelector='.page'
+        />
         <Header
           selected={this.state.pageName}
           links={this.state.pages}

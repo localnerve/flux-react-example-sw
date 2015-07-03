@@ -16,6 +16,16 @@
     min-height: 20rem;
     min-width: 26rem;
   }
+
+  p {
+    @include breakpoint(medium) {
+      font-size: 1.2rem;
+    }
+  }
+
+  a {
+    text-decoration: underline;
+  }
 }
 
 @import "contact/styles";

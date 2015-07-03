@@ -14,26 +14,41 @@
   @include vertical-block(left);
 }
 
+.app-bg {
+  position: absolute;
+  top: 0;
+  right:0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background-color: transparent;
+  background-position: 0 50%;
+  background-repeat: no-repeat;
+
+  // assigned in js
+  opacity: 0;
+  transition: opacity 0.4s ease;
+
+  @include breakpoint(medium) {
+    background-position: 0 60%;
+  }
+}
+
 .page {
   @include vertical-block(spaced);
 }
 
-$app-alert-bgcolor: #E53935;
-$app-primary-bgcolor: #43A047;
-$app-accent-light-bgcolor: #FFAB00;
-$app-accent-dark-bgcolor: #1B5E20;
-$app-accent-dark-shadow: rgba($app-accent-dark-bgcolor, 0.7);
-$app-primary-light-color: rgba(255, 255, 255, 0.87);
-$app-primary-dark-color: rgba(0, 0, 0, 0.87);
-
-%header-footer-text {
+a {
   color: $app-primary-light-color;
-}
-%header-footer-link {
-  @extend %header-footer-text;
   text-decoration: none;
   outline: 0;
 }
+a:hover, a:visited {
+  color: darken($app-primary-light-color, 10%);
+}
+
 %header-footer-bg {
   background: $app-primary-bgcolor;
 }

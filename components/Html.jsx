@@ -28,7 +28,8 @@ var Html = React.createClass({
           <title>{this.getStore(ApplicationStore).getCurrentPageTitle()}</title>
           <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
           <meta httpEquiv="x-dns-prefetch-control" content="on" />
-          <link rel="dns-prefetch" href="http://fonts.gstatic.com" />
+          <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+          <link rel="dns-prefetch" href="//lorempixel.com" />
           <link rel="apple-touch-icon" sizes="57x57" href={this.props.images + '/apple-touch-icon-57x57.png'} />
           <link rel="apple-touch-icon" sizes="60x60" href={this.props.images + '/apple-touch-icon-60x60.png'} />
           <link rel="apple-touch-icon" sizes="72x72" href={this.props.images + '/apple-touch-icon-72x72.png'} />

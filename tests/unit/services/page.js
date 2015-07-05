@@ -34,7 +34,8 @@ describe('page service', function () {
           done(err);
         }
         expect(data).to.be.an('object');
-        expect(data).to.have.property('models', undefined);
+        expect(data).to.have.property('models')
+          .that.is.an('object');
         expect(data).to.have.property('content')
           .that.is.a('string');
         done();

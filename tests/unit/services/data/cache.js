@@ -103,7 +103,7 @@ describe('data/cache', function () {
         .that.deep.equals(cacheResources.markupData);
     });
 
-    it('should have undefined models if invalid model reference supplied', function () {
+    it('should have undefined model if invalid model reference supplied', function () {
       var invalid = cacheResources.markup.invalid;
 
       cache.put(invalid, invalid.data);
@@ -111,7 +111,7 @@ describe('data/cache', function () {
       var res = cache.get(invalid.resource);
 
       expect(res).to.be.an('object');
-      expect(res).to.have.property('models', undefined);
+      expect(res).to.have.deep.property('models.InvalidModel', undefined);
       expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.markupData);
     });

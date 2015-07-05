@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "An isomorphic flux-react example application",
   "main": "./server",
   "scripts": {
@@ -12,7 +12,8 @@
     "prod": "grunt prod",
     "start": "node -e 'process.env.NODE_ENV = process.env.NODE_ENV || \"production\"; require(\"./server\");'",
     "style": "jscs .",
-    "test": "istanbul cover --dir ${COVERAGE_DIR:-reports/coverage} -- _mocha tests/unit/* --recursive --reporter spec"
+    "test": "istanbul cover --dir ${COVERAGE_DIR:-reports/coverage} -- _mocha tests/unit/* --recursive --reporter spec",
+    "validate": "npm ls"
   },
   "pre-commit": [
     "style",
@@ -50,7 +51,7 @@
   },
   "homepage": "https://github.com/localnerve/flux-react-example",
   "devDependencies": {
-    "chai": "^2.1.2",
+    "chai": "^3.0.0",
     "chai-as-promised": "^5.0.0",
     "clean-css": "3.1.8",
     "colors": "^1.0.3",
@@ -59,7 +60,7 @@
     "foundation-apps": "git://github.com/zurb/foundation-apps",
     "grunt": "^0.4.5",
     "grunt-autoprefixer": "^3.0.0",
-    "grunt-concurrent": "^1.0.0",
+    "grunt-concurrent": "^2.0.0",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-compass": "^1.0.1",
     "grunt-contrib-copy": "^0.8.0",
@@ -80,7 +81,7 @@
     "mocha": "^2.2.1",
     "mockery": "^1.4.0",
     "nodemon": "^1.3.7",
-    "precommit-hook": "^2.0.1",
+    "precommit-hook": "^3.0.0",
     "q": "^1.2.0",
     "svgo": "0.5.0",
     "wd": "^0.3.11",
@@ -97,10 +98,10 @@
     "debug": "^2.1.3",
     "express": "^4.12.2",
     "express-error-handler": "git://github.com/localnerve/express-error-handler",
-    "flux-router-component": "^0.6.1",
-    "fluxible": "^0.4.1",
+    "flux-router-component": "^0.6.3",
+    "fluxible": "^0.4.10",
     "fluxible-plugin-dynamic-routr": "^0.1.0",
-    "fluxible-plugin-fetchr": "^0.3.0",
+    "fluxible-plugin-fetchr": "^0.3.3",
     "lodash": "^3.5.0",
     "morgan": "^1.5.1",
     "nconf": "^0.7.1",

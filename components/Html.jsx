@@ -7,6 +7,7 @@
 'use strict';
 var React = require('react');
 var ApplicationStore = require('../stores/ApplicationStore');
+var BackgroundStore = require('../stores/BackgroundStore');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 
 var Html = React.createClass({
@@ -29,7 +30,7 @@ var Html = React.createClass({
           <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
           <meta httpEquiv="x-dns-prefetch-control" content="on" />
           <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-          <link rel="dns-prefetch" href="//lorempixel.com" />
+          <link rel="dns-prefetch" href={this.getStore(BackgroundStore).getImageServiceUrl().replace(/https?\:/, '')} />
           <link rel="apple-touch-icon" sizes="57x57" href={this.props.images + '/apple-touch-icon-57x57.png'} />
           <link rel="apple-touch-icon" sizes="60x60" href={this.props.images + '/apple-touch-icon-60x60.png'} />
           <link rel="apple-touch-icon" sizes="72x72" href={this.props.images + '/apple-touch-icon-72x72.png'} />

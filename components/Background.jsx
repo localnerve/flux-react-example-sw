@@ -2,90 +2,103 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global window, document */
+/* global document */
 'use strict';
 
 var React = require('react');
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var BackgroundStore = require('../stores/BackgroundStore');
+var backgroundAction = require('../actions/backgrounds');
 
 var Background = React.createClass({
-  propTypes: {
-    pageOrdinal: React.PropTypes.number.isRequired,
-    pageSelector: React.PropTypes.string.isRequired
-  },
-
+  mixins: [ FluxibleMixin ],
   statics: {
-    // Form a lorempixel request
-    getImageUrl: function (page, pageSelector) {
-      var width = document.documentElement.clientWidth;
-      // 60 is the height of the navigation, hardcoded for now
-      var navHeight = 60;
-      var pageElement = document.querySelector(pageSelector);
-      var height = pageElement ?
-        pageElement.clientHeight + navHeight : document.documentElement.clientHeight;
-
-      var theme = 'nature';
-
-      return 'http://lorempixel.com/'+width+'/'+height+'/'+theme+'/'+
-        ((page+3) % 10)+'/';
-    }
+    storeListeners: [ BackgroundStore ]
+  },
+/*
+ * TODO: switch to higher order composition (all components)
+ *
+  contextTypes: {
+    getStore: React.PropTypes.func.isRequired,
+    executeAction: React.PropTypes.func.isRequired
+  },
+*/
+  propTypes: {
+    current: React.PropTypes.number.isRequired,
+    backgrounds: React.PropTypes.array.isRequired,
+    prefetch: React.PropTypes.bool
   },
 
   getInitialState: function () {
     return {
       loaded: false,
+      top: 0,
       src: ''
     };
   },
 
   render: function () {
+    var bgi =  'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(' +
+      this.state.src +
+    ')';
+
     return (
       <div className="app-bg" style={{
-        backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(' + this.state.src + ')',
+        backgroundImage: bgi,
+        backgroundPosition: '0 ' + this.state.top + 'px',
         opacity: this.state.loaded ? 1 : 0
       }}></div>
     );
   },
 
-  fetchImage: function (ordinal, selector) {
+  fetchImage: function (background, fetchOnly) {
     var self = this;
     var img = document.createElement('img');
 
-    img.onload = function () {
-      setTimeout(function () {
-        if (typeof document !== 'undefined') {
-          self.setState({
-            loaded: true,
-            src: img.src
-          });
-        }
-      }, 200);
-    };
+    if (!fetchOnly) {
+      img.onload = function () {
+        setTimeout(function () {
+          if (typeof document !== 'undefined') {
+            self.setState({
+              loaded: true,
+              src: img.src
+            });
+          }
+        }, 200);
+      };
+    }
 
-    img.src = Background.getImageUrl(ordinal, selector);
+    img.src = this.getStore(BackgroundStore).getBackgroundUrl(background);
   },
 
-  fadeImageOutIn: function (ordinal, selector) {
+  fadeImageOutIn: function (background) {
     this.setState({
-      loaded: false
+      loaded: false,
+      top: this.getStore(BackgroundStore).getTop()
     });
-    this.fetchImage(ordinal, selector);
+    this.fetchImage(background);
   },
 
-  handleResize: function () {
-    this.fadeImageOutIn(this.props.pageOrdinal, this.props.pageSelector);
+  onChange: function () {
+    this.fadeImageOutIn(this.props.current);
+
+    if (this.props.prefetch) {
+      this.props.backgrounds.filter(function (item) {
+        return item !== this.props.current;
+      }, this).forEach(function (item) {
+        this.fetchImage(item, true);
+      }, this);
+    }
   },
 
   componentDidMount: function () {
-    this.fetchImage(this.props.pageOrdinal, this.props.pageSelector);
-    window.addEventListener('resize', this.handleResize);
-  },
-
-  componentWillUnmount: function () {
-    window.removeEventListener('resize', this.handleResize);
+    this.executeAction(backgroundAction, {
+      backgrounds: this.props.backgrounds
+    });
   },
 
   componentWillReceiveProps: function (nextProps) {
-    this.fadeImageOutIn(nextProps.pageOrdinal, nextProps.pageSelector);
+    this.fadeImageOutIn(nextProps.current);
   }
 });
 

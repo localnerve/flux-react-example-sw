@@ -17,6 +17,7 @@ var pages = require('./pages');
 var Header = require('./header');
 var Footer = require('./footer');
 var Background = require('./Background.jsx');
+var PageContainer = require('./PageContainer.jsx');
 
 var Application = React.createClass({
   mixins: [ RouterMixin, FluxibleMixin ],
@@ -70,22 +71,25 @@ var Application = React.createClass({
     return (
       <div className="app-block">
         <Background
-          pageOrdinal={this.state.route.config.order}
-          pageSelector='.page'
+          current={this.state.route.config.order}
+          backgrounds={Object.keys(this.state.pages).map(function (page) {
+            return this.state.pages[page].order;
+          }, this)}
+          prefetch={true}
         />
         <Header
           selected={this.state.pageName}
           links={this.state.pages}
           models={this.state.pageModels}
         />
-        <div className="page">
+        <PageContainer>
           <ReactSwipe
             callback={this.handleSwipe}
             startSlide={this.state.route.config.order}
             slideToIndex={this.state.route.config.order}>
             {pageElements}
           </ReactSwipe>
-        </div>
+        </PageContainer>
         <Footer models={this.state.pageModels} />
       </div>
     );

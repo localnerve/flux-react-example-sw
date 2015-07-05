@@ -15,6 +15,7 @@ var navigateAction = require('flux-router-component').navigateAction;
 
 var HtmlComponent = React.createFactory(require(baseDir + '/components/Html.jsx'));
 var routesAction = require(baseDir + '/actions/routes');
+var imageServiceAction = require(baseDir + '/actions/imageService');
 var config = require(baseDir + '/configs').create({
   baseDir: baseDir
 });
@@ -59,6 +60,12 @@ function bootstrap (app) {
     debug('Executing routes action');
     context.executeAction(routesAction, {
       resource: config.data.FRED.mainResource
+    })
+    .then(function () {
+      debug('Executing imageService action');
+      return context.executeAction(imageServiceAction, {
+        serviceUrl: config.images.service.url()
+      });
     })
     .then(function () {
       debug('Executing navigate action');

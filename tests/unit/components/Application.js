@@ -11,7 +11,8 @@ var expect = require('chai').expect;
 var testDom = require('../../utils/testdom');
 
 describe('render', function () {
-  var createMockComponentContext, ApplicationStore, ContentStore,
+  var createMockComponentContext,
+      ApplicationStore, ContentStore,
       serviceData, routesResponse, fluxibleRoutes, fluxibleApp,
       React, ReactAddons;
 
@@ -81,7 +82,7 @@ describe('render', function () {
       });
     });
 
-    it('should render home content', function () {
+    it.skip('should render home content', function () {
       var app = testUtils.renderIntoDocument(appElement);
 
       var component = testUtils.findRenderedDOMComponentWithClass(app, 'page-content');
@@ -89,7 +90,7 @@ describe('render', function () {
       expect(component.getDOMNode().textContent).to.match(/Home/i);
     });
 
-    it('should render navigation', function () {
+    it.skip('should render navigation', function () {
       var app = testUtils.renderIntoDocument(appElement);
 
       // throws if not exactly 1

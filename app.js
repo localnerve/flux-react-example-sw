@@ -11,6 +11,7 @@ var routrPlugin = require('fluxible-plugin-dynamic-routr');
 var ApplicationStore = require('./stores/ApplicationStore');
 var ContentStore = require('./stores/ContentStore');
 var ContactStore = require('./stores/ContactStore');
+var BackgroundStore = require('./stores/BackgroundStore');
 var transformer = require('./utils').createFluxibleRouteTransformer({
   actions: require('./actions/interface')
 });
@@ -33,5 +34,6 @@ debug('Registering Stores');
 app.registerStore(ApplicationStore);
 app.registerStore(ContentStore);
 app.registerStore(ContactStore);
+app.registerStore(BackgroundStore);
 
 module.exports = app;

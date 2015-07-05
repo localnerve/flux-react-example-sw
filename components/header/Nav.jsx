@@ -3,8 +3,10 @@
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
 'use strict';
+
 var React = require('react');
 var NavLink = require('flux-router-component').NavLink;
+var sizeReporter = require('../sizeReporter');
 var cx = require('classnames');
 
 var Nav = React.createClass({
@@ -37,4 +39,6 @@ var Nav = React.createClass({
   }
 });
 
-module.exports = Nav;
+module.exports = sizeReporter(Nav, '.navigation', {
+  reportTop: true
+});

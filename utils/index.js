@@ -5,6 +5,7 @@
 'use strict';
 
 var FluxibleRouteTransformer = require('./FluxibleRouteTransformer');
+var buildImageUrl = require('./imageServiceUrls');
 
 function createFluxibleRouteTransformer (options) {
   options = options || {};
@@ -12,5 +13,6 @@ function createFluxibleRouteTransformer (options) {
 }
 
 module.exports = {
-  createFluxibleRouteTransformer: createFluxibleRouteTransformer
+  createFluxibleRouteTransformer: createFluxibleRouteTransformer,
+  buildImageUrl: buildImageUrl
 };

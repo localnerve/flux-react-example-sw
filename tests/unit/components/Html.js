@@ -10,6 +10,7 @@ require('node-jsx').install({ extension: '.jsx' });
 var expect = require('chai').expect;
 var React = require('react/addons');
 var ApplicationStore = require('../../../stores/ApplicationStore');
+var BackgroundStore = require('../../../stores/BackgroundStore');
 var HtmlComponent = require('react')
   .createFactory(require('../../../components/Html.jsx'));
 var createMockComponentContext = require('fluxible/utils').createMockComponentContext;
@@ -36,7 +37,7 @@ describe('html component', function () {
 
   beforeEach(function () {
     testProps.context = createMockComponentContext({
-      stores: [ApplicationStore]
+      stores: [ApplicationStore, BackgroundStore]
     });
     htmlComponent = HtmlComponent(testProps);
 

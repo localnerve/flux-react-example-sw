@@ -9,7 +9,8 @@ function buildLoremPixelUrl (service, width, height, name) {
   var ordinal = parseInt(name, 10) || 0;
 
   // slash at the end avoids a 302 for lorempixel
-  return service + '/' + width + '/' + height + '/' + theme + '/' +
+  return (service || 'http://lorempixel.com') +
+    '/' + width + '/' + height + '/' + theme + '/' +
     ((ordinal + offset) % 10) + '/';
 }
 
@@ -18,7 +19,7 @@ function buildFireSizeUrl (service, width, height, name) {
     buildLoremPixelUrl(null, width, height, name);
 }
 
-// for now, just supports lorempixel, fastly
+// for now, just supports lorempixel, firesize
 function buildImageUrl (service, width, height, name) {
   var url;
 

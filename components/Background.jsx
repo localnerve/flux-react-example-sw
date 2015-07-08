@@ -6,41 +6,43 @@
 'use strict';
 
 var React = require('react');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
-var BackgroundStore = require('../stores/BackgroundStore');
-var backgroundAction = require('../actions/backgrounds');
 
 var Background = React.createClass({
-  mixins: [ FluxibleMixin ],
-  statics: {
-    storeListeners: [ BackgroundStore ]
-  },
-/*
- * TODO: switch to higher order composition (all components)
- *
   contextTypes: {
     getStore: React.PropTypes.func.isRequired,
     executeAction: React.PropTypes.func.isRequired
   },
-*/
+
   propTypes: {
-    current: React.PropTypes.number.isRequired,
-    backgrounds: React.PropTypes.array.isRequired,
+    current: React.PropTypes.string.isRequired,
     prefetch: React.PropTypes.bool
+  },
+
+  getStateFromStore: function () {
+    var store = this.context.getStore('BackgroundStore');
+    return {
+      src: store.getCurrentBackgroundUrl(),
+      top: store.getTop()
+    };
   },
 
   getInitialState: function () {
     return {
-      loaded: false,
       top: 0,
-      src: ''
+      loaded: false
     };
   },
 
   render: function () {
-    var bgi =  'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(' +
-      this.state.src +
-    ')';
+    var bgi =  'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5))';
+
+    if (this.state.loaded) {
+      bgi += ', url(' + this.state.src + ')';
+    } else {
+      if (this.state.prevSrc) {
+        bgi += ', url(' + this.state.prevSrc + ')';
+      }
+    }
 
     return (
       <div className="app-bg" style={{
@@ -51,7 +53,15 @@ var Background = React.createClass({
     );
   },
 
-  fetchImage: function (background, fetchOnly) {
+  componentDidMount: function () {
+    this.context.getStore('BackgroundStore').addChangeListener(this.onChange);
+  },
+
+  componentWillUnmount: function () {
+    this.context.getStore('BackgroundStore').removeChangeListener(this.onChange);
+  },
+
+  fetchImage: function (fetchOnly) {
     var self = this;
     var img = document.createElement('img');
 
@@ -60,45 +70,37 @@ var Background = React.createClass({
         setTimeout(function () {
           if (typeof document !== 'undefined') {
             self.setState({
-              loaded: true,
-              src: img.src
+              loaded: true
             });
           }
         }, 200);
       };
     }
 
-    img.src = this.getStore(BackgroundStore).getBackgroundUrl(background);
+    img.src = fetchOnly || this.state.src;
   },
 
-  fadeImageOutIn: function (background) {
-    this.setState({
-      loaded: false,
-      top: this.getStore(BackgroundStore).getTop()
-    });
-    this.fetchImage(background);
-  },
+  prefetchImages: function () {
+    if (this.props.prefetch && !this.prefetched) {
+      this.context.getStore('BackgroundStore')
+        .getNotCurrentBackgroundUrls()
+        .forEach(function (notCurrentUrl) {
+          this.fetchImage(notCurrentUrl);
+        }, this);
 
-  onChange: function () {
-    this.fadeImageOutIn(this.props.current);
-
-    if (this.props.prefetch) {
-      this.props.backgrounds.filter(function (item) {
-        return item !== this.props.current;
-      }, this).forEach(function (item) {
-        this.fetchImage(item, true);
-      }, this);
+      this.prefetched = true;
     }
   },
 
-  componentDidMount: function () {
-    this.executeAction(backgroundAction, {
-      backgrounds: this.props.backgrounds
-    });
-  },
+  onChange: function () {
+    var state = this.getStateFromStore();
+    state.prevSrc = this.state.src;
+    state.loaded = false;
 
-  componentWillReceiveProps: function (nextProps) {
-    this.fadeImageOutIn(nextProps.current);
+    this.setState(state);
+    this.fetchImage();
+
+    this.prefetchImages();
   }
 });
 

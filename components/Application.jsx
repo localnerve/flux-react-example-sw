@@ -6,10 +6,9 @@
 'use strict';
 
 var React = require('react');
-var ApplicationStore = require('../stores/ApplicationStore');
-var ContentStore = require('../stores/ContentStore');
+var connectToStores = require('fluxible/addons/connectToStores');
+var provideContext = require('fluxible/addons/provideContext');
 var RouterMixin = require('flux-router-component').RouterMixin;
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var ReactSwipe = require('react-swipe');
 var navigateAction = require('flux-router-component').navigateAction;
 
@@ -20,9 +19,11 @@ var Background = require('./Background.jsx');
 var PageContainer = require('./PageContainer.jsx');
 
 var Application = React.createClass({
-  mixins: [ RouterMixin, FluxibleMixin ],
-  statics: {
-    storeListeners: [ ApplicationStore ]
+  mixins: [ RouterMixin ],
+
+  contextTypes: {
+    getStore: React.PropTypes.func.isRequired,
+    executeAction: React.PropTypes.func.isRequired
   },
 
   getDefaultProps: function () {
@@ -30,27 +31,10 @@ var Application = React.createClass({
       enableScroll: false
     };
   },
-  getInitialState: function () {
-    return this.getState();
-  },
-  getState: function () {
-    var appStore = this.getStore(ApplicationStore);
-    var contentStore = this.getStore(ContentStore);
 
-    return {
-      pageName: appStore.getCurrentPageName(),
-      pageTitle: appStore.getCurrentPageTitle(),
-      pageModels: contentStore.getCurrentPageModels(),
-      route: appStore.getCurrentRoute(),
-      pages: appStore.getPages()
-    };
-  },
-  onChange: function () {
-    this.setState(this.getState());
-  },
   handleSwipe: function (index) {
-    if (this.state.route.config.order !== index) {
-      var pages = this.state.pages;
+    if (this.props.route.config.order !== index) {
+      var pages = this.props.pages;
 
       var nextPageName = Object.keys(pages).filter(function (page) {
         return pages[page].order === index;
@@ -63,56 +47,63 @@ var Application = React.createClass({
       });
     }
   },
+
   render: function () {
     var pageElements = pages.createElements(
-      this.state.pages, this.getStore(ContentStore)
+      this.props.pages, this.context.getStore('ContentStore')
     );
 
     return (
       <div className="app-block">
-        <Background
-          current={this.state.route.config.order}
-          backgrounds={Object.keys(this.state.pages).map(function (page) {
-            return this.state.pages[page].order;
-          }, this)}
-          prefetch={true}
-        />
+        <Background prefetch={true} />
         <Header
-          selected={this.state.pageName}
-          links={this.state.pages}
-          models={this.state.pageModels}
+          selected={this.props.pageName}
+          links={this.props.pages}
+          models={this.props.pageModels}
         />
         <PageContainer>
           <ReactSwipe
             callback={this.handleSwipe}
-            startSlide={this.state.route.config.order}
-            slideToIndex={this.state.route.config.order}>
+            startSlide={this.props.route.config.order}
+            slideToIndex={this.props.route.config.order}>
             {pageElements}
           </ReactSwipe>
         </PageContainer>
-        <Footer models={this.state.pageModels} />
+        <Footer models={this.props.pageModels} />
       </div>
     );
   },
 
   componentDidUpdate: function (prevProps, prevState) {
-    var newState = this.state;
+    var newProps = this.props;
 
-    if (newState.pageTitle === prevState.pageTitle) {
+    if (newProps.pageTitle === prevProps.pageTitle) {
       return;
     }
 
-    document.title = newState.pageTitle;
+    document.title = newProps.pageTitle;
 
-    var analytics = window[this.props.analytics];
+    var analytics = window[newProps.analytics];
     if (analytics) {
       analytics('set', {
-        page: newState.route.url,
-        title: newState.pageTitle
+        page: newProps.route.url,
+        title: newProps.pageTitle
       });
       analytics('send', 'pageview');
     }
   }
 });
+
+Application = connectToStores(Application, ['ApplicationStore', 'ContentStore'], function (stores) {
+  return {
+    pageName: stores.ApplicationStore.getCurrentPageName(),
+    pageTitle: stores.ApplicationStore.getCurrentPageTitle(),
+    pageModels: stores.ContentStore.getCurrentPageModels(),
+    route: stores.ApplicationStore.getCurrentRoute(),
+    pages: stores.ApplicationStore.getPages()
+  };
+});
+
+Application = provideContext(Application);
 
 module.exports = Application;

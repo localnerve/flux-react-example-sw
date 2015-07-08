@@ -12,14 +12,15 @@ var BackgroundStore = createStore({
 
   handlers: {
     'UPDATE_SIZE': 'updateSize',
-    'INIT_IMAGE_SERVICE': 'setImageService',
-    'INIT_BACKGROUNDS': 'updateBackgroundUrls'
+    'INIT_BACKGROUNDS': 'initBackgrounds',
+    'CHANGE_ROUTE_SUCCESS': 'updateBackground'
   },
 
   initialize: function () {
     this.width = 0;
     this.height = 0;
     this.top = 0;
+    this.currentBackground = '';
     this.imageServiceUrl = '';
     this.backgroundUrls = {};
 
@@ -45,8 +46,14 @@ var BackgroundStore = createStore({
     this.sizeChange();
   },
 
-  setImageService: function (payload) {
+  initBackgrounds: function (payload) {
     this.imageServiceUrl = payload.serviceUrl;
+    this.updateBackgroundUrls(payload);
+    this.emitChange();
+  },
+
+  updateBackground: function (payload) {
+    this.currentBackground = payload.config.background;
     this.emitChange();
   },
 
@@ -69,14 +76,19 @@ var BackgroundStore = createStore({
     return this.top;
   },
 
-  getBackgroundUrl: function (key) {
-    return this.backgroundUrls[key];
+  getNotCurrentBackgroundUrls: function () {
+    return Object.keys(this.backgroundUrls).filter(function (key) {
+      return key !== this.currentBackground;
+    }, this).map(function (notCurrent) {
+      return this.backgroundUrls[notCurrent];
+    }, this);
   },
 
-  getBackgroundUrls: function () {
-    return Object.keys(this.backgroundUrls).map(function (key) {
-      return this.backgroundUrls[key];
-    });
+  getCurrentBackgroundUrl: function () {
+    if (this.width && this.height) {
+      return this.backgroundUrls[this.currentBackground];
+    }
+    return null;
   },
 
   dehydrate: function () {
@@ -84,6 +96,7 @@ var BackgroundStore = createStore({
       width: this.width,
       height: this.height,
       top: this.top,
+      currentBackground: this.currentBackground,
       imageServiceUrl: this.imageServiceUrl,
       backgroundUrls: this.backgroundUrls
     };
@@ -93,6 +106,7 @@ var BackgroundStore = createStore({
     this.width = state.width;
     this.height = state.height;
     this.top = state.top;
+    this.currentBackground = state.currentBackground;
     this.imageServiceUrl = state.imageServiceUrl;
     this.backgroundUrls = state.backgroundUrls;
   }

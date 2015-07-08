@@ -6,11 +6,12 @@
 
 var debug = require('debug')('Example:BackgroundsAction');
 
-function background (context, payload, done) {
+function init (context, payload, done) {
   debug('dispatching INIT_BACKGROUNDS', payload);
-
   context.dispatch('INIT_BACKGROUNDS', payload);
   done();
 }
 
-module.exports = background;
+module.exports = {
+  init: init
+};

@@ -5,12 +5,11 @@
 'use strict';
 
 function buildLoremPixelUrl (service, width, height, name) {
-  var theme = 'nature', offset = 3;
+  var theme = 'nature', offset = 0;
   var ordinal = parseInt(name, 10) || 0;
 
-  // the slash at the end avoids a 302
-  return (service || 'http://lorempixel.com') +
-    '/' + width + '/' + height + '/' + theme + '/' +
+  // slash at the end avoids a 302 for lorempixel
+  return service + '/' + width + '/' + height + '/' + theme + '/' +
     ((ordinal + offset) % 10) + '/';
 }
 

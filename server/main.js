@@ -15,7 +15,7 @@ var navigateAction = require('flux-router-component').navigateAction;
 
 var HtmlComponent = React.createFactory(require(baseDir + '/components/Html.jsx'));
 var routesAction = require(baseDir + '/actions/routes');
-var imageServiceAction = require(baseDir + '/actions/imageService');
+var initBackgrounds = require(baseDir + '/actions/backgrounds').init;
 var config = require(baseDir + '/configs').create({
   baseDir: baseDir
 });
@@ -61,10 +61,13 @@ function bootstrap (app) {
     context.executeAction(routesAction, {
       resource: config.data.FRED.mainResource
     })
-    .then(function () {
-      debug('Executing imageService action');
-      return context.executeAction(imageServiceAction, {
-        serviceUrl: config.images.service.url()
+    .then(function (routes) {
+      debug('Executing initBackgrounds action');
+      return context.executeAction(initBackgrounds, {
+        serviceUrl: config.images.service.url(),
+        backgrounds: Object.keys(routes).map(function (route) {
+          return routes[route].background;
+        })
       });
     })
     .then(function () {
@@ -79,16 +82,16 @@ function bootstrap (app) {
         encoding: 'utf8'
       });
     })
-    .then(function (result) {
+    .then(function (headerStyles) {
       debug('Reading the header scripts from ' + settings.dist.headerScript);
-      renderProps.headerStyles = result;
+      renderProps.headerStyles = headerStyles;
       return Q.nfcall(fs.readFile, settings.dist.headerScript, {
         encoding: 'utf8'
       });
     })
-    .then(function (result) {
+    .then(function (headerScript) {
       debug('Rendering the application');
-      renderProps.headerScript = result;
+      renderProps.headerScript = headerScript;
       renderApp(res, context, app, renderProps);
     })
     .catch(function (err) {

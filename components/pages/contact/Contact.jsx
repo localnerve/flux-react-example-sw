@@ -6,9 +6,7 @@
 
 var React = require('react');
 var TimeoutTransitionGroup = require('react-components/js/timeout-transition-group');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var cx = require('classnames');
-var ContactStore = require('../../../stores/ContactStore');
 var contactAction = require('../../../actions/contact');
 var ContactSteps = require('./Steps.jsx');
 var ContactNav = require('./Nav.jsx');
@@ -17,19 +15,19 @@ var elements = require('./elements');
 var animTimeout = 250;
 
 var Contact = React.createClass({
-  mixins: [ FluxibleMixin ],
-  statics: {
-    storeListeners: [ ContactStore ]
+  contextTypes: {
+    getStore: React.PropTypes.func.isRequired,
+    executeAction: React.PropTypes.func.isRequired
   },
   propTypes: {
     name: React.PropTypes.string,
     spinner: React.PropTypes.bool,
-    headingText: React.PropTypes.string.isRequired,
-    stepFinal: React.PropTypes.number.isRequired,
-    steps: React.PropTypes.array.isRequired,
-    resultMessageFail: React.PropTypes.string.isRequired,
-    resultMessageSuccess: React.PropTypes.string.isRequired,
-    navigation: React.PropTypes.object.isRequired
+    headingText: React.PropTypes.string,
+    stepFinal: React.PropTypes.number,
+    steps: React.PropTypes.array,
+    resultMessageFail: React.PropTypes.string,
+    resultMessageSuccess: React.PropTypes.string,
+    navigation: React.PropTypes.object
   },
   getInitialState: function () {
     var state = this.getStateFromStore();
@@ -37,13 +35,23 @@ var Contact = React.createClass({
     state.direction = 'next';
     return state;
   },
-  setInputElement: function (component) {
-    if (component) {
-      this.inputElement = component;
-    }
+  shouldComponentUpdate: function (nextProps) {
+    return nextProps.name === 'contact';
+  },
+  componentDidMount: function () {
+    this.context.getStore('ContactStore').addChangeListener(this.onChange);
+  },
+  componentWillUnmount: function () {
+    this.context.getStore('ContactStore').removeChangeListener(this.onChange);
   },
   render: function () {
-    var content = this.renderContent();
+    var content;
+
+    if (this.props.spinner) {
+      content = React.createElement(Spinner);
+    } else {
+      content = this.renderContact();
+    }
 
     return (
       <div className="grid-container-center page-content">
@@ -51,11 +59,16 @@ var Contact = React.createClass({
       </div>
     );
   },
-  renderContent: function () {
-    if (this.props.spinner) {
-      return <Spinner />;
-    } else {
-      return this.renderContact();
+  getStateFromStore: function () {
+    var store = this.context.getStore('ContactStore');
+    return {
+      fields: store.getContactFields(),
+      failure: store.getContactFailure()
+    };
+  },
+  setInputElement: function (component) {
+    if (component) {
+      this.inputElement = component;
     }
   },
   renderContact: function () {
@@ -120,9 +133,6 @@ var Contact = React.createClass({
       </div>
     );
   },
-  shouldComponentUpdate: function (nextProps) {
-    return nextProps.name === 'contact';
-  },
   setFocus: function () {
     setTimeout(function (self, final) {
       if (!final && self.inputElement) {
@@ -137,17 +147,10 @@ var Contact = React.createClass({
     this.setState(this.getStateFromStore());
   },
   saveFields: function (fields) {
-    this.executeAction(contactAction, {
+    this.context.executeAction(contactAction, {
       fields: fields,
       complete: (this.state.step === (this.props.stepFinal - 1))
     });
-  },
-  getStateFromStore: function () {
-    var store = this.getStore(ContactStore);
-    return {
-      fields: store.getContactFields(),
-      failure: store.getContactFailure()
-    };
   },
   nextStep: function () {
     this.setState({

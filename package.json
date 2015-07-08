@@ -6,6 +6,7 @@
   "scripts": {
     "build": "grunt build",
     "dev": "grunt dev",
+    "debug": "grunt debug",
     "devtest": "mocha tests/unit --recursive --reporter spec",
     "functest": "node tests/functional/run-parallel '--reporter spec tests/functional/main.js'",
     "lint": "grunt jshint",

@@ -111,6 +111,7 @@ module.exports = function (grunt) {
       },
       css: ['_cc-watch-ap', '_cc-watch-compass'],
       dev: ['_cc-compass-dev', '_cc-nodemon-dev', '_cc-webpack-dev'],
+      debug: ['_cc-compass-dev', '_cc-nodemon-debug', '_cc-webpack-dev'],
       prod: ['_cc-compass-prod', '_cc-nodemon-prod', '_cc-webpack-prod']
     },
 
@@ -159,7 +160,15 @@ module.exports = function (grunt) {
       app: {
         options: {
           ignore: ['node_modules/**', '<%= project.distbase %>/**'],
-          ext: 'js,jsx,md'
+          ext: 'js,jsx'
+        },
+        script: './<%= pkg.main %>'
+      },
+      debug: {
+        options: {
+          ignore: ['node_modules/**', '<%= project.distbase %>/**'],
+          ext: 'js,jsx',
+          nodeArgs: ['--debug-brk']
         },
         script: './<%= pkg.main %>'
       }
@@ -412,6 +421,7 @@ module.exports = function (grunt) {
   grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'ccss:dev']);
   grunt.registerTask('_cc-compass-prod', ['nconfig:prod', 'ccss:prod']);
   grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
+  grunt.registerTask('_cc-nodemon-debug', ['nconfig:dev', 'nodemon:debug']);
   grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
   grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:headerDev', 'webpack:dev']);
   grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:headerProd', 'webpack:prod']);
@@ -419,6 +429,7 @@ module.exports = function (grunt) {
   // script interface
   grunt.registerTask('default', 'dev');
   grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
+  grunt.registerTask('debug', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:debug']);
   grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod']);
   grunt.registerTask('build', ['nconfig:prod', 'clean', 'copy', 'ccss:prod', 'webpack:headerProd', 'webpack:prod']);
 };

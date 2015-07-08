@@ -14,7 +14,6 @@ var Background = React.createClass({
   },
 
   propTypes: {
-    current: React.PropTypes.string.isRequired,
     prefetch: React.PropTypes.bool
   },
 

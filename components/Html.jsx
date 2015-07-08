@@ -5,13 +5,12 @@
  * Only rendered on the server
  */
 'use strict';
+
 var React = require('react');
-var ApplicationStore = require('../stores/ApplicationStore');
-var BackgroundStore = require('../stores/BackgroundStore');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var provideContext = require('fluxible/addons/provideContext');
+var connectToStores = require('fluxible/addons/connectToStores');
 
 var Html = React.createClass({
-  mixins: [ FluxibleMixin ],
   propTypes: {
     images: React.PropTypes.string.isRequired,
     headerStyles: React.PropTypes.string.isRequired,
@@ -26,11 +25,11 @@ var Html = React.createClass({
       <html>
         <head>
           <meta charSet="utf-8" />
-          <title>{this.getStore(ApplicationStore).getCurrentPageTitle()}</title>
+          <title>{this.props.currentPageTitle}</title>
           <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
           <meta httpEquiv="x-dns-prefetch-control" content="on" />
           <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-          <link rel="dns-prefetch" href={this.getStore(BackgroundStore).getImageServiceUrl().replace(/https?\:/, '')} />
+          <link rel="dns-prefetch" href={this.props.imageServiceHost} />
           <link rel="apple-touch-icon" sizes="57x57" href={this.props.images + '/apple-touch-icon-57x57.png'} />
           <link rel="apple-touch-icon" sizes="60x60" href={this.props.images + '/apple-touch-icon-60x60.png'} />
           <link rel="apple-touch-icon" sizes="72x72" href={this.props.images + '/apple-touch-icon-72x72.png'} />
@@ -63,5 +62,14 @@ var Html = React.createClass({
     );
   }
 });
+
+Html = connectToStores(Html, ['ApplicationStore', 'BackgroundStore'], function(stores) {
+  return {
+    currentPageTitle: stores.ApplicationStore.getCurrentPageTitle(),
+    imageServiceHost: stores.BackgroundStore.getImageServiceUrl().replace(/https?\:/, '')
+  };
+});
+
+Html = provideContext(Html);
 
 module.exports = Html;

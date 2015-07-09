@@ -38,7 +38,7 @@ describe('routes action', function () {
     });
   });
 
-  describe('with routes payload', function () {
+  describe.skip('with routes payload', function () {
     var params = {
       routes: null
     };
@@ -82,7 +82,7 @@ describe('routes action', function () {
     });
   });
 
-  describe('without routes payload', function () {
+  describe.skip('without routes payload', function () {
     var fluxibleRoutesFixture;
 
     // Setup the context.service

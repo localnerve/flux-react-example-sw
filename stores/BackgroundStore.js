@@ -13,7 +13,7 @@ var BackgroundStore = createStore({
   handlers: {
     'UPDATE_SIZE': 'updateSize',
     'INIT_BACKGROUNDS': 'initBackgrounds',
-    'CHANGE_ROUTE_SUCCESS': 'updateBackground'
+    'NAVIGATE_SUCCESS': 'updateBackground'
   },
 
   initialize: function () {
@@ -52,8 +52,8 @@ var BackgroundStore = createStore({
     this.emitChange();
   },
 
-  updateBackground: function (payload) {
-    this.currentBackground = payload.config.background;
+  updateBackground: function (route) {
+    this.currentBackground = route.get('background');
     this.emitChange();
   },
 

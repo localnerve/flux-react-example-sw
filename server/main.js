@@ -11,7 +11,7 @@ var fs = require('fs');
 var Q = require('q');
 var serialize = require('serialize-javascript');
 var React = require('react');
-var navigateAction = require('flux-router-component').navigateAction;
+var navigateAction = require('fluxible-router').navigateAction;
 
 var HtmlComponent = React.createFactory(require(baseDir + '/components/Html.jsx'));
 var routesAction = require(baseDir + '/actions/routes');

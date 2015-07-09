@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var NavLink = require('flux-router-component').NavLink;
+var NavLink = require('fluxible-router').NavLink;
 var sizeReporter = require('../sizeReporter');
 var cx = require('classnames');
 

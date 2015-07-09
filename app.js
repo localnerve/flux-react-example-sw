@@ -7,14 +7,11 @@
 var debug = require('debug')('Example:App');
 var FluxibleApp = require('fluxible');
 var fetchrPlugin = require('fluxible-plugin-fetchr');
-var routrPlugin = require('fluxible-plugin-dynamic-routr');
 var ApplicationStore = require('./stores/ApplicationStore');
 var ContentStore = require('./stores/ContentStore');
 var ContactStore = require('./stores/ContactStore');
 var BackgroundStore = require('./stores/BackgroundStore');
-var transformer = require('./utils').createFluxibleRouteTransformer({
-  actions: require('./actions/interface')
-});
+var RouteStore = require('./stores/RouteStore');
 
 debug('Creating FluxibleApp');
 var app = new FluxibleApp({
@@ -23,17 +20,12 @@ var app = new FluxibleApp({
 
 debug('Adding Plugins');
 app.plug(fetchrPlugin({ xhrPath: '/_api' }));
-app.plug(routrPlugin({
-  dehydrateRoutes: transformer.fluxibleToJson,
-  rehydrateRoutes: transformer.jsonToFluxible,
-  storeName: ApplicationStore.storeName,
-  storeEvent: ApplicationStore.routesEvent
-}));
 
 debug('Registering Stores');
 app.registerStore(ApplicationStore);
 app.registerStore(ContentStore);
 app.registerStore(ContactStore);
 app.registerStore(BackgroundStore);
+app.registerStore(RouteStore);
 
 module.exports = app;

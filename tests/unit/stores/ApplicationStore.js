@@ -14,7 +14,7 @@ var transformer = require('../../../utils').createFluxibleRouteTransformer({
   actions: require('../../../actions/interface')
 });
 
-describe('application store', function () {
+describe.skip('application store', function () {
   var storeInstance;
   var homeRoute = {
     params: { key: 'home' },

@@ -4,76 +4,53 @@
  */
 'use strict';
 var createStore = require('fluxible/addons').createStore;
-var transformer = require('../utils').createFluxibleRouteTransformer({
-  actions: require('../actions/interface')
-});
-var debounce = require('lodash/function/debounce');
+var after = require('lodash/function/after');
 
 var ApplicationStore = createStore({
   storeName: 'ApplicationStore',
-  routesEvent: 'receivedRoutes',
+
   handlers: {
-    'CHANGE_ROUTE_SUCCESS': 'handleNavigate',
-    'UPDATE_PAGE_TITLE': 'updatePageTitle',
-    'RECEIVE_ROUTES': 'receiveRoutes'
+    'NAVIGATE_SUCCESS': 'handleNavigate',
+    'UPDATE_PAGE_TITLE': 'updatePageTitle'
   },
+
   initialize: function (dispatcher) {
-    this.currentPageId = null;
     this.currentPageName = null;
-    this.currentRoute = null;
     this.currentPageTitle = '';
-    this.pages = {};
-    this.pageChange = debounce(function pageChange () {
+
+    this.pageChange = after(2, function pageChange () {
       this.emitChange();
-    }.bind(this), 50);
+    }.bind(this));
   },
+
   handleNavigate: function (route) {
-    var pageId = route.params.key;
-    var pageName = route.config.page;
-
-    if (pageName === this.currentPageName && pageId === this.currentPageId) {
-      return;
-    }
-
-    this.currentPageId = pageId;
-    this.currentPageName = pageName;
-    this.currentRoute = route;
+    this.currentPageName = route.get('page');
     this.pageChange();
   },
+
   updatePageTitle: function (page) {
     this.currentPageTitle = page.title;
     this.pageChange();
   },
-  receiveRoutes: function (routes) {
-    this.pages = routes;
-    this.emit(ApplicationStore.routesEvent, { routes: routes });
-    this.emitChange();
-  },
-  getPages: function () {
-    return this.pages;
-  },
+
   getCurrentPageName: function () {
     return this.currentPageName;
   },
+
   getCurrentPageTitle: function () {
     return this.currentPageTitle;
   },
-  getCurrentRoute: function () {
-    return this.currentRoute;
-  },
+
   dehydrate: function () {
     return {
       pageName: this.currentPageName,
-      route: this.currentRoute,
-      pageTitle: this.currentPageTitle,
-      pages: transformer.fluxibleToJson(this.pages)
+      pageTitle: this.currentPageTitle
     };
   },
+
   rehydrate: function (state) {
     this.currentPageName = state.pageName;
-    this.currentRoute = state.route;
     this.currentPageTitle = state.pageTitle;
-    this.pages = transformer.jsonToFluxible(state.pages);
   }
 });
 

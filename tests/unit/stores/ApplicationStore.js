@@ -2,128 +2,102 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global describe, it, beforeEach */
+/* global describe, it, beforeEach, afterEach */
 'use strict';
 
 var expect = require('chai').expect;
 var ApplicationStore = require('../../../stores/ApplicationStore');
-var routesResponseFixture = require('../../fixtures/routes-response');
-var helperTests = require('../../utils/tests');
+var Immutable = require('immutable');
 
-var transformer = require('../../../utils').createFluxibleRouteTransformer({
-  actions: require('../../../actions/interface')
-});
-
-describe.skip('application store', function () {
+describe('application store', function () {
   var storeInstance;
-  var homeRoute = {
-    params: { key: 'home' },
-    config: { page: 'Home' }
-  };
+  var homeRoute = Immutable.fromJS({
+    page: 'home'
+  });
 
   beforeEach(function () {
     storeInstance = new ApplicationStore();
   });
 
-  it('should instantiate correctly', function (done) {
+  it('should instantiate correctly', function () {
     expect(storeInstance).to.be.an('object');
-    expect(storeInstance.currentPageId).to.equal(null);
     expect(storeInstance.currentPageName).to.equal(null);
-    expect(storeInstance.currentRoute).to.equal(null);
-    expect(storeInstance.pages).to.be.empty;
     expect(storeInstance.currentPageTitle).to.equal('');
-    done();
   });
 
-  describe('with routes', function () {
-    var routesResponse;
+  it('should update page title', function () {
+    var page = { title: 'Fluxible Rocks' };
+    storeInstance.updatePageTitle(page);
+    expect(storeInstance.getCurrentPageTitle()).to.equal(page.title);
+  });
 
-    beforeEach(function () {
-      // clone the routes-response fixture data
-      routesResponse = JSON.parse(JSON.stringify(routesResponseFixture));
-      storeInstance.receiveRoutes(transformer.jsonToFluxible(routesResponse));
+  it('should update page name', function () {
+    storeInstance.handleNavigate(homeRoute);
+    expect(storeInstance.getCurrentPageName()).to.equal(homeRoute.get('page'));
+  });
+
+  it('should dehydrate', function () {
+    storeInstance.handleNavigate(homeRoute);
+    var page = { title: 'Fluxible Rocks' };
+    storeInstance.updatePageTitle(page);
+
+    var state = storeInstance.dehydrate();
+
+    expect(state.pageName).to.equal(homeRoute.get('page'));
+    expect(state.pageTitle).to.equal(page.title);
+  });
+
+  it('should rehydrate', function () {
+    var page = { title: 'Fluxible Rocks' };
+    var state = {
+      pageName: homeRoute.get('page'),
+      pageTitle: page.title
+    };
+
+    storeInstance.rehydrate(state);
+
+    expect(storeInstance.getCurrentPageName()).to.equal(homeRoute.get('page'));
+    expect(storeInstance.getCurrentPageTitle()).to.equal(page.title);
+  });
+
+  describe('special case change', function () {
+    var onChange;
+
+    function makeError (done) {
+      function error () {
+        done('should not have emitted change');
+      }
+      onChange = error;
+      return error;
+    }
+
+    afterEach(function () {
+      if (onChange) {
+        storeInstance.removeChangeListener(onChange);
+        onChange = null;
+      }
     });
 
-    it('should handle navigate', function (done) {
+    it('should not change if only page title update', function (done) {
+      storeInstance.addChangeListener(makeError(done));
+      setTimeout(done, 50);
+      storeInstance.updatePageTitle({ title: 'Fluxible Rocks' });
+    });
+
+    it('should not change if only page name update', function (done) {
+      storeInstance.addChangeListener(makeError(done));
+      setTimeout(done, 50);
       storeInstance.handleNavigate(homeRoute);
-
-      expect(storeInstance.currentPageId).to.equal(homeRoute.params.key);
-      done();
     });
 
-    it('should return early during handle navigate, when navigating to the same page', function (done) {
-      // initial call
+    it('should change only if both title and name update', function (done) {
+      function success () {
+        done();
+      }
+      onChange = success;
+      storeInstance.addChangeListener(success);
+      storeInstance.updatePageTitle({ title: 'Fluxible Rocks' });
       storeInstance.handleNavigate(homeRoute);
-      // subsequent call
-      storeInstance.handleNavigate(homeRoute);
-
-      expect(storeInstance.currentPageId).to.equal(homeRoute.params.key);
-      done();
-    });
-
-    it('should update page', function (done) {
-      var page = { title: 'Fluxible Rocks' };
-      storeInstance.updatePageTitle(page);
-
-      expect(storeInstance.currentPageTitle).to.equal(page.title);
-      expect(storeInstance.currentPageContent).to.equal(page.content);
-      done();
-    });
-
-    it('should get current page name', function (done) {
-      storeInstance.handleNavigate(homeRoute);
-
-      expect(storeInstance.getCurrentPageName()).to.equal(homeRoute.config.page);
-      done();
-    });
-
-    it('should get current page title', function (done) {
-      var page = { title: 'Fluxible Rocks' };
-      storeInstance.updatePageTitle(page);
-
-      expect(storeInstance.getCurrentPageTitle()).to.equal(page.title);
-      done();
-    });
-
-    it('should get current route', function (done) {
-      storeInstance.handleNavigate(homeRoute);
-
-      expect(storeInstance.getCurrentRoute()).to.equal(homeRoute);
-      done();
-    });
-
-    it('should dehydrate', function (done) {
-      storeInstance.handleNavigate(homeRoute);
-      var page = { title: 'Fluxible Rocks' };
-      storeInstance.updatePageTitle(page);
-
-      var state = storeInstance.dehydrate();
-
-      expect(state.pageName).to.equal(homeRoute.config.page);
-      expect(state.pages).to.eql(routesResponse);
-      expect(state.route).to.equal(homeRoute);
-      expect(state.pageTitle).to.equal(page.title);
-      done();
-    });
-
-    it('should rehydrate', function (done) {
-      var page = { title: 'Fluxible Rocks' };
-      var state = {
-        pageName: homeRoute.config.page,
-        pages: routesResponse,
-        route: homeRoute,
-        pageTitle: page.title
-      };
-
-      storeInstance.rehydrate(state);
-
-      helperTests.testTransform(
-        expect, storeInstance.pages, transformer.jsonToFluxible(routesResponse)
-      );
-      expect(storeInstance.getCurrentPageName()).to.equal(homeRoute.config.page);
-      expect(storeInstance.getCurrentRoute()).to.equal(homeRoute);
-      expect(storeInstance.getCurrentPageTitle()).to.equal(page.title);
-      done();
     });
   });
 });

@@ -10,7 +10,7 @@ var expect = require('chai').expect;
 var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 
-var ApplicationStore = require('../../../stores/ApplicationStore');
+var RouteStore = require('../../../stores/RouteStore');
 var routes = require('../../../actions/routes');
 var routesResponse = require('../../fixtures/routes-response');
 var transformer = require('../../../utils').createFluxibleRouteTransformer({
@@ -24,21 +24,21 @@ describe('routes action', function () {
   var testPage = 'home';
 
   function checkTestPage() {
-    var pages = context.getStore(ApplicationStore).getPages();
+    var pages = context.getStore(RouteStore).getRoutes();
 
     expect(pages).to.be.an('object');
     expect(pages).to.not.be.empty;
     expect(pages[testPage]).to.be.an('object');
   }
 
-  // create the action context wired to ApplicationStore
+  // create the action context wired to RouteStore
   beforeEach(function () {
     context = createMockActionContext({
-      stores: [ApplicationStore]
+      stores: [RouteStore]
     });
   });
 
-  describe.skip('with routes payload', function () {
+  describe('with routes payload', function () {
     var params = {
       routes: null
     };
@@ -51,7 +51,7 @@ describe('routes action', function () {
       params.routes = response;
     });
 
-    it('should update the ApplicationStore', function (done) {
+    it('should update the RouteStore', function (done) {
       context.executeAction(routes, params, function (err) {
         if (err) {
           return done(err);
@@ -82,7 +82,7 @@ describe('routes action', function () {
     });
   });
 
-  describe.skip('without routes payload', function () {
+  describe('without routes payload', function () {
     var fluxibleRoutesFixture;
 
     // Setup the context.service

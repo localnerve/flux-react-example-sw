@@ -73,6 +73,7 @@
     "grunt-svg2png": "^0.2.7",
     "grunt-svgmin": "^2.0.1",
     "grunt-webpack": "^1.0.8",
+    "immutable": "^3.7.4",
     "istanbul": "^0.3.7",
     "jscs": "^1.11.3",
     "jsdom": "3.1.2",

@@ -1,6 +1,9 @@
 /**
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ *
+ * Extend the fluxible route store so routes can have action functions.
+ * Just de/rehydate the functions.
  */
 'use strict';
 

@@ -17,16 +17,11 @@ var ContactSteps = React.createClass({
     resultMessage: React.PropTypes.string,
     retry: React.PropTypes.func.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      steps: [],
-      stepCurrent: 0,
-      stepFinal: 0,
-      failure: false,
-      resultMessage: '',
-      retry: noop
-    };
+
+  shouldComponentUpdate: function (nextProps) {
+    return nextProps.stepCurrent !== this.props.stepCurrent;
   },
+
   render: function () {
     var contactSteps = this.renderContactSteps();
     return (
@@ -35,6 +30,7 @@ var ContactSteps = React.createClass({
       </ul>
     );
   },
+
   renderContactSteps: function () {
     if (this.props.stepCurrent === this.props.stepFinal) {
       return (

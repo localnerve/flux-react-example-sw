@@ -14,24 +14,11 @@ var ContactNav = React.createClass({
     onPrevious: React.PropTypes.func.isRequired,
     nav: React.PropTypes.object.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      stepCurrent: 0,
-      stepFinal: 0,
-      onPrevious: function () {},
-      nav: {
-        previous: {
-          text: '',
-          help: ''
-        },
-        next: {
-          text: '',
-          help: '',
-          last: ''
-        }
-      }
-    };
+
+  shouldComponentUpdate: function (nextProps) {
+    return nextProps.stepCurrent !== this.props.stepCurrent;
   },
+
   render: function () {
     var last = this.props.stepCurrent === this.props.stepFinal;
     var nav = last ? [] : this.renderContactNav();
@@ -45,6 +32,7 @@ var ContactNav = React.createClass({
       </div>
     );
   },
+
   renderContactNav: function () {
     var complete = this.props.stepCurrent === this.props.stepFinal - 1;
     var nextText = complete ? this.props.nav.next.last :
@@ -52,7 +40,7 @@ var ContactNav = React.createClass({
 
     return [
       <button type="button"
-        id="previous" name="previous" key="previous"
+        id="previous" name="previous" key={'previous.'+this.props.stepCurrent}
         value={this.props.nav.previous.text}
         title={this.props.nav.previous.help}
         className={cx({hide: this.props.stepCurrent === 0})}
@@ -60,7 +48,8 @@ var ContactNav = React.createClass({
         <span>{this.props.nav.previous.text}</span>
       </button>,
       <button type="submit"
-        id="submit" name="submit" key="submit" value={nextText}
+        id="submit" name="submit" key={'submit.'+this.props.stepCurrent}
+        value={nextText}
         title={this.props.nav.next.help}
         className={cx({last: complete})}>
         <span>{nextText}</span>

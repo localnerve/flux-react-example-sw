@@ -74,20 +74,14 @@ var Application = React.createClass({
     );
   },
 
-  componentDidUpdate: function (prevProps, prevState) {
-    var newProps = this.props;
+  componentDidUpdate: function () {
+    document.title = this.props.pageTitle;
 
-    if (newProps.pageTitle === prevProps.pageTitle) {
-      return;
-    }
-
-    document.title = newProps.pageTitle;
-
-    var analytics = window[newProps.analytics];
+    var analytics = window[this.props.analytics];
     if (analytics) {
       analytics('set', {
-        page: newProps.pages[newProps.pageName].path,
-        title: newProps.pageTitle
+        page: this.props.pages[this.props.pageName].path,
+        title: this.props.pageTitle
       });
       analytics('send', 'pageview');
     }

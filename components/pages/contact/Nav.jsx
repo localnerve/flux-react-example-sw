@@ -40,7 +40,7 @@ var ContactNav = React.createClass({
 
     return [
       <button type="button"
-        id="previous" name="previous" key={'previous.'+this.props.stepCurrent}
+        id="previous" name="previous" key="previous"
         value={this.props.nav.previous.text}
         title={this.props.nav.previous.help}
         className={cx({hide: this.props.stepCurrent === 0})}
@@ -48,7 +48,7 @@ var ContactNav = React.createClass({
         <span>{this.props.nav.previous.text}</span>
       </button>,
       <button type="submit"
-        id="submit" name="submit" key={'submit.'+this.props.stepCurrent}
+        id="submit" name="submit" key="submit"
         value={nextText}
         title={this.props.nav.next.help}
         className={cx({last: complete})}>

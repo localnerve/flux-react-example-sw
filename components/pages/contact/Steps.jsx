@@ -19,7 +19,8 @@ var ContactSteps = React.createClass({
   },
 
   shouldComponentUpdate: function (nextProps) {
-    return nextProps.stepCurrent !== this.props.stepCurrent;
+    return nextProps.stepCurrent !== this.props.stepCurrent ||
+           nextProps.failure !== this.props.failure;
   },
 
   render: function () {

@@ -15,27 +15,11 @@ var ContactResult = React.createClass({
     message: React.PropTypes.object.isRequired,
     business: React.PropTypes.object.isRequired
   },
-  getDefaultProps: function () {
-    return {
-      failure: false,
-      failedMessage: '',
-      label: {
-        success: {
-          text: ''
-        }
-      },
-      message: {
-        success: {
-          text: ''
-        }
-      },
-      business: {
-        email: '',
-        telephone: '',
-        alternateName: ''
-      }
-    };
+
+  shouldComponentUpdate: function (nextProps) {
+    return nextProps.failure !== this.props.failure;
   },
+
   render: function () {
     var links = this.renderLinks();
 
@@ -55,6 +39,7 @@ var ContactResult = React.createClass({
       </div>
     );
   },
+
   renderLinks: function () {
     var uriMailTo = this.encodeURIMailTo();
     var uriTel = 'tel:+1-' + this.props.business.telephone;
@@ -90,6 +75,7 @@ var ContactResult = React.createClass({
       ];
     }
   },
+
   encodeURIMailTo: function () {
     var subject = encodeURIComponent(this.props.business.alternateName + ' contact email');
     var body = this.props.failure ? encodeURIComponent(this.props.failedMessage) : '';

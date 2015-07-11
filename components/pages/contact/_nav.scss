@@ -24,6 +24,9 @@ $button-prev-color: $app-primary-light-color;
   @extend .grid-row-spaced;
   margin: 1em 0;
 
+  // This hack stops the chrome justify-content: space-around bug (issue #34)
+  transform: TranslateZ(0);
+
   button {
     display: inline-block;
     border: 0;

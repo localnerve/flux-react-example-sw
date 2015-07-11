@@ -18,6 +18,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var csrf = require('csurf');
 var errorHandler = require('express-error-handler');
+var rewrite = require('connect-modrewrite');
 
 var config = require(baseDir + '/configs').create({
   baseDir: baseDir
@@ -30,6 +31,12 @@ var data = require(baseDir + '/services/data');
 var settings = config.settings;
 var protocol = require(settings.web.ssl ? 'https' : 'http');
 
+var rewriteRules = [
+  // rewrite root image requests to settings.web.images
+  '^/([^\\/]+\\.(?:png|jpg|jpeg|webp|ico|svg|gif)(?:\\?.*)?$) ' +
+    settings.web.images + '/$1 [NC L]'
+];
+
 var app = express();
 var server = protocol.createServer(app);
 
@@ -37,6 +44,7 @@ app.use(favicon(settings.dist.favicon));
 app.use(logger(settings.loggerFormat));
 app.use(compress());
 app.use(errorHandler.maintenance());
+app.use(rewrite(rewriteRules));
 app.use(settings.web.baseDir, express.static(
   settings.dist.baseDir, { maxAge: settings.web.assetAge }
 ));

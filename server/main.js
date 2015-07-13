@@ -15,7 +15,7 @@ var navigateAction = require('fluxible-router').navigateAction;
 
 var HtmlComponent = React.createFactory(require(baseDir + '/components/Html.jsx'));
 var routesAction = require(baseDir + '/actions/routes');
-var initBackgrounds = require(baseDir + '/actions/backgrounds').init;
+var initAction = require(baseDir + '/actions/init');
 var config = require(baseDir + '/configs').create({
   baseDir: baseDir
 });
@@ -47,7 +47,7 @@ function renderApp (res, context, app, props) {
  */
 function bootstrap (app) {
   return function main (req, res, next) {
-    var context, renderProps = {};
+    var context, routes, renderProps = {};
 
     debug('Creating app context');
     context = app.createContext({
@@ -61,13 +61,20 @@ function bootstrap (app) {
     context.executeAction(routesAction, {
       resource: config.data.FRED.mainResource
     })
-    .then(function (routes) {
-      debug('Executing initBackgrounds action');
-      return context.executeAction(initBackgrounds, {
-        serviceUrl: config.images.service.url(),
-        backgrounds: Object.keys(routes).map(function (route) {
-          return routes[route].background;
-        })
+    .then(function (routesResult) {
+      routes = routesResult;
+      debug('Executing init action');
+      return context.executeAction(initAction, {
+        backgrounds: {
+          serviceUrl: config.images.service.url(),
+          currentBackground: routes[config.data.defaults.pageName].background,
+          backgrounds: Object.keys(routes).map(function (route) {
+            return routes[route].background;
+          })
+        },
+        page: {
+          defaultPageName: config.data.defaults.pageName
+        }
       });
     })
     .then(function () {
@@ -80,6 +87,16 @@ function bootstrap (app) {
       debug('Reading the header styles from ' + settings.dist.css);
       return Q.nfcall(fs.readFile, settings.dist.css, {
         encoding: 'utf8'
+      });
+    }, function navigateFailure (reason) {
+      debug('navigate failure reason: ' +
+        require('util').inspect(reason, { depth: null }));
+      return context.executeAction(
+        routes[config.data.defaults.pageName].action, {}
+      ).then(function () {
+        return Q.nfcall(fs.readFile, settings.dist.css, {
+          encoding: 'utf8'
+        });
       });
     })
     .then(function (headerStyles) {

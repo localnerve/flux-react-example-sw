@@ -4,14 +4,12 @@
  */
 'use strict';
 
-var debug = require('debug')('Example:BackgroundsAction');
+var debug = require('debug')('Example:InitAction');
 
 function init (context, payload, done) {
-  debug('dispatching INIT_BACKGROUNDS', payload);
-  context.dispatch('INIT_BACKGROUNDS', payload);
+  debug('dispatching INIT_APP', payload);
+  context.dispatch('INIT_APP', payload);
   done();
 }
 
-module.exports = {
-  init: init
-};
+module.exports = init;

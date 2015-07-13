@@ -12,7 +12,7 @@ var BackgroundStore = createStore({
 
   handlers: {
     'UPDATE_SIZE': 'updateSize',
-    'INIT_BACKGROUNDS': 'initBackgrounds',
+    'INIT_APP': 'initBackgrounds',
     'NAVIGATE_SUCCESS': 'updateBackground'
   },
 
@@ -47,9 +47,13 @@ var BackgroundStore = createStore({
   },
 
   initBackgrounds: function (payload) {
-    this.imageServiceUrl = payload.serviceUrl;
-    this.updateBackgroundUrls(payload);
-    this.emitChange();
+    var init = payload.backgrounds;
+    if (init) {
+      this.imageServiceUrl = init.serviceUrl;
+      this.currentBackground = init.currentBackground;
+      this.updateBackgroundUrls(init);
+      this.emitChange();
+    }
   },
 
   updateBackground: function (route) {

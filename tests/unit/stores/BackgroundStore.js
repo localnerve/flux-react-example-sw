@@ -15,8 +15,10 @@ describe('Background store', function () {
     background: '2'
   });
   var initPayload = {
-    serviceUrl: 'imageService',
-    backgrounds: ['1', '2']
+    backgrounds: {
+      serviceUrl: 'imageService',
+      backgrounds: ['1', '2']
+    }
   };
 
   beforeEach(function () {
@@ -62,7 +64,7 @@ describe('Background store', function () {
         expect(state.height).to.equal(dim.height);
         expect(state.top).to.equal(dim.top);
         expect(state.currentBackground).to.contain(route.get('background'));
-        expect(state.imageServiceUrl).to.equal(initPayload.serviceUrl);
+        expect(state.imageServiceUrl).to.equal(initPayload.backgrounds.serviceUrl);
         expect(Object.keys(state.backgroundUrls).length).to.equal(2);
 
         done();
@@ -86,7 +88,7 @@ describe('Background store', function () {
         height: dim.height,
         top: dim.top,
         currentBackground: route.get('background'),
-        imageServiceUrl: initPayload.serviceUrl,
+        imageServiceUrl: initPayload.backgrounds.serviceUrl,
         backgroundUrls: { '1': notCurrentUrl, '2': currentUrl }
       };
 
@@ -95,7 +97,7 @@ describe('Background store', function () {
       expect(storeInstance.width).to.equal(dim.width);
       expect(storeInstance.height).to.equal(dim.height);
       expect(storeInstance.getTop()).to.equal(dim.top);
-      expect(storeInstance.getImageServiceUrl()).to.equal(initPayload.serviceUrl);
+      expect(storeInstance.getImageServiceUrl()).to.equal(initPayload.backgrounds.serviceUrl);
       expect(storeInstance.getCurrentBackgroundUrl()).to.equal(currentUrl);
       expect(storeInstance.getNotCurrentBackgroundUrls()).to.have.length(1)
         .and.contain(notCurrentUrl);
@@ -105,11 +107,11 @@ describe('Background store', function () {
   describe('init backgrounds', function () {
     it('should init background store as expected', function (done) {
       function result () {
-        expect(storeInstance.getImageServiceUrl()).to.equal(initPayload.serviceUrl);
+        expect(storeInstance.getImageServiceUrl()).to.equal(initPayload.backgrounds.serviceUrl);
         expect(Object.keys(storeInstance.backgroundUrls).length).to.equal(2);
         // Background names are the key and we expect them to be in the urls
         Object.keys(storeInstance.backgroundUrls).forEach(function (key) {
-          expect(initPayload.backgrounds).to.contain(key);
+          expect(initPayload.backgrounds.backgrounds).to.contain(key);
           expect(storeInstance.backgroundUrls[key]).to.contain(key);
           // the width and height were not set, so there should be a couple zeros in there somewhere.
           expect(storeInstance.backgroundUrls[key]).to.contain('0');
@@ -151,7 +153,7 @@ describe('Background store', function () {
 
         // second time, its for updateBackground
         var backgroundUrl = storeInstance.getCurrentBackgroundUrl();
-        expect(backgroundUrl).to.contain(initPayload.serviceUrl);
+        expect(backgroundUrl).to.contain(initPayload.backgrounds.serviceUrl);
         expect(backgroundUrl).to.contain(dimension);
         expect(backgroundUrl).to.contain(route.get('background'));
 

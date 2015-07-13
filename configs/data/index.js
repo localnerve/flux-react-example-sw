@@ -52,6 +52,9 @@ function makeConfig (nconf) {
       branchify: function (url) {
         return addBranch(url, env);
       }
+    },
+    defaults: {
+      pageName: 'home'
     }
   };
 }

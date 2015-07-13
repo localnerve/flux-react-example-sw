@@ -6,7 +6,6 @@
 
 var debug = require('debug')('Example:PageAction');
 var ContentStore = require('../stores/ContentStore');
-var defaultPageTitle = 'Default Page Title';
 
 function dispatchActions (context, resource, title, data) {
   context.dispatch('RECEIVE_PAGE_CONTENT', {
@@ -42,9 +41,8 @@ function serviceRequest (context, payload, done) {
 }
 
 function page (context, payload, done) {
-  payload.pageTitle = payload.pageTitle || defaultPageTitle;
-
   var data = context.getStore(ContentStore).get(payload.resource);
+
   if (data) {
     debug('Found '+payload.resource+' in cache');
     dispatchActions(context, payload.resource, payload.pageTitle, data);

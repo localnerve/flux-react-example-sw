@@ -34,7 +34,11 @@ var protocol = require(settings.web.ssl ? 'https' : 'http');
 var rewriteRules = [
   // rewrite root image requests to settings.web.images
   '^/([^\\/]+\\.(?:png|jpg|jpeg|webp|ico|svg|gif)(?:\\?.*)?$) ' +
-    settings.web.images + '/$1 [NC L]'
+    settings.web.images + '/$1 [NC L]',
+  // alias home to root
+  '^/home/?$ / [L]',
+  // forbid 404 and 500 direct requests
+  '^/(?:404|500)/?$ [F L]'
 ];
 
 var app = express();
@@ -65,7 +69,11 @@ app.use(main(fluxibleApp));
 app.use(errorHandler({
   server: server,
   static: {
-    '404': settings.dist.four04,
+    // This 'hard' 500 will cause a restart.
+    // Actually covers all 500s except for 503 via errorHandler.
+    // The PM in charge should be configured to notify dev on restarts.
+    '500': settings.dist.five00,
+    // The notice for maintenance mode.
     '503': settings.dist.five03
   }
 }));

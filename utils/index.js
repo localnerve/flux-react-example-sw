@@ -6,6 +6,7 @@
 
 var FluxibleRouteTransformer = require('./FluxibleRouteTransformer');
 var buildImageUrl = require('./imageServiceUrls');
+var codes = require('./codes');
 
 function createFluxibleRouteTransformer (options) {
   options = options || {};
@@ -14,5 +15,6 @@ function createFluxibleRouteTransformer (options) {
 
 module.exports = {
   createFluxibleRouteTransformer: createFluxibleRouteTransformer,
-  buildImageUrl: buildImageUrl
+  buildImageUrl: buildImageUrl,
+  conformErrorStatus: codes.conformErrorStatus
 };

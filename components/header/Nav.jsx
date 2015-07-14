@@ -12,19 +12,18 @@ var cx = require('classnames');
 var Nav = React.createClass({
   propTypes: {
     selected: React.PropTypes.string.isRequired,
-    links: React.PropTypes.object.isRequired
+    links: React.PropTypes.array.isRequired
   },
 
   render: function () {
     var selected = this.props.selected,
         links = this.props.links,
-        linkHTML = Object.keys(links).map(function (name) {
-          var link = links[name];
+        linkHTML = links.map(function (link) {
           return (
             <li
               className={cx({
                 'navigation-link': true,
-                selected: selected === name
+                selected: selected === link.page
               })}
               key={link.path}>
               <NavLink routeName={link.page}>{link.label}</NavLink>

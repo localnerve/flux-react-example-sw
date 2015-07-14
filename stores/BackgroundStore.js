@@ -63,12 +63,14 @@ var BackgroundStore = createStore({
 
   updateBackgroundUrls: function (payload) {
     payload.backgrounds.forEach(function (key) {
-      this.backgroundUrls[key] = buildImageUrl(
-        this.imageServiceUrl,
-        this.width,
-        this.height,
-        key
-      );
+      if (key) {
+        this.backgroundUrls[key] = buildImageUrl(
+          this.imageServiceUrl,
+          this.width,
+          this.height,
+          key
+        );
+      }
     }, this);
   },
 

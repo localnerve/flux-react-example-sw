@@ -5,6 +5,7 @@
 /* global window, document */
 'use strict';
 
+var debug = require('debug')('Example:Application.jsx');
 var React = require('react');
 var connectToStores = require('fluxible/addons/connectToStores');
 var provideContext = require('fluxible/addons/provideContext');
@@ -40,18 +41,27 @@ var Application = React.createClass({
   },
 
   render: function () {
+    debug('rendering pageName: '+ this.props.pageName);
+    debug('navigateError', this.props.currentNavigateError);
+
     var routeOrdinal = this.props.pages[this.props.pageName].order;
 
+    var navPages = pages.getMainNavPages(
+      this.props.currentNavigateError,
+      this.props.pages,
+      routeOrdinal
+    );
+
     var pageElements = pages.createElements(
-      this.props.pages, this.context.getStore('ContentStore')
+      navPages, this.context.getStore('ContentStore')
     );
 
     return (
       <div className="app-block">
         <Background prefetch={true} />
         <Header
-          selected={this.props.pageName}
-          links={this.props.pages}
+          selected={navPages[routeOrdinal].page}
+          links={navPages}
           models={this.props.pageModels}
         />
         <PageContainer>
@@ -68,10 +78,7 @@ var Application = React.createClass({
   },
 
   shouldComponentUpdate: function (nextProps) {
-    return (
-      this.props.pageName && nextProps.pageName &&
-      this.props.pageName !== nextProps.pageName
-    );
+    return nextProps.navigateComplete && this.props.navigateComplete;
   },
 
   componentDidUpdate: function () {
@@ -91,8 +98,13 @@ var Application = React.createClass({
 Application = connectToStores(
   Application, ['ApplicationStore', 'ContentStore', 'RouteStore'],
   function (stores) {
+    var currentRoute = stores.RouteStore.getCurrentRoute();
+    var pageName = (currentRoute && currentRoute.get('page')) ||
+      stores.ApplicationStore.getDefaultPageName();
+
     return {
-      pageName: stores.ApplicationStore.getCurrentPageName(),
+      navigateComplete: stores.RouteStore.isNavigateComplete(),
+      pageName: pageName,
       pageTitle: stores.ApplicationStore.getCurrentPageTitle(),
       pageModels: stores.ContentStore.getCurrentPageModels(),
       pages: stores.RouteStore.getRoutes()

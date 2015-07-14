@@ -4,37 +4,35 @@
  */
 'use strict';
 var createStore = require('fluxible/addons').createStore;
-var after = require('lodash/function/after');
 
 var ApplicationStore = createStore({
   storeName: 'ApplicationStore',
 
   handlers: {
-    'NAVIGATE_SUCCESS': 'handleNavigate',
+    'INIT_APP': 'initApplication',
     'UPDATE_PAGE_TITLE': 'updatePageTitle'
   },
 
   initialize: function (dispatcher) {
-    this.currentPageName = null;
     this.currentPageTitle = '';
-
-    this.pageChange = after(2, function pageChange () {
-      this.emitChange();
-    }.bind(this));
+    this.defaultPageName = '';
   },
 
-  handleNavigate: function (route) {
-    this.currentPageName = route.get('page');
-    this.pageChange();
+  initApplication: function (payload) {
+    var init = payload.page;
+    if (init) {
+      this.defaultPageName = init.defaultPageName;
+      this.emitChange();
+    }
   },
 
   updatePageTitle: function (page) {
     this.currentPageTitle = page.title;
-    this.pageChange();
+    this.emitChange();
   },
 
-  getCurrentPageName: function () {
-    return this.currentPageName;
+  getDefaultPageName: function () {
+    return this.defaultPageName;
   },
 
   getCurrentPageTitle: function () {
@@ -43,14 +41,14 @@ var ApplicationStore = createStore({
 
   dehydrate: function () {
     return {
-      pageName: this.currentPageName,
-      pageTitle: this.currentPageTitle
+      pageTitle: this.currentPageTitle,
+      defaultPageName: this.defaultPageName
     };
   },
 
   rehydrate: function (state) {
-    this.currentPageName = state.pageName;
     this.currentPageTitle = state.pageTitle;
+    this.defaultPageName = state.defaultPageName;
   }
 });
 

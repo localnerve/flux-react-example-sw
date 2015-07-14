@@ -12,7 +12,7 @@ var Nav = require('./Nav.jsx');
 var Header = React.createClass({
   propTypes: {
     selected: React.PropTypes.string.isRequired,
-    links: React.PropTypes.object.isRequired,
+    links: React.PropTypes.array.isRequired,
     models: React.PropTypes.object.isRequired
   },
 

@@ -55,15 +55,15 @@ function assetsConfig (baseDir) {
  * Directories and files that are in src, distribution, and web
  */
 var commonDirs = {
-  images: 'images',  
+  images: 'images',
   styles: 'styles',
   fonts: 'fonts',
   scripts: 'scripts'
 };
 var commonFiles = {
-  four04: '404.html',
+  five00: '500.html',
   five03: '503.html',
-  favicon: path.join(commonDirs.images, 'favicon.ico'),  
+  favicon: path.join(commonDirs.images, 'favicon.ico'),
   robots: 'robots.txt',
   sitemap: 'sitemap.xml',
   headerScript: path.join(commonDirs.scripts, 'header.js')

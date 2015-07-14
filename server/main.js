@@ -16,6 +16,7 @@ var navigateAction = require('fluxible-router').navigateAction;
 var HtmlComponent = React.createFactory(require(baseDir + '/components/Html.jsx'));
 var routesAction = require(baseDir + '/actions/routes');
 var initAction = require(baseDir + '/actions/init');
+var conformErrorStatus = require(baseDir + '/utils').conformErrorStatus;
 var config = require(baseDir + '/configs').create({
   baseDir: baseDir
 });
@@ -78,25 +79,41 @@ function bootstrap (app) {
       });
     })
     .then(function () {
+      debug('Prefetching priority 0 route content');
+      var promises = [];
+      Object.keys(routes).forEach(function (route) {
+        if (routes[route].priority === 0) {
+          promises.push(context.executeAction(
+            routes[route].action, {}
+          ));
+        }
+      });
+      return Q.all(promises);
+    })
+    .then(function () {
       debug('Executing navigate action');
       return context.executeAction(navigateAction, {
         url: req.url
       });
     })
     .then(function () {
+      debug('Navigate succeeded');
+      // just move on to next
+      var deferred = Q.defer();
+      deferred.resolve();
+      return deferred.promise;
+    }, function navigateFailure (reason) {
+      debug('Navigate failure reason: ' +
+        require('util').inspect(reason, { depth: null }));
+      res.status(reason.statusCode);
+      return context.executeAction(
+        routes[conformErrorStatus(reason.statusCode)].action, {}
+      );
+    })
+    .then(function () {
       debug('Reading the header styles from ' + settings.dist.css);
       return Q.nfcall(fs.readFile, settings.dist.css, {
         encoding: 'utf8'
-      });
-    }, function navigateFailure (reason) {
-      debug('navigate failure reason: ' +
-        require('util').inspect(reason, { depth: null }));
-      return context.executeAction(
-        routes[config.data.defaults.pageName].action, {}
-      ).then(function () {
-        return Q.nfcall(fs.readFile, settings.dist.css, {
-          encoding: 'utf8'
-        });
       });
     })
     .then(function (headerStyles) {

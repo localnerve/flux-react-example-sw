@@ -29,13 +29,12 @@ var Application = React.createClass({
     var pages = this.props.pages;
     if (pages[this.props.pageName].order !== index) {
       var nextPageName = Object.keys(pages).filter(function (page) {
-        return pages[page].order === index;
+        return pages[page].order === index && pages[page].mainNav;
       })[0];
 
       this.context.executeAction(navigateAction, {
         name: nextPageName,
-        url: pages[nextPageName].path,
-        config: pages[nextPageName]
+        url: pages[nextPageName].path
       });
     }
   },

@@ -25,7 +25,20 @@ describe('content store', function () {
   it('should instantiate correctly', function () {
     expect(storeInstance).to.be.an('object');
     expect(storeInstance.currentResource).to.equal('');
+    expect(storeInstance.defaultResource).to.equal('');
     expect(storeInstance.contents).to.be.empty;
+  });
+
+  it('should init content', function () {
+    var defaultName = 'default';
+    var payload = {
+      page: {
+        defaultPageName: defaultName
+      }
+    };
+
+    storeInstance.initContent(payload);
+    expect(storeInstance.defaultResource).to.equal(defaultName);
   });
 
   it('should receive page content', function () {

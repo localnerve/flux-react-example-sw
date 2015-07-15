@@ -2,7 +2,8 @@
     "excludeFiles": [
         "./node_modules/**",
         "./dist/**",
-        "./reports/**"
+        "./reports/**",
+        "./tests/fixtures/routes-response.js"
     ],
     "disallowMixedSpacesAndTabs": true,
     "disallowNewlineBeforeBlockStatements": true,

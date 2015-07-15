@@ -8,15 +8,21 @@
 require('node-jsx').install({ extension: '.jsx' });
 
 var expect = require('chai').expect;
+var Immutable = require('immutable');
+var objectAssign = require('lodash/object/assign');
 var testDom = require('../../utils/testdom');
+var jsonToFluxible = require('../../../utils').createFluxibleRouteTransformer({
+  actions: require('../../../actions/interface')
+}).jsonToFluxible;
 
-describe('render', function () {
+describe('application component', function () {
   var createMockComponentContext,
-      ApplicationStore, ContentStore,
+      ApplicationStore, ContentStore, RouteStore, ContactStore, BackgroundStore,
       serviceData, routesResponse, fluxibleRoutes, fluxibleApp,
-      React, ReactAddons;
+      React, ReactAddons, testUtils,
+      routes;
 
-  before(function load () {
+  before(function () {
     // We'll be rendering the isomorphic component, so set dom env for react here
     testDom.start();
 
@@ -24,34 +30,52 @@ describe('render', function () {
     createMockComponentContext = require('fluxible/utils').createMockComponentContext;
     ApplicationStore = require('../../../stores/ApplicationStore');
     ContentStore = require('../../../stores/ContentStore');
+    RouteStore = require('../../../stores/RouteStore');
+    ContactStore = require('../../../stores/ContactStore');
+    BackgroundStore = require('../../../stores/BackgroundStore');
     serviceData = require('../../fixtures/service-data');
     routesResponse = require('../../fixtures/routes-response');
-    fluxibleRoutes = require('../../fixtures/fluxible-routes');
+    fluxibleRoutes = jsonToFluxible(routesResponse);
     fluxibleApp = require('../../../app');
     React = require('react');
     ReactAddons = require('react/addons');
+
+    testUtils = ReactAddons.addons.TestUtils;
+
+    routes = {
+      home: objectAssign({}, fluxibleRoutes.home, {
+        url: '/',
+        name: 'home',
+        params: {},
+        query: {}
+      }),
+      about: objectAssign({}, fluxibleRoutes.about, {
+        url: '/about',
+        name: 'about',
+        params: {},
+        query: {}
+      }),
+      contact: objectAssign({}, fluxibleRoutes.contact, {
+        url: '/contact',
+        name: 'contact',
+        params: {},
+        query: {}
+      })
+    };
   });
 
   after(function () {
     testDom.stop();
   });
 
-  describe('application component', function () {
-    var appElement, context, testUtils,
-        homeRoute, homePage;
+  describe('home', function () {
+    var appElement, context, homePage;
 
     function makeHomePath () {
       return '/';
     }
 
     before(function () {
-      testUtils = ReactAddons.addons.TestUtils;
-
-      homeRoute = {
-        params: { key: 'home' },
-        config: routesResponse.home
-      };
-
       homePage = {
         resource: routesResponse.home.action.params.resource
       };
@@ -66,15 +90,24 @@ describe('render', function () {
 
     beforeEach(function () {
       context = createMockComponentContext({
-        stores: [ApplicationStore, ContentStore]
+        stores: [
+          ApplicationStore,
+          ContentStore,
+          RouteStore,
+          ContactStore,
+          BackgroundStore
+        ]
       });
       context.makePath = makeHomePath;
 
+      var routeStore = context.getStore(RouteStore);
       var appStore = context.getStore(ApplicationStore);
       var contentStore = context.getStore(ContentStore);
 
-      appStore.receiveRoutes(fluxibleRoutes);
-      appStore.handleNavigate(homeRoute);
+      routeStore._handleReceiveRoutes(fluxibleRoutes);
+      routeStore._handleNavigateStart(routes.home);
+      routeStore._handleNavigateSuccess(Immutable.fromJS(routes.home));
+      appStore.updatePageTitle({ title: 'test' });
       contentStore.receivePageContent(homePage);
 
       appElement = React.createElement(fluxibleApp.getComponent(), {
@@ -82,19 +115,22 @@ describe('render', function () {
       });
     });
 
-    it.skip('should render home content', function () {
+    it('should render home content', function () {
       var app = testUtils.renderIntoDocument(appElement);
 
-      var component = testUtils.findRenderedDOMComponentWithClass(app, 'page-content');
+      var components = testUtils.scryRenderedDOMComponentsWithClass(app, 'page-content');
 
-      expect(component.getDOMNode().textContent).to.match(/Home/i);
+      // 'Home' comes from service-data, not the real doc
+      expect(components[0].getDOMNode().textContent).to.match(/Home/i);
     });
 
-    it.skip('should render navigation', function () {
+    it('should render home navigation', function () {
       var app = testUtils.renderIntoDocument(appElement);
 
       // throws if not exactly 1
-      testUtils.findRenderedDOMComponentWithTag(app, 'ul');
+      var component = testUtils.findRenderedDOMComponentWithClass(app, 'selected');
+
+      expect(component.getDOMNode().textContent).to.match(/Home/i);
     });
   });
 });

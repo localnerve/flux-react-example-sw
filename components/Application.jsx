@@ -40,7 +40,8 @@ var Application = React.createClass({
   },
 
   render: function () {
-    debug('rendering pageName: '+ this.props.pageName);
+    debug('pageName', this.props.pageName);
+    debug('pages', this.props.pages);
     debug('navigateError', this.props.currentNavigateError);
 
     var routeOrdinal = this.props.pages[this.props.pageName].order;

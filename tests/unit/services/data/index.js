@@ -50,4 +50,10 @@ describe('data/index', function () {
       data.initialize(done);
     });
   });
+
+  describe('update', function () {
+    it('should update', function (done) {
+      data.update(done);
+    });
+  });
 });

@@ -60,7 +60,7 @@ describe('data/fetch', function () {
           return done(err);
         }
 
-        expect(res).to.equal(cache.get());
+        expect(res).to.equal(cache.get('routes'));
         expect(request.url).to.equal(config.FRED.url());
 
         done();
@@ -68,8 +68,24 @@ describe('data/fetch', function () {
     });
   });
 
-  describe.skip('fetchAll', function () {
-    it('should fetch all resources', function () {
+  describe('fetchAll', function () {
+    it('should fetch all resources', function (done) {
+      fetch.fetchAll(function (err, res) {
+        if (err) {
+          return done(err);
+        }
+
+        var routes = cache.get('routes');
+
+        // It should return content for each route
+        expect(Object.keys(routes).length).to.equal(res.length);
+        if (res.length > 0) {
+          // And they should be the default response
+          expect(res[0]).to.equal(cache.get());
+        }
+        
+        done();
+      });
     });
   });
 });

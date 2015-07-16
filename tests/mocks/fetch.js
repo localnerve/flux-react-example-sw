@@ -11,6 +11,7 @@ module.exports = {
   fetchMain: function (callback) {
     callback(null, 'fetch');
   },
-  fetchAll: function () {
+  fetchAll: function (callback) {
+    callback(null, 'fetch');
   }
 };

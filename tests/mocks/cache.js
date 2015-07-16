@@ -4,9 +4,17 @@
  */
 'use strict';
 
+var routesResponse = require('../fixtures/routes-response');
+
 module.exports = {
   get: function (resource) {
-    var result = 'Hello World';
+    var result = 'hello world'; // ref: mocks/superagent.js defaultResponse
+
+    if (resource === 'routes') {
+      return routesResponse;
+    }
+
+
     if (resource === 'miss') {
       result = undefined;
     }

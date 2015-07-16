@@ -5,6 +5,7 @@
 'use strict';
 
 var request = require('superagent');
+var Q = require('q');
 var debug = require('debug')('Example:Data:Fetch');
 
 var cache = require('./cache');
@@ -41,12 +42,13 @@ function fetchOne (params, callback) {
     }
 
     debug('Content not found for', params.url, res.body);
-    callback(new Error('Content not found for '+params.url));
+    return callback(new Error('Content not found for '+params.url));
   });
 }
 
 /**
- * Get the main resource from FRED
+ * Get the main resource from FRED.
+ * Populates/updates the routes and models (all top-level resources).
  */
 function fetchMain (callback) {
   fetchOne({
@@ -56,21 +58,24 @@ function fetchMain (callback) {
 
 /**
  * Get all resources from FRED and cache them.
- * TODO: call from worker in one-off dyno.
+ * Call to update or populate the entire data cache.
+ * Returns an array of each routes' content.
  */
-function fetchAll () {
+function fetchAll (callback) {
   fetchMain(function (err, routes) {
     if (err) {
-      return debug('fetchAll failed to get routes: '+err);
+      debug('fetchAll failed to get routes: '+err);
+      return callback(err);
     }
-    Object.keys(routes).forEach(function(route) {
-      fetchOne(route.action.params, function(err, resource) {
-        if (err) {
-          return debug('fetchAll failed to get '+route.action.params.resource);
-        }
-        debug('fetchAll successfully fetched '+route.action.params.resource);
-      });
-    });
+
+    Q.all(
+      Object.keys(routes).map(function (route) {
+        return Q.nfcall(fetchOne, routes[route].action.params);
+      })
+    )
+    .then(function (result) {
+      callback(null, result);
+    }, callback);
   });
 }
 

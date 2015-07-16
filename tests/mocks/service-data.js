@@ -52,7 +52,12 @@ module.exports = {
         throw new Error('service-data test mock recieved unexpected resource request');
     }
   },
+
   initialize: function (callback) {
+    callback();
+  },
+
+  update: function (callback) {
     callback();
   }
 };

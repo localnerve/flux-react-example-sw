@@ -25,16 +25,8 @@ function fetch (params, callback) {
   fetchLib.fetchOne(params, callback);
 }
 
-/**
- * Initialize the data layer
- */
-function initialize (callback) {
-  debug('initializing');
-
-  fetchLib.fetchMain(callback);
-}
-
 module.exports = {
   fetch: fetch,
-  initialize: initialize
+  initialize: fetchLib.fetchMain,
+  update: fetchLib.fetchAll
 };

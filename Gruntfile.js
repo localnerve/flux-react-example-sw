@@ -124,6 +124,18 @@ module.exports = function (grunt) {
       }
     },
 
+    fixtures: {
+      options: {
+        generators: 'tests/generators',
+        'routes-models.js': {
+          output: {
+            routes: 'tests/fixtures/routes-response.js',
+            models: 'tests/fixtures/models-response.js'
+          }
+        }
+      }
+    },
+
     jshint: {
       options: {
         jshintrc: true
@@ -346,14 +358,59 @@ module.exports = function (grunt) {
 
   });
 
-  // Custom config task
-  // Creates a config for the project, saves config(settings) in grunt.config('project')
-  //
-  // Options:
-  //  overrides: An object with config settings that overrides all.
-  //             example: settings:dist:images
-  //  env: Set environment variables for this process.
-  //
+  /** _runFixtureGenerators custom task
+    * Runs the fixture generators using backend data services.
+    * Backend data sources selected by environment -
+    *   Must be run after nconfig
+    * This task run by 'fixtures' task.
+    */
+  grunt.registerTask('_runFixtureGenerators', 'Subtask to generate test fixtures', function () {
+    var fs = require('fs');
+    var path = require('path');
+    var generator, options = this.options();
+
+    var async = this.async();
+
+    fs.readdirSync(options.generators).forEach(function (item) {
+      generator = './'+path.join(options.generators, item);
+      grunt.log.writeln(
+        'Executing '+generator + '(' +
+          require('util').inspect(options[item].output) + ', callback)'
+      );
+      require(generator)(options[item].output, async);
+    });
+  });
+  /** fixtures custom task
+    * Runs nconfig and _runFixtureGenerators
+    *
+    * syntax: fixtures:dev | fixtures:prod
+    */
+  grunt.registerTask('fixtures', 'Generate test fixtures', function () {
+    var isProd = this.args.shift() === 'prod';
+    var options = {
+      options: this.options()
+    };
+
+    var tasks = [
+      'nconfig:'+(isProd ? 'prod' : 'dev'),
+      '_runFixtureGenerators'
+    ];
+
+    // Pass along the options to subtasks
+    grunt.config.set('_runFixtureGenerators', options);
+
+    grunt.task.run(tasks);
+  });
+
+  /** nconfig custom task
+    * Creates a config for the project, saves config(settings) in grunt.config('project')
+    * Must run per grunt process.
+    *
+    * Options:
+    *  overrides: An object with config settings that overrides all.
+    *             example: settings:dist:images
+    *  env: Set environment variables for this process.
+    */
   grunt.registerMultiTask('nconfig', 'Assign config settings to grunt project', function() {
     _nconfig = true;
     var configLib = require('./configs');
@@ -426,10 +483,16 @@ module.exports = function (grunt) {
   grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:headerDev', 'webpack:dev']);
   grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:headerProd', 'webpack:prod']);
 
+  // Other development grunt commands commonly used:
+  // dumpconfig:dev | dumpconfig:prod - dump nconfig configuration
+
   // script interface
   grunt.registerTask('default', 'dev');
   grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
   grunt.registerTask('debug', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:debug']);
   grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod']);
   grunt.registerTask('build', ['nconfig:prod', 'clean', 'copy', 'ccss:prod', 'webpack:headerProd', 'webpack:prod']);
+  // Also:
+  //   1. fixtures:dev | fixtures:prod - generate/update test fixtures from backend
+  //   2. jshint
 };

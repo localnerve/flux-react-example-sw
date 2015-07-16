@@ -7,6 +7,8 @@
     "build": "grunt build",
     "dev": "grunt dev",
     "debug": "grunt debug",
+    "devfixtures": "grunt fixtures:dev",
+    "prodfixtures": "grunt fixtures:prod",
     "devtest": "mocha tests/unit --recursive --reporter spec",
     "functest": "node tests/functional/run-parallel '--reporter spec tests/functional/main.js'",
     "lint": "grunt jshint",

@@ -1,19 +1,21 @@
 /**
  * Copyright 2015, Alex Grant, LocalNerve, LLC.
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ *
+ * Mockery and mock manager
  */
 'use strict';
 
 var mockery = require('mockery');
 var debug = require('debug')('Test:Mocks');
-var serviceData = require('../fixtures/service-data');
-var serviceMail = require('../fixtures/service-mail');
-var superAgent = require('../fixtures/superagent');
-var amqplib = require('../fixtures/amqplib');
-var cache = require('../fixtures/cache');
-var fetch = require('../fixtures/fetch');
-var queue = require('../fixtures/queue');
-var mailer = require('../fixtures/mailer');
+var serviceData = require('../mocks/service-data');
+var serviceMail = require('../mocks/service-mail');
+var superAgent = require('../mocks/superagent');
+var amqplib = require('../mocks/amqplib');
+var cache = require('../mocks/cache');
+var fetch = require('../mocks/fetch');
+var queue = require('../mocks/queue');
+var mailer = require('../mocks/mailer');
 
 function mockModuleBegin (mocks) {
   mocks.forEach(function (mock) {

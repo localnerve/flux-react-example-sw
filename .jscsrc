@@ -3,7 +3,7 @@
         "./node_modules/**",
         "./dist/**",
         "./reports/**",
-        "./tests/fixtures/routes-response.js"
+        "./tests/fixtures/**"
     ],
     "disallowMixedSpacesAndTabs": true,
     "disallowNewlineBeforeBlockStatements": true,

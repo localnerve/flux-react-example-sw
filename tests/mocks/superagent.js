@@ -17,6 +17,7 @@ SuperAgent.prototype = {
   },
   end: function (cb) {
     var body = {
+      // base64 encoded 'hello world'
       content: 'aGVsbG8gd29ybGQK'
     };
 

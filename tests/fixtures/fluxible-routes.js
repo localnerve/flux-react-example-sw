@@ -3,6 +3,9 @@
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
  * NOTE: Only used in transformer tests.
+ * Used in transformer tests = Can't use transformer to generate from fixture.
+ *
+ * Could partially generate from backend, but must supply action closures manually.
  */
 'use strict';
 

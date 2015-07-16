@@ -33,7 +33,7 @@ describe('application component', function () {
     RouteStore = require('../../../stores/RouteStore');
     ContactStore = require('../../../stores/ContactStore');
     BackgroundStore = require('../../../stores/BackgroundStore');
-    serviceData = require('../../fixtures/service-data');
+    serviceData = require('../../mocks/service-data');
     routesResponse = require('../../fixtures/routes-response');
     fluxibleRoutes = jsonToFluxible(routesResponse);
     fluxibleApp = require('../../../app');

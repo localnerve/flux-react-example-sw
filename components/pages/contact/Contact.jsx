@@ -182,15 +182,13 @@ var Contact = React.createClass({
       step: this.state.step - 1,
       direction: 'prev',
       stepped: true
-    }, function() {
-      done && done();
     });
   },
 
   handleRetry: function () {
-    this.prevStep(function () {
-      this.saveFields(this.state.fields);
-      this.nextStep();
+    this.context.executeAction(contactAction, {
+      fields: this.state.fields,
+      complete: true
     });
   },
 

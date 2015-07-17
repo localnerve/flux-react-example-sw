@@ -13,8 +13,10 @@ var ContactInput = React.createClass({
     label: React.PropTypes.object.isRequired,
     inputElement: React.PropTypes.string.isRequired,
     inputType: React.PropTypes.string,
-    inputId: React.PropTypes.string.isRequired
+    inputId: React.PropTypes.string.isRequired,
+    focus: React.PropTypes.bool.isRequired
   },
+
   render: function () {
     var inputElement = React.createElement(this.props.inputElement, {
       type: this.props.inputType,
@@ -25,9 +27,7 @@ var ContactInput = React.createClass({
       placeholder: this.props.label.help,
       ref: this.props.setInputReference,
       className: 'form-value-element',
-      // Autofocus, it turns out, is where all rendering evil comes from.
-      // autoFocus: true,
-      // Never, never-ever, do this. You've been warned.
+      autoFocus: this.props.focus,
       required: true,
       'aria-required': true,
       defaultValue: this.props.fieldValue

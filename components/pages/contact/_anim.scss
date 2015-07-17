@@ -4,7 +4,7 @@
 
 // Must manually keep duration in sync with animTimeout in Contact.jsx
 $transition-duration: 0.25s;
-$transition-start: 100%;
+$transition-start: 5000px; //100%;
 
 .contact-anim-container {
   transform: TranslateZ(0);

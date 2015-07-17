@@ -19,6 +19,7 @@ var Contact = React.createClass({
     getStore: React.PropTypes.func.isRequired,
     executeAction: React.PropTypes.func.isRequired
   },
+
   propTypes: {
     name: React.PropTypes.string,
     spinner: React.PropTypes.bool,
@@ -29,21 +30,29 @@ var Contact = React.createClass({
     resultMessageSuccess: React.PropTypes.string,
     navigation: React.PropTypes.object
   },
+
   getInitialState: function () {
     var state = this.getStateFromStore();
     state.step = 0;
+    state.stepped = false;
     state.direction = 'next';
     return state;
   },
-  shouldComponentUpdate: function (nextProps) {
-    return nextProps.name === 'contact';
-  },
+
   componentDidMount: function () {
     this.context.getStore('ContactStore').addChangeListener(this.onChange);
   },
+
   componentWillUnmount: function () {
     this.context.getStore('ContactStore').removeChangeListener(this.onChange);
   },
+
+  componentWillReceiveProps: function () {
+    this.setState({
+      stepped: false
+    }, this.setBlur);
+  },
+
   render: function () {
     var content;
 
@@ -59,6 +68,7 @@ var Contact = React.createClass({
       </div>
     );
   },
+
   getStateFromStore: function () {
     var store = this.context.getStore('ContactStore');
     return {
@@ -66,11 +76,13 @@ var Contact = React.createClass({
       failure: store.getContactFailure()
     };
   },
+
   setInputElement: function (component) {
     if (component) {
       this.inputElement = component;
     }
   },
+
   renderContact: function () {
     if (!this.props.steps || this.props.steps.length === 0) {
       return null;
@@ -86,7 +98,8 @@ var Contact = React.createClass({
       message: step.message,
       business: this.props.models.LocalBusiness,
       failure: this.state.failure,
-      failedMessage: this.state.fields.message
+      failedMessage: this.state.fields.message,
+      focus: this.props.name === 'contact' && this.state.stepped,
     });
 
     return (
@@ -133,46 +146,52 @@ var Contact = React.createClass({
       </div>
     );
   },
-  setFocus: function () {
+
+  setBlur: function () {
     setTimeout(function (self, final) {
       if (!final && self.inputElement) {
         var el = React.findDOMNode(self.inputElement);
-        if (el.offsetWidth && el.offsetHeight) {
-          el.focus();
-        }
+        el.blur();
       }
     }, animTimeout, this, this.state.step === this.props.stepFinal);
   },
+
   onChange: function () {
     this.setState(this.getStateFromStore());
   },
+
   saveFields: function (fields) {
     this.context.executeAction(contactAction, {
       fields: fields,
       complete: (this.state.step === (this.props.stepFinal - 1))
     });
   },
+
   nextStep: function () {
     this.setState({
       step: this.state.step + 1,
-      direction: 'next'
-    }, this.setFocus);
+      direction: 'next',
+      stepped: true
+    });
   },
+
   prevStep: function (done) {
     this.setState({
       step: this.state.step - 1,
-      direction: 'prev'
+      direction: 'prev',
+      stepped: true
     }, function() {
-      this.setFocus();
       done && done();
     }.bind(this));
   },
+
   handleRetry: function () {
     this.prevStep(function () {
       this.saveFields(this.state.fields);
       this.nextStep();
     });
   },
+
   handleSubmit: function (event) {
     event.preventDefault();
     var step = this.props.steps[this.state.step];
@@ -188,6 +207,7 @@ var Contact = React.createClass({
     this.saveFields(fields);
     this.nextStep();
   },
+
   handlePrevious: function (event) {
     event.preventDefault();
     this.prevStep();

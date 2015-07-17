@@ -11,11 +11,14 @@
   min-width: 0;
 }
 
-$button-submit-bgcolor: $app-accent-dark-bgcolor;
-$button-submit-color: $app-primary-light-color;
+// $button-submit-bgcolor: $app-accent-dark-bgcolor;
+// $button-submit-color: $app-primary-light-color;
+$button-submit-bgcolor: $app-accent-light-bgcolor;
+$button-submit-color: $app-primary-dark-color;
 
-$button-submit-last-bgcolor: $app-accent-light-bgcolor;
-$button-submit-last-color: $app-primary-dark-color;
+// use if you need a different color scheme for .last
+// $button-submit-last-bgcolor: $app-accent-light-bgcolor;
+// $button-submit-last-color: $app-primary-dark-color;
 
 $button-prev-bgcolor: $app-primary-bgcolor;
 $button-prev-color: $app-primary-light-color;
@@ -49,6 +52,7 @@ $button-prev-color: $app-primary-light-color;
       );
       @include button-span;
     }
+    /*
     &.last {
       &::before {
         @include pre-triangle($rem-base, $rem-base, $button-submit-last-bgcolor, left);
@@ -67,6 +71,7 @@ $button-prev-color: $app-primary-light-color;
         @include button-span;
       }
     }
+    */
   }
   button[type=button] {
     &::before {

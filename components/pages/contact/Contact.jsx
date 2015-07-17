@@ -12,7 +12,9 @@ var ContactSteps = require('./Steps.jsx');
 var ContactNav = require('./Nav.jsx');
 var Spinner = require('../Spinner.jsx');
 var elements = require('./elements');
-var animTimeout = 250;
+
+// manually keep in sync with value in _anim.scss
+var animTimeout = 500;
 
 var Contact = React.createClass({
   contextTypes: {
@@ -153,7 +155,7 @@ var Contact = React.createClass({
         var el = React.findDOMNode(self.inputElement);
         el.blur();
       }
-    }, animTimeout, this, this.state.step === this.props.stepFinal);
+    }, 0, this, this.state.step === this.props.stepFinal);
   },
 
   onChange: function () {
@@ -182,7 +184,7 @@ var Contact = React.createClass({
       stepped: true
     }, function() {
       done && done();
-    }.bind(this));
+    });
   },
 
   handleRetry: function () {

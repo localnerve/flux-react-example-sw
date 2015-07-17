@@ -2,12 +2,14 @@
 // Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
 //
 
-// Must manually keep duration in sync with animTimeout in Contact.jsx
-$transition-duration: 0.25s;
-$transition-start: 5000px; //100%;
+// manually keep in sync with animTimeout in Contact.jsx
+$transition-duration: 0.5s;
 
 .contact-anim-container {
   transform: TranslateZ(0);
+
+  padding: 10px; // give the spread some room to show
+
 /*
  * Add layout bounderizer
  */
@@ -19,17 +21,14 @@ $transition-start: 5000px; //100%;
     overflow: visible;
   }
 }
-.contact-anim-next-enter {
-  transform: translate3d($transition-start, 0, 1px);
-  transition: transform $transition-duration linear;
-  &.contact-anim-next-enter-active {
-    transform: translate3d(0, 0, 0);
-  }
+
+.contact-anim {
+  transition: background-color $transition-duration,
+              box-shadow $transition-duration,
+              color $transition-duration;
 }
-.contact-anim-prev-enter {
-  transform: translate3d(-$transition-start, 0, 1px);
-  transition: transform $transition-duration linear;
-  &.contact-anim-prev-enter-active {
-    transform: translate3d(0, 0, 0);
-  }
+.contact-anim-prev-enter, .contact-anim-next-enter {
+  background-color: rgba($app-accent-light-bgcolor, 0.87);
+  box-shadow: 0px 0px 10px 4px $app-accent-light-bgcolor;
+  color: $app-primary-dark-color;
 }

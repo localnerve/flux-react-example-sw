@@ -17,14 +17,6 @@ var Background = React.createClass({
     prefetch: React.PropTypes.bool
   },
 
-  getStateFromStore: function () {
-    var store = this.context.getStore('BackgroundStore');
-    return {
-      src: store.getCurrentBackgroundUrl(),
-      top: store.getTop()
-    };
-  },
-
   getInitialState: function () {
     return {
       top: 0,
@@ -33,19 +25,25 @@ var Background = React.createClass({
   },
 
   render: function () {
-    var bgi =  'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5))';
+    var gradient = 'linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5))';
+    // Setting 'image' initially to 'none' seems to help IE 11, but it still can't
+    //   change images properly - you always get the same image. #41
+    // Tried all prop combos incl bg shorthand. closest was image render w/gradient,
+    //   but won't change raster image - css does reflect, but browser won't render.
+    // Leaving in gradient only state for IE. Best of all bad options for IE.
+    var image = gradient;
 
     if (this.state.loaded) {
-      bgi += ', url(' + this.state.src + ')';
+      image = gradient + ', url(' + this.state.src + ')';
     } else {
       if (this.state.prevSrc) {
-        bgi += ', url(' + this.state.prevSrc + ')';
+        image = gradient + ', url(' + this.state.prevSrc + ')';
       }
     }
 
     return (
       <div className="app-bg" style={{
-        backgroundImage: bgi,
+        backgroundImage: image,
         backgroundPosition: '0 ' + this.state.top + 'px',
         opacity: this.state.loaded ? 1 : 0
       }}></div>
@@ -58,6 +56,14 @@ var Background = React.createClass({
 
   componentWillUnmount: function () {
     this.context.getStore('BackgroundStore').removeChangeListener(this.onChange);
+  },
+
+  getStateFromStore: function () {
+    var store = this.context.getStore('BackgroundStore');
+    return {
+      src: store.getCurrentBackgroundUrl(),
+      top: store.getTop()
+    };
   },
 
   fetchImage: function (fetchOnly) {

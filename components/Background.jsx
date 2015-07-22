@@ -20,6 +20,7 @@ var Background = React.createClass({
   getInitialState: function () {
     return {
       top: 0,
+      height: 0,
       loaded: false
     };
   },
@@ -43,10 +44,17 @@ var Background = React.createClass({
 
     return (
       <div className="app-bg" style={{
-        backgroundImage: image,
-        backgroundPosition: '0 ' + this.state.top + 'px',
+        top: this.state.top + 'px',
+        height: this.state.height + 'px',
         opacity: this.state.loaded ? 1 : 0
-      }}></div>
+      }}>
+        <div style={{
+          backgroundImage: image,
+          willChange: 'background-image',
+          height: this.state.height + 'px'
+        }}>
+        </div>
+      </div>
     );
   },
 
@@ -62,7 +70,8 @@ var Background = React.createClass({
     var store = this.context.getStore('BackgroundStore');
     return {
       src: store.getCurrentBackgroundUrl(),
-      top: store.getTop()
+      top: store.getTop(),
+      height: store.getHeight()
     };
   },
 

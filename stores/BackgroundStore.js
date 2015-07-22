@@ -82,6 +82,10 @@ var BackgroundStore = createStore({
     return this.top;
   },
 
+  getHeight: function () {
+    return this.height;
+  },
+
   getNotCurrentBackgroundUrls: function () {
     return Object.keys(this.backgroundUrls).filter(function (key) {
       return key !== this.currentBackground;

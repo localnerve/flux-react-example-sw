@@ -14,5 +14,6 @@ function send (input, callback) {
 }
 
 module.exports = {
-  send: send
+  send: send,
+  worker: queue.contactWorker
 };

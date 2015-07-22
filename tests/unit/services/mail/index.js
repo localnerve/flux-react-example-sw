@@ -5,7 +5,7 @@
  /* global before, after, describe, it */
 'use strict';
 
-// var expect = require('chai').expect;
+var expect = require('chai').expect;
 var mocks = require('../../../utils/mocks');
 
 describe('mail/index', function () {
@@ -13,7 +13,7 @@ describe('mail/index', function () {
 
   before(function () {
     mocks.mail.begin();
-    mail = require('../../../../services/mail/index');    
+    mail = require('../../../../services/mail/index');
   });
 
   after(function () {
@@ -28,5 +28,10 @@ describe('mail/index', function () {
     }, function(err) {
       done(err);
     });
+  });
+
+  it('should expose a worker method', function () {
+    expect(mail.worker).to.be.a('function');
+    expect(mail).to.respondTo('worker');
   });
 });

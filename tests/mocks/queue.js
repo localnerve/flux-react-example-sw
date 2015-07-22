@@ -10,5 +10,8 @@ module.exports = {
       return callback(new Error('mock'));
     }
     callback();
+  },
+
+  contactWorker: function () {
   }
 };

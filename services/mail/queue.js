@@ -43,14 +43,16 @@ function contactWorker () {
 
     return conn.createChannel().then(function (ch) {
       var q = contact.queue.name();
-      
+
       return ch.assertQueue(q).then(function () {
         ch.consume(q, function (msg) {
           if (msg !== null) {
             mailer.send(JSON.parse(msg.content.toString()), function(err) {
               if (err) {
+                debug('mailer failed to send ', msg);
                 return ch.nack(msg);
               }
+              debug('mailer successfully sent ', msg);
               ch.ack(msg);
             });
           }

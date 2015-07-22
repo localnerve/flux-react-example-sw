@@ -19,6 +19,14 @@ var params = {
 
 var action = actions.page;
 
+// This code is symbolicly compared to method in fluxibleRouteTransformer
+function makeAction () {
+  var copyParams = JSON.parse(JSON.stringify(params));
+  return function dynAction (context, payload, done) {
+    context.executeAction(action, copyParams, done);
+  };
+}
+
 module.exports = {
   home: {
     path: '/',
@@ -30,9 +38,7 @@ module.exports = {
     priority: 1,
     background: '3',
     mainNav: true,
-    action: function (context, payload, done) {
-      context.executeAction(action, params, done);
-    }
+    action: makeAction()
   },
   about: {
     path: '/about',
@@ -44,9 +50,7 @@ module.exports = {
     background: '4',
     order: 1,
     priority: 1,
-    action: function (context, payload, done) {
-      context.executeAction(action, params, done);
-    }
+    action: makeAction()
   },
   contact: {
     path: '/contact',
@@ -58,8 +62,6 @@ module.exports = {
     background: '5',
     order: 2,
     priority: 1,
-    action: function (context, payload, done) {
-      context.executeAction(action, params, done);
-    }
+    action: makeAction()
   }
 };

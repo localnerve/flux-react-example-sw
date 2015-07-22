@@ -14,6 +14,7 @@ function FluxibleRouteTransformer (actions) {
 /*
  * Transform from json routes to fluxible routes.
  * Matches actions in given json to actions injected at creation.
+ * Converts static action definitions to dynamic action executors.
  */
 FluxibleRouteTransformer.prototype.jsonToFluxible = function (jsonRoutes) {
   debug('Transforming json to fluxible routes');
@@ -22,8 +23,11 @@ FluxibleRouteTransformer.prototype.jsonToFluxible = function (jsonRoutes) {
   var fluxibleRoutes = {};
 
   var makeAction = function (action, params) {
-    return function (context, payload, done) {
-      context.executeAction(action, params, done);
+    // #42, support multiple concurrent actions
+    var copyParams = JSON.parse(JSON.stringify(params));
+
+    return function dynAction (context, payload, done) {
+      context.executeAction(action, copyParams, done);
     };
   };
 
@@ -55,6 +59,7 @@ FluxibleRouteTransformer.prototype.jsonToFluxible = function (jsonRoutes) {
 
 /*
  * Transform from fluxible routes to json routes.
+ * Converts the dynamic actions back to static definitions.
  */
 FluxibleRouteTransformer.prototype.fluxibleToJson = function (fluxibleRoutes) {
   debug('Transforming fluxible to json routes');

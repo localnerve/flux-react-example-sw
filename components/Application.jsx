@@ -66,6 +66,7 @@ var Application = React.createClass({
         />
         <PageContainer>
           <ReactSwipe
+            className="swipe-container"
             callback={this.handleSwipe}
             startSlide={routeOrdinal}
             slideToIndex={routeOrdinal}>

@@ -38,6 +38,11 @@
   @include vertical-block(spaced);
 }
 
+.swipe-container {
+  // Allow vertical content scrolling for longer content/constrained height
+  overflow-y: auto !important;
+}
+
 a {
   color: $app-primary-light-color;
   text-decoration: none;

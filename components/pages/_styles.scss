@@ -8,8 +8,9 @@
   min-width: 20rem;
 
   // set a layout boundary
-  height: 22rem;
-  width: 100%;
+  // height: 22rem;
+  // width: 100%;
+  // let content dictate, get perf elsewhere
 
   @include breakpoint(medium) {
     padding: 0 2rem;

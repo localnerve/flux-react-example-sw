@@ -10,7 +10,7 @@ var ReactSpinner = require('react-spinner');
 var Spinner = React.createClass({
   render: function () {
     return (
-      <div style={{width: '100%', height: '80%'}} key="spinner">
+      <div style={{width: '100%', marginTop: '40%'}} key="spinner">
         <ReactSpinner barColor="#43A047" width="128px" height="128px" />
       </div>
     );

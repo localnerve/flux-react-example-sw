@@ -5,13 +5,13 @@
 'use strict';
 
 var React = require('react');
-var SinglePage = require('./SinglePage.jsx');
+var ContentPage = require('./ContentPage.jsx');
 var Contact = require('./contact');
 var conformErrorStatus = require('../../utils').conformErrorStatus;
 var merge = require('lodash/object/merge');
 
 var pageTypes = {
-  SinglePage: SinglePage,
+  ContentPage: ContentPage,
   Contact: Contact
 };
 

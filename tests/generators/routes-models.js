@@ -3,6 +3,7 @@
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
  * Fetch main resource and write routes and models fixture files.
+ * Run as npm script
  */
  /*jshint multistr: true */
 'use strict';
@@ -11,12 +12,17 @@ var debug = require('debug')('FixtureGenerator:Routes-Models');
 var fs = require('fs');
 var fetch = require('../../services/data/fetch');
 var cache = require('../../services/data/cache');
+var config = require('../../configs').create();
 
 var replacement = 'DATA';
 
 var template = '/** This is a generated file **/\n\
-/** NODE_ENV = ' + (process.env.NODE_ENV || 'development') + ' **/\n' +
-'module.exports = JSON.parse(JSON.stringify(\n' + replacement + '\n));';
+/**\n\
+  NODE_ENV = ' + (process.env.NODE_ENV || 'development') + '\n\
+  FRED_URL = ' + config.data.FRED.url() + '\n\
+**/\n\
+module.exports = JSON.parse(JSON.stringify(\n' + replacement + '\n));'
+;
 
 function run (output, done) {
   // Get main resource - includes routes, models

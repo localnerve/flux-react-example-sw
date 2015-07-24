@@ -7,7 +7,7 @@
 var React = require('react');
 var Spinner = require('./Spinner.jsx');
 
-var SinglePage = React.createClass({
+var ContentPage = React.createClass({
   render: function () {
     var content = this.renderContent();
 
@@ -34,4 +34,4 @@ var SinglePage = React.createClass({
   }
 });
 
-module.exports = SinglePage;
+module.exports = ContentPage;

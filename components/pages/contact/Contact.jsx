@@ -38,6 +38,7 @@ var Contact = React.createClass({
     state.step = 0;
     state.stepped = false;
     state.direction = 'next';
+    state.settled = true;
     return state;
   },
 
@@ -58,7 +59,7 @@ var Contact = React.createClass({
   render: function () {
     var content;
 
-    if (this.props.spinner) {
+    if (this.props.spinner || !this.state.settled) {
       content = React.createElement(Spinner);
     } else {
       content = this.renderContact();
@@ -159,13 +160,21 @@ var Contact = React.createClass({
   },
 
   onChange: function () {
-    this.setState(this.getStateFromStore());
+    var state = this.getStateFromStore();
+    state.settled = true;
+    this.setState(state);
   },
 
   saveFields: function (fields) {
-    this.context.executeAction(contactAction, {
-      fields: fields,
-      complete: (this.state.step === (this.props.stepFinal - 1))
+    var complete = this.state.step === (this.props.stepFinal - 1);
+
+    this.setState({
+      settled: !complete
+    }, function () {
+      this.context.executeAction(contactAction, {
+        fields: fields,
+        complete: complete
+      });
     });
   },
 
@@ -186,9 +195,13 @@ var Contact = React.createClass({
   },
 
   handleRetry: function () {
-    this.context.executeAction(contactAction, {
-      fields: this.state.fields,
-      complete: true
+    this.setState({
+      settled: false
+    }, function () {
+      this.context.executeAction(contactAction, {
+        fields: this.state.fields,
+        complete: true
+      });
     });
   },
 

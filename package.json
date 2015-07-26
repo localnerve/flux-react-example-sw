@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "An isomorphic flux-react example application",
   "main": "./server",
   "scripts": {
@@ -35,16 +35,7 @@
     "example"
   ],
   "author": "Alex Grant <alex@localnerve.com>",
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "https://github.com/localnerve/flux-react-example/blob/master/LICENSE.md"
-    },
-    {
-      "type": "BSD",
-      "url": "https://github.com/yahoo/fluxible.io/blob/master/LICENSE.md"
-    }
-  ],
+  "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
     "url": "https://github.com/localnerve/flux-react-example/issues"
   },

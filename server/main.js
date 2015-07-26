@@ -130,6 +130,7 @@ function bootstrap (app) {
     })
     .catch(function (err) {
       debug('bootstrap main route failed');
+      err.status = err.statusCode = 500;
       next(err);
     });
   };

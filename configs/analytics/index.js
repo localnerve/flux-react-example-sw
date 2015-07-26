@@ -1,13 +1,16 @@
 /**
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ *
+ * Environment variables can override the following:
+ *   ANALYTICS_ID - The analytics id used in the trackingTemplate.
  */
  /*jshint multistr: true */
 'use strict';
 
 var uaID = {
   development: 'UA-XXXXXXXX-D',
-  production: 'UA-XXXXXXXX-P'
+  production: 'UA-31065754-3'
 };
 
 var uaRef = 'ga';
@@ -19,15 +22,19 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) 
 __UAREF__("create", "__UAID__", "auto"); \
 __UAREF__("send", "pageview");';
 
+function UAID (env) {
+  return process.env.ANALYTICS_ID || uaID[env];
+}
+
 function makeConfig (nconf) {
   var env = nconf.get('NODE_ENV');
 
   return {
     snippet: trackingTemplate
-      .replace(/__UAID__/g, uaID[env])
+      .replace(/__UAID__/g, UAID(env))
       .replace(/__UAREF__/g, uaRef),
     globalRef: uaRef
-  }; 
+  };
 }
 
 module.exports = makeConfig;

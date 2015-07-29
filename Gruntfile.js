@@ -541,7 +541,9 @@ module.exports = function (grunt) {
   grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
   grunt.registerTask('debug', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:debug']);
   grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'imagemin', 'concurrent:prod']);
-  grunt.registerTask('build', ['nconfig:prod', 'clean', 'copy', 'imagemin', 'ccss:prod', 'webpack:headerProd', 'webpack:prod']);
+  grunt.registerTask('build', [
+    'nconfig:prod', 'clean', 'copy', 'imagemin', 'ccss:prod', 'webpack:headerProd', 'webpack:prod'
+  ]);
   // Also used:
   //   1. fixtures:dev | fixtures:prod - generate/update test fixtures from backend
   //   2. jshint

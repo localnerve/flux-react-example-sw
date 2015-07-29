@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
@@ -22,10 +22,23 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) 
 __UAREF__("create", "__UAID__", "auto"); \
 __UAREF__("send", "pageview");';
 
+/**
+ * Get the analytics id.
+ *
+ * @param {String} env - The node environment
+ * @access private
+ * @returns {String} The analytics id for use in the trackingTemplate.
+ */
 function UAID (env) {
   return process.env.ANALYTICS_ID || uaID[env];
 }
 
+/**
+ * Make the analytics configuration object.
+ *
+ * @param {Object} nconf - The nconfig object
+ * @returns {Object} The analytics configuration object.
+ */
 function makeConfig (nconf) {
   var env = nconf.get('NODE_ENV');
 

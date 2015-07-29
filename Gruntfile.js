@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright 2015, Alex Grant, LocalNerve, LLC.
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
@@ -9,6 +9,8 @@ var _nconfig;
 
 /**
  * Generate the webpack assets config
+ *
+ * @param {Object} self - A reference to the current webpack execution context
  */
 function webpackStatsPlugin(self) {
   self.plugin('done', function(stats) {
@@ -21,7 +23,7 @@ function webpackStatsPlugin(self) {
       assets: {}
     };
 
-    Object.keys(assets).forEach(function eachAsset(key) {
+    Object.keys(assets).forEach(function (key) {
       var value = assets[key];
 
       // if regex matched, use [name] for key
@@ -39,6 +41,9 @@ function webpackStatsPlugin(self) {
   });
 }
 
+/**
+ * The grunt function export
+ */
 module.exports = function (grunt) {
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
@@ -300,7 +305,7 @@ module.exports = function (grunt) {
             DEBUG: true
           }),
           new webpack.NormalModuleReplacementPlugin(/^react(\/addons)?$/, require.resolve('react/addons')),
-          function() {
+          function () {
             return webpackStatsPlugin(this);
           }
         ],
@@ -347,7 +352,7 @@ module.exports = function (grunt) {
           }),
 
           // generates webpack assets config to use hashed assets in production mode
-          function() {
+          function () {
             return webpackStatsPlugin(this);
           }
         ],
@@ -358,12 +363,15 @@ module.exports = function (grunt) {
 
   });
 
-  /** _runFixtureGenerators custom task
-    * Runs the fixture generators using backend data services.
-    * Backend data sources selected by environment -
-    *   Must be run after nconfig
-    * This task run by 'fixtures' task.
-    */
+  /**
+   * _runFixtureGenerators custom task
+   * Runs the fixture generators using backend data services.
+   * Backend data sources selected by environment -
+   *   Must be run after nconfig
+   * This private task is only run by 'fixtures' task.
+   *
+   * @access private
+   */
   grunt.registerTask('_runFixtureGenerators', 'Subtask to generate test fixtures', function () {
     var fs = require('fs');
     var path = require('path');
@@ -380,11 +388,14 @@ module.exports = function (grunt) {
       require(generator)(options[item].output, async);
     });
   });
-  /** fixtures custom task
-    * Runs nconfig and _runFixtureGenerators
-    *
-    * syntax: fixtures:dev | fixtures:prod
-    */
+
+  /**
+   * fixtures custom task
+   * Runs nconfig and _runFixtureGenerators in order.
+   * Syntax: fixtures:dev | fixtures:prod
+   *
+   * @access public
+   */
   grunt.registerTask('fixtures', 'Generate test fixtures', function () {
     var isProd = this.args.shift() === 'prod';
     var options = {
@@ -402,16 +413,19 @@ module.exports = function (grunt) {
     grunt.task.run(tasks);
   });
 
-  /** nconfig custom task
-    * Creates a config for the project, saves config(settings) in grunt.config('project')
-    * Must run per grunt process.
-    *
-    * Options:
-    *  overrides: An object with config settings that overrides all.
-    *             example: settings:dist:images
-    *  env: Set environment variables for this process.
-    */
-  grunt.registerMultiTask('nconfig', 'Assign config settings to grunt project', function() {
+  /**
+   * nconfig custom task
+   * Creates a config for the project, saves nconfig.settings to grunt.config('project')
+   * Must run per grunt process.
+   *
+   * Options:
+   *  overrides: An object with config settings that overrides all.
+   *             example: settings:dist:images
+   *  env: Set environment variables for this process.
+   *
+   * @access public
+   */
+  grunt.registerMultiTask('nconfig', 'Assign config settings to grunt project', function () {
     _nconfig = true;
     var configLib = require('./configs');
     var options = this.options();
@@ -425,7 +439,13 @@ module.exports = function (grunt) {
     grunt.config('project', configLib.create(options.overrides).settings);
   });
 
-  // debug nconfig, dump the config to the console
+  /**
+   * Debug the nconfig task.
+   * Dumps the computed config to the console.
+   * Private task used by dumpconfig.
+   *
+   * @access private
+   */
   grunt.registerTask('_dumpconfigTask', function() {
     var util = require('util');
     var config = require('./configs').create();
@@ -435,7 +455,14 @@ module.exports = function (grunt) {
     };
     console.log(util.inspect(dump));
   });
-  // syntax: dumpconfig:prod | dumpconfig:dev
+
+  /**
+   * dumpconfig custom task.
+   * Dumps the computed nconfig to the console by env.
+   * Syntax: dumpconfig:prod | dumpconfig:dev
+   *
+   * @access public
+   */
   grunt.registerTask('dumpconfig', 'Debug nconfig', function() {
     var isProd = this.args.shift() === 'prod';
     var tasks = ['nconfig:'+(isProd ? 'prod' : 'dev')];
@@ -443,8 +470,14 @@ module.exports = function (grunt) {
     grunt.task.run(tasks.concat('_dumpconfigTask'));
   });
 
-  // scss compile task
-  // syntax: ccss:prod | ccss:dev
+  /**
+   * scss compile custom task
+   * Sets the env config if req'd, runs required css build tasks, compiles, then runs post processing.
+   * Used only for standalone css builds outside of the main dev task.
+   * Syntax: ccss:prod | ccss:dev
+   *
+   * @access public
+   */
   grunt.registerTask('ccss', 'Compile scss', function() {
     var isProd = this.args.shift() === 'prod';
     var tasks = _nconfig ? [] : ['nconfig:'+(isProd ? 'prod' : 'dev')];
@@ -459,7 +492,13 @@ module.exports = function (grunt) {
     grunt.task.run(isProd ? tasks.concat(['cssmin:prod']) : tasks);
   });
 
-  // build the header script
+  /**
+   * Custom task to build the header script, standalone (w/o the dev task).
+   * For now, just uses webpack, but that makes it unnecessarily bigger.
+   * Syntax: header:dev | header:prod
+   *
+   * @access public
+   */
   grunt.registerTask('header', 'Build the header script', function() {
     var isProd = this.args.shift() === 'prod';
     var tasks;
@@ -472,7 +511,7 @@ module.exports = function (grunt) {
     grunt.task.run(tasks);
   });
 
-  // serial tasks for concurrent, external grunt processes
+  // serial task sequences for concurrent, external grunt processes
   grunt.registerTask('_cc-watch-compass', ['nconfig:dev', 'compass:watch']);
   grunt.registerTask('_cc-watch-ap', ['nconfig:dev', 'watch:ap']);
   grunt.registerTask('_cc-compass-dev', ['nconfig:dev', 'ccss:dev']);
@@ -492,7 +531,7 @@ module.exports = function (grunt) {
   grunt.registerTask('debug', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:debug']);
   grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'concurrent:prod']);
   grunt.registerTask('build', ['nconfig:prod', 'clean', 'copy', 'ccss:prod', 'webpack:headerProd', 'webpack:prod']);
-  // Also:
+  // Also used:
   //   1. fixtures:dev | fixtures:prod - generate/update test fixtures from backend
   //   2. jshint
 };

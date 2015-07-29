@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
@@ -9,6 +9,12 @@ var contact = require('../../configs').create().contact;
 var amqp = require('amqplib');
 var mailer = require('./mailer');
 
+/**
+ * Add a mail payload to the outgoing mail queue.
+ *
+ * @param {Object} input - The contact mail payload.
+ * @param {Function} callback - The callback to execute on completion.
+ */
 function sendMail (input, callback) {
   var open = amqp.connect(contact.queue.url());
 
@@ -34,6 +40,9 @@ function sendMail (input, callback) {
 
 /**
  * This is the main proc of the contact worker process.
+ * This blocks consuming the outgoing mail queue and sends mail
+ * when a message is received. SIGINT will disrupt the process.
+ * If the send fails, nacks it back onto the queue.
  */
 function contactWorker () {
   amqp.connect(contact.queue.url()).then(function (conn) {

@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
@@ -15,19 +15,9 @@
  */
 'use strict';
 
-// For now, just supporting well known services
-function MAIL_SERVICE () {
-  return process.env.MAIL_SERVICE || 'Mandrill';
-}
-
-function MAIL_USERNAME () {
-  return process.env.MAIL_USERNAME || process.env.MANDRILL_USERNAME;
-}
-
-function MAIL_PASSWORD () {
-  return process.env.MAIL_PASSWORD || process.env.MANDRILL_APIKEY;
-}
-
+/***
+ * Environment specific mail header default values.
+ */
 var mailHeaders = {
   development: {
     mailTo: 'fred@localnerve.com',
@@ -39,27 +29,83 @@ var mailHeaders = {
   }
 };
 
-function mailTo (env) {
-  return process.env.MAIL_TO || mailHeaders[env].mailTo;
-}
-
-function mailFrom (env) {
-  return process.env.MAIL_FROM || mailHeaders[env].mailFrom;
-}
-
-function QUEUE_NAME () {
-  return process.env.QUEUE_NAME || 'outgoing-mail';
-}
-
+/***
+ * Environment specific mail queue url default values.
+ */
 var mailQueue = {
   development: 'amqp://localhost',
   production: process.env.CLOUDAMQP_URL
 };
 
+/**
+ * Get the MAIL_SERVICE configuration value.
+ * Defaults to 'Mandrill'.
+ * @returns {String} The MAIL_SERVICE configuration value.
+ */
+function MAIL_SERVICE () {
+  return process.env.MAIL_SERVICE || 'Mandrill';
+}
+
+/**
+ * Get the MAIL_USERNAME configuration value.
+ * Defaults to MANDRILL_USERNAME from process.env
+ * @returns {String} The MAIL_USERNAME configuration value.
+ */
+function MAIL_USERNAME () {
+  return process.env.MAIL_USERNAME || process.env.MANDRILL_USERNAME;
+}
+
+/**
+ * Get the MAIL_PASSWORD configuration value.
+ * Defaults to MANDRILL_APIKEY from process.env
+ * @returns {String} The MAIL_PASSWORD configuration value.
+ */
+function MAIL_PASSWORD () {
+  return process.env.MAIL_PASSWORD || process.env.MANDRILL_APIKEY;
+}
+
+/**
+ * Get the MAIL_TO configuration value.
+ * Defaults to environment specific mail header defaults.
+ * @returns {String} The MAIL_TO configuration value.
+ */
+function mailTo (env) {
+  return process.env.MAIL_TO || mailHeaders[env].mailTo;
+}
+
+/**
+ * Get the MAIL_FROM configuration value.
+ * Defaults to environment specific mail header defaults.
+ * @returns {String} The MAIL_FROM configuration value.
+ */
+function mailFrom (env) {
+  return process.env.MAIL_FROM || mailHeaders[env].mailFrom;
+}
+
+/**
+ * Get the QUEUE_NAME configuration value.
+ * Defaults to 'outgoing-mail'.
+ * @returns {String} The QUEUE_NAME configuration value.
+ */
+function QUEUE_NAME () {
+  return process.env.QUEUE_NAME || 'outgoing-mail';
+}
+
+/**
+ * Get the QUEUE_URL configuration value.
+ * Defaults to environment specific mail queue url defaults.
+ * @returns {String} The QUEUE_URL configuration value.
+ */
 function QUEUE_URL (env) {
   return process.env.QUEUE_URL || mailQueue[env];
 }
 
+/**
+ * Make the contact configuration object.
+ *
+ * @param {Object} nconf - The nconfig object.
+ * @returns {Object} The contact configuration object.
+ */
 function makeConfig(nconf) {
   var env = nconf.get('NODE_ENV');
 
@@ -68,16 +114,28 @@ function makeConfig(nconf) {
       service: MAIL_SERVICE,
       username: MAIL_USERNAME,
       password: MAIL_PASSWORD,
+      subject: 'Flux-React-Example Contact Form Submission',
+
+      /**
+       * @see mailTo
+       */
       to: function () {
         return mailTo(env);
       },
+
+      /**
+       * @see mailFrom
+       */
       from: function () {
         return mailFrom(env);
-      },
-      subject: 'Flux-React-Example Contact Form Submission'
+      }
     },
     queue: {
       name: QUEUE_NAME,
+
+      /**
+       * @see QUEUE_URL
+       */
       url: function () {
         return QUEUE_URL(env);
       }

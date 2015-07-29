@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
@@ -13,6 +13,11 @@ var config = require('../../configs').create().data;
 
 /**
  * Get a single resource from FRED and cache it.
+ *
+ * @param {Object} params - The parameters controlling fetch.
+ * @param {String} params.resource - The name of the resource to fetch, the key for the fetched data.
+ * @param {String} [params.url] - The url of the resource to fetch. If omitted, defaults to the FRED url.
+ * @param {Function} callback - The callback to execute on completion.
  */
 function fetchOne (params, callback) {
   debug('fetching resource "'+params.resource+'"');
@@ -49,6 +54,8 @@ function fetchOne (params, callback) {
 /**
  * Get the main resource from FRED.
  * Populates/updates the routes and models (all top-level resources).
+ *
+ * @param {Function} callback - The callback to execute on completion.
  */
 function fetchMain (callback) {
   fetchOne({
@@ -60,6 +67,8 @@ function fetchMain (callback) {
  * Get all resources from FRED and cache them.
  * Call to update or populate the entire data cache.
  * Returns an array of each routes' content.
+ *
+ * @param {Function} callback - The callback to execute on completion.
  */
 function fetchAll (callback) {
   fetchMain(function (err, routes) {

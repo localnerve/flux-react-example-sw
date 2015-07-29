@@ -1,6 +1,9 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ *
+ * Creates an Express application, the middleware stack,
+ * registers the app services, initializes the data layer, and binds to a port.
  */
 'use strict';
 

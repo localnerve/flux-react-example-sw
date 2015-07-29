@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
@@ -35,6 +35,13 @@ var inputProps = {
 };
 
 module.exports = {
+  /**
+   * Create a Contact Element
+   *
+   * @param {String} component - The name of the component to create.
+   * @param {Object} props - The props to create the component with.
+   * @returns {Object} A React Element for the given contact component name and props.
+   */
   createElement: function (component, props) {
     return React.createElement(
       classes[component],

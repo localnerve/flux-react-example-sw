@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
@@ -16,6 +16,10 @@ var BackgroundStore = createStore({
     'NAVIGATE_SUCCESS': 'updateBackground'
   },
 
+  /**
+   * Set initial store state.
+   * Wire up debounced sizeChange handler.
+   */
   initialize: function () {
     this.width = 0;
     this.height = 0;
@@ -24,6 +28,9 @@ var BackgroundStore = createStore({
     this.imageServiceUrl = '';
     this.backgroundUrls = {};
 
+    /**
+     * Emits size change updates (debounced).
+     */
     this.sizeChange = debounce(function sizeChange () {
       this.updateBackgroundUrls({
         backgrounds: Object.keys(this.backgroundUrls)
@@ -32,6 +39,15 @@ var BackgroundStore = createStore({
     }.bind(this), 50);
   },
 
+  /**
+   * UPDATE_SIZE action handler.
+   *
+   * @param {Object} payload - The payload for the update size action.
+   * @param {Boolean} [payload.add] - Boolean indicating the size updates are additive.
+   * @param {Number} [payload.width] - The width dimension of the size update.
+   * @param {Number} [payload.height] - The height dimension of the size update.
+   * @param {Number} [payload.top] - The top measurement of the size update.
+   */
   updateSize: function (payload) {
     if (payload.add) {
       this.width += payload.width || 0;
@@ -46,6 +62,14 @@ var BackgroundStore = createStore({
     this.sizeChange();
   },
 
+  /**
+   * INIT_APP action handler.
+   *
+   * @param {Object} payload - The payload for the init app action.
+   * @param {Object} payload.backgrounds - The part of the payload this Store is interested in.
+   * @param {String} payload.backgrounds.serviceUrl - The protocol and host of the image service.
+   * @param {String} payload.backgrounds.currentBackground - The name of the current background.
+   */
   initBackgrounds: function (payload) {
     var init = payload.backgrounds;
     if (init) {
@@ -56,11 +80,26 @@ var BackgroundStore = createStore({
     }
   },
 
+  /**
+   * NAVIGATE_SUCCESS action handler.
+   * Updates the current background name.
+   *
+   * @param {Object} route - An immutable route object.
+   */
   updateBackground: function (route) {
     this.currentBackground = route.get('background');
     this.emitChange();
   },
 
+  /**
+   * Updates the private background urls collection.
+   * The private background urls are full urls including a width and height
+   *  to the image service.
+   *
+   * @param {Object} payload - The update backgrounds payload.
+   * @param {Array} payload.backgrounds - An array of background names.
+   * @private
+   */
   updateBackgroundUrls: function (payload) {
     payload.backgrounds.forEach(function (key) {
       if (key) {
@@ -74,18 +113,30 @@ var BackgroundStore = createStore({
     }, this);
   },
 
+  /**
+   * @returns {String} The image service url.
+   */
   getImageServiceUrl: function () {
     return this.imageServiceUrl;
   },
 
+  /**
+   * @returns {Number} The top measurement
+   */
   getTop: function () {
     return this.top;
   },
 
+  /**
+   * @returns {Number} The height dimension.
+   */
   getHeight: function () {
     return this.height;
   },
 
+  /**
+   * @returns {Array} The backgroundUrls that are not the current background.
+   */
   getNotCurrentBackgroundUrls: function () {
     return Object.keys(this.backgroundUrls).filter(function (key) {
       return key !== this.currentBackground;
@@ -94,6 +145,9 @@ var BackgroundStore = createStore({
     }, this);
   },
 
+  /**
+   * @returns {String} The current backgroundUrl.
+   */
   getCurrentBackgroundUrl: function () {
     if (this.width && this.height) {
       return this.backgroundUrls[this.currentBackground];
@@ -101,6 +155,11 @@ var BackgroundStore = createStore({
     return null;
   },
 
+  /**
+   * Reduce this store to state.
+   *
+   * @returns {Object} This store as state.
+   */
   dehydrate: function () {
     return {
       width: this.width,
@@ -112,6 +171,11 @@ var BackgroundStore = createStore({
     };
   },
 
+  /**
+   * Hydrate this store from state.
+   *
+   * @param {Object} state - That state to hydrate this store from.
+   */
   rehydrate: function (state) {
     this.width = state.width;
     this.height = state.height;

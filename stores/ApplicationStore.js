@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
@@ -13,11 +13,22 @@ var ApplicationStore = createStore({
     'UPDATE_PAGE_TITLE': 'updatePageTitle'
   },
 
-  initialize: function (dispatcher) {
+  /**
+   * Set inital store state.
+   */
+  initialize: function () {
     this.currentPageTitle = '';
     this.defaultPageName = '';
   },
 
+  /**
+   * INIT_APP handler.
+   * Initialize application data from payload.page.
+   *
+   * @param {Object} payload - The INIT_APP action payload.
+   * @param {Object} payload.page - Application data the ApplicationStore is interested in.
+   * @param {String} payload.page.defaultPageName - The default page name.
+   */
   initApplication: function (payload) {
     var init = payload.page;
     if (init) {
@@ -26,19 +37,35 @@ var ApplicationStore = createStore({
     }
   },
 
+  /**
+   * UPDATE_PAGE_TITLE handler.
+   * Update the application page title.
+   *
+   * @param {Object} page - The UPDATE_PAGE_TITLE action payload.
+   * @param {String} page.title - The new page title.
+   */
   updatePageTitle: function (page) {
     this.currentPageTitle = page.title;
     this.emitChange();
   },
 
+  /**
+   * @returns {String} The default page name for the application.
+   */
   getDefaultPageName: function () {
     return this.defaultPageName;
   },
 
+  /**
+   * @returns {String} The current page title for the application.
+   */
   getCurrentPageTitle: function () {
     return this.currentPageTitle;
   },
 
+  /**
+   * @returns {Object} The ApplicationStore state.
+   */
   dehydrate: function () {
     return {
       pageTitle: this.currentPageTitle,
@@ -46,6 +73,11 @@ var ApplicationStore = createStore({
     };
   },
 
+  /**
+   * Hydrate the ApplicationStore from the given state.
+   *
+   * @param {Object} state - The new ApplicationStore state.
+   */
   rehydrate: function (state) {
     this.currentPageTitle = state.pageTitle;
     this.defaultPageName = state.defaultPageName;

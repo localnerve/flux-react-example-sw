@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
@@ -12,6 +12,12 @@ var remarkable = new Remarkable('full', {
   linkify: true
 });
 
+/**
+ * Parse markdown to markup.
+ *
+ * @param {String} input - The markdown to parse.
+ * @returns {String} The markup.
+ */
 function markdown (input) {
   debug('parsing markdown');
 

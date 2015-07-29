@@ -7,6 +7,19 @@
 var debug = require('debug')('Example:RoutesAction');
 var createFluxibleRouteTransformer = require('../utils').createFluxibleRouteTransformer;
 
+/**
+ * The routes action.
+ * This action is only executed on the server in this example to get
+ *  primary application routes into app state. However, this action could be
+ *  reused to retrieve or populate additional in-app routes later.
+ * If routes are not passed in, it retrieves payload.resource from the 'routes' service.
+ *
+ * @param {Object} context - The fluxible action context.
+ * @param {Object} payload - The action payload.
+ * @param {Function} [payload.transform] - An optional custom route transformer.
+ * @param {Object} [payload.routes] - Optional routes to add to the app without a service request.
+ * @param {String} payload.resource - The name of the routes resource to retrieve with a service request.
+ */
 function routes (context, payload, done) {
   var transformer = (typeof payload.transform === 'function' ?
         payload.transform : createFluxibleRouteTransformer({

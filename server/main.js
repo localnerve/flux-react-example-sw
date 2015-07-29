@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
@@ -22,6 +22,14 @@ var config = require(baseDir + '/configs').create({
 });
 var settings = config.settings;
 
+/**
+ * Render the full application with props and send the response.
+ *
+ * @param {Object} res - The Response object.
+ * @param {Object} context - The fluxible application context.
+ * @param {Object} app - The fluxible app.
+ * @param {Object} props - The already accumulated props object.
+ */
 function renderApp (res, context, app, props) {
   var state;
 
@@ -44,9 +52,23 @@ function renderApp (res, context, app, props) {
 }
 
 /**
- * The main bootstrapping route of the application
+ * Create the main bootstrapping route of the application.
+ *
+ * @param {Object} app - The fluxible app.
+ * @returns {Function} The main bootstraping application middleware.
  */
 function bootstrap (app) {
+  /**
+   * The main application middleware.
+   * Gathers the props and state for the application, renders it,
+   *  and sends the response.
+   * Triggers 500 response if there is an error gathering the props and creating
+   *  the application state.
+   *
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @param {Object} next - The next object.
+   */
   return function main (req, res, next) {
     var context, routes, renderProps = {};
 
@@ -102,7 +124,7 @@ function bootstrap (app) {
       var deferred = Q.defer();
       deferred.resolve();
       return deferred.promise;
-    }, function navigateFailure (reason) {
+    }, function (reason) {
       debug('Navigate failure reason: ' +
         require('util').inspect(reason, { depth: null }));
       res.status(reason.statusCode);

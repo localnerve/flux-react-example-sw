@@ -16,7 +16,7 @@ describe('Background store', function () {
   });
   var initPayload = {
     backgrounds: {
-      serviceUrl: 'imageService',
+      serviceUrl: 'http://lorempixel.com',
       backgrounds: ['1', '2']
     }
   };
@@ -235,6 +235,10 @@ describe('Background store', function () {
     describe('cumulative change updates', function () {
       var onChange;
 
+      before(function () {
+        sizeInstance.initBackgrounds(initPayload);
+      });
+
       after(function () {
         if (onChange) {
           sizeInstance.removeChangeListener(onChange);
@@ -260,7 +264,7 @@ describe('Background store', function () {
 
         sizeInstance.addChangeListener(onChange = result);
         sizeInstance.updateBackgroundUrls({
-          backgrounds: ['0', '1']
+          backgrounds: ['1', '2']
         });
         sizeInstance.updateSize(payloads[3]);
         sizeInstance.updateSize(payloads[4]);

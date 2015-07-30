@@ -104,11 +104,11 @@ var BackgroundStore = createStore({
     payload.backgrounds.forEach(function (key) {
       if (key) {
         this.backgroundUrls[key] = buildImageUrl(
-          this.imageServiceUrl,
-          this.width,
-          this.height,
-          key
-        );
+          this.imageServiceUrl, {
+          width: this.width,
+          height: this.height,
+          name: key
+        });
       }
     }, this);
   },

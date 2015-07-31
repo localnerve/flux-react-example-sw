@@ -64,14 +64,43 @@ describe('configs', function () {
       expect(config.settings.src).to.be.an('object').that.is.not.empty;
     });
 
-    it('loads script asset dynamically as expected', function () {
+    it('defines testable web assets object', function () {
       var assets = config.settings.web.assets;
       expect(assets).to.be.an('object').that.is.not.empty;
       expect(assets.mainScript).to.be.a('function');
+      expect(config.settings.src.assetsJson).to.be.a('string').that.is.not.empty;
+    });
 
-      var main = assets.mainScript();
-      expect(main).to.be.a('string').that.is.not.empty;
-      expect(main).to.contain(config.settings.web.scripts);
+    it('loads script asset dynamically as expected', function (done) {
+      var fs = require('fs'), path = require('path'),
+          assetsJsonFile = path.join(__dirname, '../../..', config.settings.src.assetsJson),
+          assetsJsonData = JSON.stringify({
+            assets: {
+              main: [
+                'main.js'
+              ]
+            }
+          });
+
+      function testAssetsMainScript () {
+        var main = config.settings.web.assets.mainScript();
+        expect(main).to.be.a('string').that.is.not.empty;
+        expect(main).to.contain(config.settings.web.scripts);
+        done();
+      }
+
+      if (!fs.existsSync(assetsJsonFile)) {
+        console.log('assets json did not exist');
+        fs.writeFile(assetsJsonFile, assetsJsonData, function (err) {
+          if (err) {
+            return done(err);
+          }
+          testAssetsMainScript();
+        });
+      } else {
+        console.log('assets json pre-existed');
+        testAssetsMainScript();
+      }
     });
   });
 

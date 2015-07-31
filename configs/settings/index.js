@@ -120,6 +120,7 @@ var srcFiles = {
 
 /**
  * Get settings to override by environment.
+ * production override uses ASSET_HOST env variable.
  *
  * @param {String} env - The environment string.
  * @param {String} baseDir - The base directory.
@@ -134,7 +135,8 @@ function overrides (env, baseDir) {
       loggerFormat: 'tiny',
       web: {
         // ssl: true,
-        assetAge: 31556926000
+        assetAge: 31556926000,
+        assetHost: process.env.ASSET_HOST || 'flux-react-example.herokuapp.com'
       }
     }
   };
@@ -166,6 +168,7 @@ function makeConfig (nconf) {
     web: {
       baseDir: publicbase,
       assetAge: 0,
+      assetHost: 'localhost',
       ssl: false
     },
 

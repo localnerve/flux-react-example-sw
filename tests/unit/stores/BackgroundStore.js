@@ -17,7 +17,7 @@ describe('Background store', function () {
   var initPayload = {
     backgrounds: {
       serviceUrl: 'http://lorempixel.com',
-      location: {
+      serviceOptions: {
         host: 'amazonaws.amazon.com',
         ssl: true,
         path: '/some/bucket'
@@ -45,7 +45,7 @@ describe('Background store', function () {
     expect(storeInstance.top).to.equal(0);
     expect(storeInstance.currentBackground).to.equal('');
     expect(storeInstance.imageServiceUrl).to.equal('');
-    expect(storeInstance.imageLocation).to.equal('');
+    expect(storeInstance.imageServiceOptions).to.be.an('object').that.is.empty;
     expect(storeInstance.backgroundUrls).to.be.an('object').that.is.empty;
   });
 
@@ -71,7 +71,7 @@ describe('Background store', function () {
         expect(state.top).to.equal(dim.top);
         expect(state.currentBackground).to.contain(route.get('background'));
         expect(state.imageServiceUrl).to.equal(initPayload.backgrounds.serviceUrl);
-        expect(state.imageLocation).to.eql(initPayload.backgrounds.location);
+        expect(state.imageServiceOptions).to.eql(initPayload.backgrounds.serviceOptions);
         expect(Object.keys(state.backgroundUrls).length).to.equal(2);
 
         done();
@@ -96,7 +96,7 @@ describe('Background store', function () {
         top: dim.top,
         currentBackground: route.get('background'),
         imageServiceUrl: initPayload.backgrounds.serviceUrl,
-        imageLocation: initPayload.backgrounds.location,
+        imageServiceOptions: initPayload.backgrounds.serviceOptions,
         backgroundUrls: { '1': notCurrentUrl, '2': currentUrl }
       };
 
@@ -106,7 +106,7 @@ describe('Background store', function () {
       expect(storeInstance.height).to.equal(dim.height);
       expect(storeInstance.getTop()).to.equal(dim.top);
       expect(storeInstance.getImageServiceUrl()).to.equal(initPayload.backgrounds.serviceUrl);
-      expect(storeInstance.imageLocation).to.eql(initPayload.backgrounds.location);
+      expect(storeInstance.imageServiceOptions).to.eql(initPayload.backgrounds.serviceOptions);
       expect(storeInstance.getCurrentBackgroundUrl()).to.equal(currentUrl);
       expect(storeInstance.getNotCurrentBackgroundUrls()).to.have.length(1)
         .and.contain(notCurrentUrl);
@@ -117,7 +117,7 @@ describe('Background store', function () {
     it('should init background store as expected', function (done) {
       function result () {
         expect(storeInstance.getImageServiceUrl()).to.equal(initPayload.backgrounds.serviceUrl);
-        expect(storeInstance.imageLocation).to.eql(initPayload.backgrounds.location);
+        expect(storeInstance.imageServiceOptions).to.eql(initPayload.backgrounds.serviceOptions);
         expect(Object.keys(storeInstance.backgroundUrls).length).to.equal(2);
         // Background names are the key and we expect them to be in the urls
         Object.keys(storeInstance.backgroundUrls).forEach(function (key) {

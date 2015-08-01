@@ -26,7 +26,7 @@ var BackgroundStore = createStore({
     this.top = 0;
     this.currentBackground = '';
     this.imageServiceUrl = '';
-    this.imageLocation = '';
+    this.imageServiceOptions = {};
     this.backgroundUrls = {};
 
     /**
@@ -70,16 +70,13 @@ var BackgroundStore = createStore({
    * @param {Object} payload.backgrounds - The part of the payload this Store is interested in.
    * @param {String} payload.backgrounds.serviceUrl - The protocol and host of the image service.
    * @param {String} payload.backgrounds.currentBackground - The name of the current background.
-   * @param {Object} payload.backgrounds.location - Describes the image origin.
-   * @param {String} payload.backgrounds.location.host - The image asset host.
-   * @param {Boolean} payload.backgrounds.location.ssl - True if asset host requires ssl.
-   * @param {String} payload.backgrounds.location.path - Path to images on asset host.
+   * @param {Object} payload.backgrounds.serviceOptions - service specific options.
    */
   initBackgrounds: function (payload) {
     var init = payload.backgrounds;
     if (init) {
       this.imageServiceUrl = init.serviceUrl;
-      this.imageLocation = init.location;
+      this.imageServiceOptions = init.serviceOptions || {};
       this.currentBackground = init.currentBackground;
       this.updateBackgroundUrls(init);
       this.emitChange();
@@ -114,7 +111,7 @@ var BackgroundStore = createStore({
           width: this.width,
           height: this.height,
           name: key,
-          location: this.imageLocation
+          serviceOptions: this.imageServiceOptions
         });
       }
     }, this);
@@ -174,7 +171,7 @@ var BackgroundStore = createStore({
       top: this.top,
       currentBackground: this.currentBackground,
       imageServiceUrl: this.imageServiceUrl,
-      imageLocation: this.imageLocation,
+      imageServiceOptions: this.imageServiceOptions,
       backgroundUrls: this.backgroundUrls
     };
   },
@@ -190,7 +187,7 @@ var BackgroundStore = createStore({
     this.top = state.top;
     this.currentBackground = state.currentBackground;
     this.imageServiceUrl = state.imageServiceUrl;
-    this.imageLocation = state.imageLocation;
+    this.imageServiceOptions = state.imageServiceOptions;
     this.backgroundUrls = state.backgroundUrls;
   }
 });

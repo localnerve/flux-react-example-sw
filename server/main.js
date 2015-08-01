@@ -90,10 +90,13 @@ function bootstrap (app) {
       return context.executeAction(initAction, {
         backgrounds: {
           serviceUrl: config.images.service.url(),
-          location: {
-            host: settings.web.assetHost,
-            ssl: settings.web.ssl,
-            path: settings.web.images
+          serviceOptions: {
+            origin: {
+              host: settings.web.assetHost,
+              ssl: settings.web.ssl,
+              path: settings.web.images
+            },
+            cloudName: config.images.service.cloudName()
           },
           currentBackground: routes[config.data.defaults.pageName].background,
           backgrounds: Object.keys(routes).map(function (route) {

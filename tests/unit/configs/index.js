@@ -138,6 +138,31 @@ describe('configs', function () {
         expect(config.images.service.url()).to.equal(url);
       });
     });
+
+    describe('service cloudName', function () {
+      before(function () {
+        // just in case this is hanging around in local env
+        delete process.env.CLOUD_NAME;
+      });
+
+      afterEach(function () {
+        delete process.env.CLOUD_NAME;
+      });
+
+      it('should exist', function () {
+        expect(config.images.service.cloudName).to.be.a('function');
+      });
+
+      it('should be undefined by default', function () {
+        expect(config.images.service.cloudName()).to.be.undefined;
+      });
+
+      it('should return CLOUD_NAME if defined', function () {
+        var cloudName = 'correct_cloudname';
+        process.env.CLOUD_NAME = cloudName;
+        expect(config.images.service.cloudName()).to.equal(cloudName);
+      });
+    });
   });
 
   describe('contact', function () {

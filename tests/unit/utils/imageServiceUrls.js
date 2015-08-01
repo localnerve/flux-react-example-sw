@@ -24,7 +24,8 @@ describe('imageServiceUrls', function () {
         url = buildImageUrl(serviceUrl, {
           width: width,
           height: height,
-          name: name
+          name: name,
+          serviceOptions: {}
         });
 
         expect(url).to.match(new RegExp('^' + serviceUrl));
@@ -40,7 +41,8 @@ describe('imageServiceUrls', function () {
         url = buildImageUrl(serviceUrl, {
           width: width,
           height: height,
-          name: name
+          name: name,
+          serviceOptions: {}
         });
 
         expect(url).to.match(new RegExp('^' + serviceUrl));
@@ -57,7 +59,8 @@ describe('imageServiceUrls', function () {
         url = buildImageUrl(serviceUrl, {
           width: width,
           height: height,
-          name: name
+          name: name,
+          serviceOptions: {}
         });
 
         expect(url).to.match(new RegExp('^' + serviceUrl));
@@ -73,7 +76,8 @@ describe('imageServiceUrls', function () {
         url = buildImageUrl(serviceUrl, {
           width: width,
           height: height,
-          name: name
+          name: name,
+          serviceOptions: {}
         });
 
         expect(url).to.match(new RegExp('^' + serviceUrl));
@@ -89,14 +93,15 @@ describe('imageServiceUrls', function () {
           width = 30,
           height = 40;
 
-      it('should build a firesize url to lorempixel when location omitted', function () {
+      it('should build a firesize url to lorempixel when origin omitted', function () {
         var name = 'tester2',
             matches;
 
         url = buildImageUrl(serviceUrl, {
           width: width,
           height: height,
-          name: name
+          name: name,
+          serviceOptions: {}
         });
 
         // should start with the serviceUrl
@@ -130,7 +135,9 @@ describe('imageServiceUrls', function () {
         url = buildImageUrl(serviceUrl, {
           width: width,
           height: height,
-          gravity: gravity
+          serviceOptions: {
+            gravity: gravity
+          }
         });
 
         expect(url).to.contain(gravity);
@@ -145,10 +152,12 @@ describe('imageServiceUrls', function () {
           width: width,
           height: height,
           name: name,
-          location: {
-            host: host,
-            ssl: ssl,
-            path: path
+          serviceOptions: {
+            origin: {
+              host: host,
+              ssl: ssl,
+              path: path
+            }
           }
         });
 

@@ -7,8 +7,8 @@
 
 var debug = require('debug')('Example:Application.jsx');
 var React = require('react');
-var connectToStores = require('fluxible/addons/connectToStores');
-var provideContext = require('fluxible/addons/provideContext');
+var connectToStores = require('fluxible-addons-react/connectToStores');
+var provideContext = require('fluxible-addons-react/provideContext');
 var handleHistory = require('fluxible-router').handleHistory;
 var navigateAction = require('fluxible-router').navigateAction;
 var ReactSwipe = require('react-swipe');
@@ -98,17 +98,19 @@ var Application = React.createClass({
 
 Application = connectToStores(
   Application, ['ApplicationStore', 'ContentStore', 'RouteStore'],
-  function (stores) {
-    var currentRoute = stores.RouteStore.getCurrentRoute();
-    var pageName = (currentRoute && currentRoute.get('page')) ||
-      stores.ApplicationStore.getDefaultPageName();
+  function (context) {
+    var routeStore = context.getStore('RouteStore'),
+        appStore = context.getStore('ApplicationStore'),
+        currentRoute = routeStore.getCurrentRoute(),
+        pageName = (currentRoute && currentRoute.get('page')) ||
+          appStore.getDefaultPageName();
 
     return {
-      navigateComplete: stores.RouteStore.isNavigateComplete(),
+      navigateComplete: routeStore.isNavigateComplete(),
       pageName: pageName,
-      pageTitle: stores.ApplicationStore.getCurrentPageTitle(),
-      pageModels: stores.ContentStore.getCurrentPageModels(),
-      pages: stores.RouteStore.getRoutes()
+      pageTitle: appStore.getCurrentPageTitle(),
+      pageModels: context.getStore('ContentStore').getCurrentPageModels(),
+      pages: routeStore.getRoutes()
     };
 });
 

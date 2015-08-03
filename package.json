@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "description": "An isomorphic flux-react example application",
   "main": "./server",
   "scripts": {
@@ -79,7 +79,6 @@
     "mockery": "^1.4.0",
     "nodemon": "^1.3.7",
     "precommit-hook": "^3.0.0",
-    "q": "^1.2.0",
     "svgo": "0.5.0",
     "wd": "^0.3.11",
     "webpack": "^1.7.3",
@@ -96,16 +95,17 @@
     "debug": "^2.1.3",
     "express": "^4.12.2",
     "express-error-handler": "git://github.com/localnerve/express-error-handler",
-    "fluxible": "^0.4.10",
-    "fluxible-plugin-fetchr": "^0.3.3",
-    "fluxible-router": "^0.1.9",
+    "fluxible": "^0.5.1",
+    "fluxible-addons-react": "^0.1.6",
+    "fluxible-plugin-fetchr": "^0.3.4",
+    "fluxible-router": "^0.2.1",
     "inherits": "^2.0.1",
-    "lodash": "^3.5.0",
+    "lodash": "^3.10.0",
     "morgan": "^1.5.1",
     "nconf": "^0.7.1",
     "node-jsx": "^0.13.3",
     "nodemailer": "^1.3.4",
-    "q": "^1.2.0",
+    "q": "^1.4.1",
     "react": "^0.13.x",
     "react-components": "git://github.com/khan/react-components",
     "react-spinner": "git://github.com/localnerve/react-spinner",
@@ -113,7 +113,7 @@
     "remarkable": "^1.6.0",
     "serialize-javascript": "^1.0.0",
     "serve-favicon": "^2.2.0",
-    "superagent": "^1.1.0",
+    "superagent": "^1.2.0",
     "swipe-js-iso": "^2.0.1"
   }
 }

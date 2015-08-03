@@ -7,8 +7,8 @@
 'use strict';
 
 var React = require('react');
-var provideContext = require('fluxible/addons/provideContext');
-var connectToStores = require('fluxible/addons/connectToStores');
+var provideContext = require('fluxible-addons-react/provideContext');
+var connectToStores = require('fluxible-addons-react/connectToStores');
 
 var Html = React.createClass({
   propTypes: {
@@ -63,10 +63,10 @@ var Html = React.createClass({
   }
 });
 
-Html = connectToStores(Html, ['ApplicationStore', 'BackgroundStore'], function(stores) {
+Html = connectToStores(Html, ['ApplicationStore', 'BackgroundStore'], function (context) {
   return {
-    currentPageTitle: stores.ApplicationStore.getCurrentPageTitle(),
-    imageServiceHost: stores.BackgroundStore.getImageServiceUrl().replace(/https?\:/, '')
+    currentPageTitle: context.getStore('ApplicationStore').getCurrentPageTitle(),
+    imageServiceHost: context.getStore('BackgroundStore').getImageServiceUrl().replace(/https?\:/, '')
   };
 });
 

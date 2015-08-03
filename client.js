@@ -10,6 +10,7 @@
 var debugLib = require('debug');
 var debug = debugLib('Example:Client');
 var React = require('react');
+var createElementWithContext = require('fluxible-addons-react').createElementWithContext;
 
 if (DEBUG) {
   window.React = React; // for chrome dev tool support
@@ -29,7 +30,7 @@ app.rehydrate(dehydratedState, function (err, context) {
 
   debug('rendering app');
   React.render(
-    context.createElement({
+    createElementWithContext(context, {
       analytics: dehydratedState.analytics
     }),
     document.getElementById('application')

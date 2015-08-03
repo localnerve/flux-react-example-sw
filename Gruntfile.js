@@ -172,6 +172,7 @@ module.exports = function (grunt) {
             DEBUG: '*',
             // ERR_HANDLER_MAINT_ENABLED: TRUE,
             ERR_HANDLER_MAINT_RETRYAFTER: 7200
+            // Can add any env vars here to test out in dev
           }
         }
       },
@@ -316,6 +317,11 @@ module.exports = function (grunt) {
           new webpack.DefinePlugin({
             DEBUG: true
           }),
+
+          // Optional, use to see the prod module representation in devtools
+          new webpack.optimize.DedupePlugin(),
+          new webpack.optimize.OccurenceOrderPlugin(),
+
           new webpack.NormalModuleReplacementPlugin(/^react(\/addons)?$/, require.resolve('react/addons')),
           function () {
             return webpackStatsPlugin(this);

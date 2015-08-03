@@ -8,24 +8,27 @@
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/localnerve.svg)](https://saucelabs.com/u/localnerve)
 
-> This is an active *Work In Progress* learning playground.
+> A data-driven, isomorphic example application using [Fluxible](http://fluxible.io) and [React](http://reactjs.com).
 
-A data-driven, isomorphic example application using [Fluxible](http://fluxible.io) and [React](http://reactjs.com).
+Flux-React-Example is an example contact web application. Serves as a reference app to inspire isomorphic application development solutions.
+
+* Features a **data-driven** isomorphic React application that follows the flux flow using [Fluxible](https://github.com/yahoo/fluxible).
+* Uses a Node, Express, Fluxible, React stack employing Grunt, Webpack, and Mocha/Chai.
+* Employs Yahoo Fetchr for uniform client/server access to app services.
+* Features a Flexbox layout with some very light usage of Foundation For Apps (The Sass mixins only, no JS, all possible CSS output disabled).
+* Performance Features
+  * Majority of visual completeness in < 14k initial download.
+  * 60fps mobile rendering.
+
+## Docs
+Additional documentation can be found in this project's [wiki](https://github.com/localnerve/flux-react-example/wiki). This is still in progress.
 
 ## Integrations
 This example demonstrates a full CI/CD integration on the master branch. Pushes to the master branch run the following workflow:
-  1. Run unit tests w/coverage
-  2. Build and deploy to Heroku staging container
-  3. Run cross-browser/platform functional tests on SauceLabs
-  4. Run performance budget tests against webpagetest.org
-
-## Services
-
-### Data Service
-The data service that provides the content and data for this example is just a [Github repo](http://github.com/localnerve/flux-react-example-data) with a simple resource model.
-
-### Mail Service
-The mail service for this example consists of an MQ service on the application tier to collect the outgoing mail, and defaults to Mandrill for the actual mail service - Could use any mail service.
+  1. Run unit tests w/coverage on Travis-ci.
+  2. Build and deploy to the Heroku stage.
+  3. Run cross-browser/platform functional tests on SauceLabs against the stage.
+  4. Run performance budget tests on webpagetest.org against the stage.
 
 ## Developer Instructions
 
@@ -75,6 +78,20 @@ rebuild as needed.
 
 Open http://localhost:3000
 
+### Debug the server-side parts of the app
+1. Start node-inspector on the port of your choice in the background
+```bash
+$ node-inspector --web-port=<port-of-choice> &
+```
+2. Run the debug build (a very slightly modified dev build)
+```bash
+$ npm run debug
+```
+3. Connect Chrome to `http://127.0.0.1:8090/?ws=127.0.0.1:<port-of-choice>&port=5858`
+4. Set breakpoints and/or hit F8 to start the server-side of the app.
+
+This will use `nodemon` and `webpack` to watch for changes and restart and
+rebuild as needed. The nodemon process will start with `--debug-brk` option to let you break on anything from the ground up.
 
 ## License
 

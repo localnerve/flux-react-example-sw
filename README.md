@@ -18,7 +18,7 @@ Flux-React-Example is an example contact web application. Serves as a reference 
 * Features a Flexbox layout with some very light usage of Foundation For Apps (The Sass mixins only, no JS, all possible CSS output disabled).
 * Performance Features
   * Majority of visual completeness in < 14k initial download.
-  * 60fps mobile rendering.
+  * 60fps rendering.
 
 ## Docs
 Additional documentation can be found in this project's [wiki](https://github.com/localnerve/flux-react-example/wiki). This is still in progress.
@@ -43,7 +43,6 @@ This example demonstrates a full CI/CD integration on the master branch. Pushes 
 ```bash
 $ npm install
 ```
-
 
 ### Run the app\*
 
@@ -78,6 +77,7 @@ rebuild as needed.
 
 Open http://localhost:3000
 
+
 ### Debug the server-side parts of the app
 1. Start node-inspector on the port of your choice in the background
 ```bash
@@ -87,7 +87,7 @@ $ node-inspector --web-port=<port-of-choice> &
 ```bash
 $ npm run debug
 ```
-3. Connect Chrome to `http://127.0.0.1:8090/?ws=127.0.0.1:<port-of-choice>&port=5858`
+3. Use Chrome to open `http://127.0.0.1:8090/?ws=127.0.0.1:<port-of-choice>&port=5858`
 4. Set breakpoints and/or hit F8 to start the server-side of the app.
 
 This will use `nodemon` and `webpack` to watch for changes and restart and

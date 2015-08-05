@@ -1,13 +1,6 @@
 language: node_js
 node_js:
 - '0.12'
-env:
-  global:
-  - secure: NcG3pl3uhwuhfni18QpywTHZ2pZ1dxTCSpSDNlfkdYAKKjKrocWh5vuf+HmZzT4r0XuHb4cN8/cvXTn5J4+e+NtcEP7QkN1YCbqU0towoU/KvDZEr0cW8nanbQctUEc9Fe1X9WJd/f5k0T2oXxJ5DAqnLmSJH+t8I5qijM1pQ7k=
-  - secure: JmtKHcbatR/ImIJ7Hv+2sJinVFreQLR8Af83fgf9M/N+iBAFrwjhXGAxKAHkdAmn33kOG5W6FMZxrQr74+2gzOv1YxTcCxJq2EumjdjUhv0qQ0NAA1kVeVV4EYlBn8o5OPtY9Z3DyltZDlH62eMu1fsU2C+hDlNcKlHQhtDWIR8=
-  - secure: HkrVzqt1o1YN2kic9VWI3Uquwdjgar8DDfHFMc5Vr09xo5naokxRU0vntQa77fHmvUloCLPB01v0vHDqP/ORRWFgGAgGZFDq71Pubp+qWgwXibFbAmNdES0vzPZhDV62gNO4AOxZlU84QNp15XtkxdpIqu00WmoqNgPtbKF5hCE=
-addons:
-  sauce_connect: true
 before_install:
 - sudo apt-get update
 - sudo apt-get install rubygems
@@ -16,20 +9,3 @@ before_script:
 - npm install -g grunt-cli
 after_success:
 - cat reports/coverage/lcov.info | ./node_modules/.bin/coveralls
-before_deploy:
-- npm run build
-- rm -rf node_modules/
-deploy:
-  provider: heroku
-  api_key:
-    secure: LnMaWuov0LkD3H+MCmBSaIg90YBKH0Bs+1EhRzaGcU0setO+MVsfYyBQ/UCRgg9g/BvCYW+nocjajeZ+/04GbOXEitAG7gIWSdPrApf2RJHzOs/xzS2tiVnlcFXbloDIv4ChjZ0KH4254VI3vjmMcXYC3ZswJIE38dkMbVAUCnY=
-  app: flux-react-example
-  skip_cleanup: true
-  on:
-    repo: localnerve/flux-react-example
-    node: 0.12
-after_deploy:
-- npm install -g mocha
-- npm install
-- npm run functest -- http://flux-react-example.herokuapp.com
-- env DEPLOY_URL=http://flux-react-example.herokuapp.com grunt perfbudget:mobile

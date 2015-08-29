@@ -117,7 +117,8 @@ module.exports = function (grunt) {
       css: ['_cc-watch-ap', '_cc-watch-compass'],
       dev: ['_cc-compass-dev', '_cc-nodemon-dev', '_cc-webpack-dev'],
       debug: ['_cc-compass-dev', '_cc-nodemon-debug', '_cc-webpack-dev'],
-      prod: ['_cc-compass-prod', '_cc-nodemon-prod', '_cc-webpack-prod']
+      prod: ['_cc-compass-prod', '_cc-nodemon-prod', '_cc-webpack-prod'],
+      perf: ['_cc-compass-prod', '_cc-nodemon-prod', '_cc-webpack-perf']
     },
 
     cssmin: {
@@ -313,6 +314,9 @@ module.exports = function (grunt) {
             { test: /\.jsx$/, loader: 'jsx-loader' }
           ]
         },
+        node: {
+          setImmediate: false
+        },
         plugins: [
           new webpack.DefinePlugin({
             DEBUG: true
@@ -350,6 +354,9 @@ module.exports = function (grunt) {
             { test: /\.jsx$/, loader: 'jsx-loader' }
           ]
         },
+        node: {
+          setImmediate: false
+        },
         plugins: [
           new webpack.DefinePlugin({
             'process.env': {
@@ -366,6 +373,9 @@ module.exports = function (grunt) {
           new webpack.optimize.UglifyJsPlugin({
             compress: {
               warnings: false
+            },
+            output: {
+              comments: false
             }
           }),
 
@@ -375,6 +385,41 @@ module.exports = function (grunt) {
           }
         ],
         // removes verbosity from builds
+        progress: false
+      },
+      perf: {
+        resolve: {
+          extensions: ['', '.js', '.jsx']
+        },
+        entry: './client.js',
+        output: {
+          path: '<%= project.dist.scripts %>',
+          publicPath: '<%= project.web.scripts %>',
+          filename: '[name].[chunkhash].min.js',
+          chunkFilename: '[name].[chunkhash].min.js'
+        },
+        module: {
+          loaders: [
+            { test: /\.jsx$/, loader: 'jsx-loader' }
+          ]
+        },
+        node: {
+          setImmediate: false
+        },
+        plugins: [
+          new webpack.DefinePlugin({
+            'process.env': {
+              NODE_ENV: JSON.stringify('production')
+            }
+          }),
+          new webpack.optimize.DedupePlugin(),
+          new webpack.optimize.OccurenceOrderPlugin(),
+          new webpack.NormalModuleReplacementPlugin(/^react(\/addons)?$/, require.resolve('react/addons')),
+          function () {
+            return webpackStatsPlugin(this);
+          }
+        ],
+        devtool: 'source-map',
         progress: false
       }
     }
@@ -539,6 +584,7 @@ module.exports = function (grunt) {
   grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
   grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:headerDev', 'webpack:dev']);
   grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:headerProd', 'webpack:prod']);
+  grunt.registerTask('_cc-webpack-perf', ['nconfig:prod', 'webpack:headerProd', 'webpack:perf']);
 
   // Other development grunt commands commonly used:
   // dumpconfig:dev | dumpconfig:prod - dump nconfig configuration
@@ -548,6 +594,7 @@ module.exports = function (grunt) {
   grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
   grunt.registerTask('debug', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:debug']);
   grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'imagemin', 'concurrent:prod']);
+  grunt.registerTask('perf', ['nconfig:prod', 'clean', 'copy', 'jshint', 'imagemin', 'concurrent:perf']);
   grunt.registerTask('build', [
     'nconfig:prod', 'clean', 'copy', 'imagemin', 'ccss:prod', 'webpack:headerProd', 'webpack:prod'
   ]);

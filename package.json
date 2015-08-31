@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example-sw",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An isomorphic flux-react example application with a service worker",
   "main": "./server",
   "scripts": {
@@ -12,6 +12,7 @@
     "devtest": "mocha tests/unit --recursive --reporter spec",
     "functest": "node tests/functional/run-parallel '--reporter spec tests/functional/main.js'",
     "lint": "grunt jshint",
+    "perf": "grunt perf",
     "prod": "grunt prod",
     "start": "node -e 'process.env.NODE_ENV = process.env.NODE_ENV || \"production\"; require(\"./server\");'",
     "style": "jscs .",

@@ -5,6 +5,7 @@
 'use strict';
 
 var webpack = require('webpack');
+var swPrecache = require('sw-precache');
 var _nconfig;
 
 /**
@@ -67,7 +68,8 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= project.src.assets %>',
-          src: ['**', '!**/styles/**', '!images/*.svg', '!scripts/**'],
+          // change back to !scripts/**, use uglifyjs to transfer
+          src: ['**', '!**/styles/**', '!images/*.svg', '!scripts/header*'],
           dest: '<%= project.dist.baseDir %>/'
         }]
       }
@@ -221,6 +223,35 @@ module.exports = function (grunt) {
             // nominal is < 1400 on 3g, but bg-image doubles it
             SpeedIndex: 2800
           }
+        }
+      }
+    },
+
+    '_service-worker': {
+      options: {
+        cacheId: '<%= pkg.name %>',
+        serviceWorkerScript: '<%= project.dist.serviceWorker.main %>',
+        directoryIndex: false,
+        stripPrefix: '<%= project.dist.baseDir %>',
+        replacePrefix: '<%= project.web.baseDir %>',
+        importScripts: [
+          '<%= project.web.serviceWorker.import %>'
+        ],
+        staticFileGlobs: [
+          '<%= project.dist.fonts %>/**.*',
+          '<%= project.dist.images %>/**.*',
+          '<%= project.dist.scripts %>/!(header|inline).*'
+        ],
+        verbose: true
+      },
+      dev: {
+        options: {
+          handleFetch: false
+        }
+      },
+      prod: {
+        options: {
+          handleFetch: true
         }
       }
     },
@@ -516,7 +547,7 @@ module.exports = function (grunt) {
       project: grunt.config('project'),
       nconf: config
     };
-    console.log(util.inspect(dump));
+    console.log(util.inspect(dump, { depth: null }));
   });
 
   /**
@@ -574,6 +605,34 @@ module.exports = function (grunt) {
     grunt.task.run(tasks);
   });
 
+  /**
+   * Custom task to generate the service worker script.
+   * Run from service-worker task.
+   *
+   * @access private
+   */
+  grunt.registerMultiTask('_service-worker', function () {
+    var done = this.async();
+    var options = this.options();
+
+    grunt.task.requires('nconfig:'+this.target);
+
+    options.logger = grunt.log.writeln;
+    swPrecache.write(options.serviceWorkerScript, options, done);
+  });
+
+  /**
+   * Custom task to generate the service worker script.
+   * target must be dev or prod:
+   *  service-worker:dev | service-worker:prod
+   *
+   * @access public
+   */
+  grunt.registerTask('service-worker', function () {
+    var target = this.args.shift();
+    grunt.task.run(['nconfig:'+target, '_service-worker:'+target]);
+  });
+
   // serial task sequences for concurrent, external grunt processes
   grunt.registerTask('_cc-watch-compass', ['nconfig:dev', 'compass:watch']);
   grunt.registerTask('_cc-watch-ap', ['nconfig:dev', 'watch:ap']);
@@ -582,9 +641,9 @@ module.exports = function (grunt) {
   grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
   grunt.registerTask('_cc-nodemon-debug', ['nconfig:dev', 'nodemon:debug']);
   grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
-  grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:headerDev', 'webpack:dev']);
-  grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:headerProd', 'webpack:prod']);
-  grunt.registerTask('_cc-webpack-perf', ['nconfig:prod', 'webpack:headerProd', 'webpack:perf']);
+  grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:headerDev', 'service-worker:dev', 'webpack:dev']);
+  grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:headerProd', 'webpack:prod', 'service-worker:prod']);
+  grunt.registerTask('_cc-webpack-perf', ['nconfig:prod', 'webpack:headerProd', 'webpack:perf', 'service-worker:prod']);
 
   // Other development grunt commands commonly used:
   // dumpconfig:dev | dumpconfig:prod - dump nconfig configuration
@@ -596,7 +655,8 @@ module.exports = function (grunt) {
   grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'imagemin', 'concurrent:prod']);
   grunt.registerTask('perf', ['nconfig:prod', 'clean', 'copy', 'jshint', 'imagemin', 'concurrent:perf']);
   grunt.registerTask('build', [
-    'nconfig:prod', 'clean', 'copy', 'imagemin', 'ccss:prod', 'webpack:headerProd', 'webpack:prod'
+    'nconfig:prod', 'clean', 'copy', 'imagemin', 'ccss:prod', 'webpack:headerProd', 'webpack:prod',
+    'service-worker:prod'
   ]);
   // Also used:
   //   1. fixtures:dev | fixtures:prod - generate/update test fixtures from backend

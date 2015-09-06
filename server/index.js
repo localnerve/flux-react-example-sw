@@ -38,6 +38,9 @@ var rewriteRules = [
   // rewrite root image requests to settings.web.images
   '^/([^\\/]+\\.(?:png|jpg|jpeg|webp|ico|svg|gif)(?:\\?.*)?$) ' +
     settings.web.images + '/$1 [NC L]',
+  // rewrite root service worker request to settings.web.baseDir
+  '^(' + settings.web.serviceWorker.main +')$ ' +
+    settings.web.baseDir + '$1 [NC L]',
   // alias home to root
   '^/home/?$ / [L]',
   // forbid 404 and 500 direct requests

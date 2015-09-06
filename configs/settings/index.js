@@ -26,6 +26,8 @@ function prependPathToObject (fromObj, prePath) {
     var fromValue = fromObj[key];
     if (typeof fromValue === 'string') {
       obj[key] = path.join(prePath, fromValue);
+    } else if (typeof fromValue === 'object') {
+      obj[key] = prependPathToObject(fromValue, prePath);
     } else {
       obj[key] = fromValue;
     }
@@ -93,7 +95,14 @@ var commonFiles = {
   favicon: path.join(commonDirs.images, 'favicon.ico'),
   robots: 'robots.txt',
   sitemap: 'sitemap.xml',
-  headerScript: path.join(commonDirs.scripts, 'header.js')
+  headerScript: path.join(commonDirs.scripts, 'header.js'),
+  appManifest: 'manifest.json',
+  browserConfig: 'browserconfig.xml',
+  serviceWorker: {
+    registration: path.join(commonDirs.scripts, 'service-worker-registration.js'),
+    import: path.join(commonDirs.scripts, 'service-worker-import.js'),
+    main: 'service-worker.js'
+  }
 };
 
 /***
@@ -204,6 +213,8 @@ function makeConfig (nconf) {
     );
   });
   config.web.assets = assetsConfig(config.web.scripts);
+  // Set to root to allow service worker full app control
+  config.web.serviceWorker.main = '/' + commonFiles.serviceWorker.main;
 
   return config;
 }

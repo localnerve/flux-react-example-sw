@@ -18,7 +18,11 @@ var Html = React.createClass({
     headerScript: React.PropTypes.string.isRequired,
     markup: React.PropTypes.string.isRequired,
     state: React.PropTypes.string.isRequired,
-    mainScript: React.PropTypes.string.isRequired
+    mainScript: React.PropTypes.string.isRequired,
+    appManifest: React.PropTypes.string.isRequired,
+    browserConfig: React.PropTypes.string.isRequired,
+    swRegistrationScript: React.PropTypes.string.isRequired,
+    swMainScript: React.PropTypes.string.isRequired
   },
   render: function () {
     return (
@@ -43,12 +47,14 @@ var Html = React.createClass({
           <link rel="icon" type="image/png" href={this.props.images + '/android-chrome-192x192.png'} sizes="192x192" />
           <link rel="icon" type="image/png" href={this.props.images + '/favicon-96x96.png'} sizes="96x96" />
           <link rel="icon" type="image/png" href={this.props.images + '/favicon-16x16.png'} sizes="16x16" />
-          <link rel="manifest" href={this.props.images + '/manifest.json'} />
+          <link rel="manifest" href={this.props.appManifest} />
+          <meta name="msapplication-config" content={this.props.browserConfig} />
           <meta name="msapplication-TileColor" content="#00a300" />
-          <meta name="msapplication-TileImage" content="/mstile-144x144.png" />
+          <meta name="msapplication-TileImage" content={this.props.images + '/mstile-144x144.png'} />
           <meta name="theme-color" content="#ffffff" />
           <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>
           <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>
+          <script async src={this.props.swRegistrationScript} data-service-worker={this.props.swMainScript}></script>
         </head>
         <body>
           <script dangerouslySetInnerHTML={{__html: this.props.headerScript}}></script>

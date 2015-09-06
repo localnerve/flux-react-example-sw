@@ -23,30 +23,32 @@ module.exports = {
           models: undefined,
           content: JSON.parse(JSON.stringify(routesResponse))
         });
-        break;
+      break;
 
       case 'business':
         callback(null, 'business fixture goes here');
-        break;
+      break;
 
       case 'about':
         callback(null, {
           models: models,
           content: '<h2>About</h2>'
         });
-        break;
+      break;
+
       case 'contact':
         callback(null, {
           models: models,
           content: '<h2>Contact</h2>'
         });
-        break;
+      break;
+
       case 'home':
         callback(null, {
           models: models,
           content: '<h2>Home</h2>'
         });
-        break;
+      break;
 
       default:
         throw new Error('service-data test mock recieved unexpected resource request');

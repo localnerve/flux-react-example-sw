@@ -28,7 +28,11 @@ describe('html component', function () {
     headerStyles: '@charset "UTF-8";',
     headerScript: 'window["MyTest"] = 0;',
     state: '123456789',
-    markup: 'Hello World'
+    markup: 'Hello World',
+    appManifest: 'path/to/manifest.json',
+    browserConfig: 'path/to/browserConfig.xml',
+    swRegistrationScript: 'path/to/service-worker-registration.js',
+    swMainScript: 'service-worker.js'
   };
 
   before(function () {
@@ -73,11 +77,13 @@ describe('html component', function () {
     var html = testUtils.renderIntoDocument(htmlComponent);
     var component = testUtils.scryRenderedDOMComponentsWithTag(html, 'script');
 
-    expect(component.length).to.equal(4);
+    expect(component.length).to.equal(5);
     expect(component[0].getDOMNode().textContent).to.equal(testProps.trackingSnippet);
-    expect(component[1].getDOMNode().textContent).to.equal(testProps.headerScript);
-    expect(component[2].getDOMNode().textContent).to.equal(testProps.state);
-    expect(component[3].getDOMNode().textContent).to.be.empty;
-    expect(component[3].getDOMNode().getAttribute('src')).to.equal(testProps.mainScript);
+    expect(component[1].getDOMNode().getAttribute('src')).to.equal(testProps.swRegistrationScript);
+    expect(component[1].getDOMNode().getAttribute('data-service-worker')).to.equal(testProps.swMainScript);
+    expect(component[2].getDOMNode().textContent).to.equal(testProps.headerScript);
+    expect(component[3].getDOMNode().textContent).to.equal(testProps.state);
+    expect(component[4].getDOMNode().textContent).to.be.empty;
+    expect(component[4].getDOMNode().getAttribute('src')).to.equal(testProps.mainScript);
   });
 });

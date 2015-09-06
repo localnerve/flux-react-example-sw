@@ -36,6 +36,10 @@ function renderApp (res, context, app, props) {
   props.mainScript = settings.web.assets.mainScript();
   props.images = settings.web.images;
   props.trackingSnippet = config.analytics.snippet;
+  props.browserConfig = settings.web.browserConfig;
+  props.appManifest = settings.web.appManifest;
+  props.swRegistrationScript = settings.web.serviceWorker.registration;
+  props.swMainScript = settings.web.serviceWorker.main;
 
   debug('Creating app state');
   state = app.dehydrate(context);

@@ -38,7 +38,7 @@ function renderApp (res, context, app, props) {
   props.trackingSnippet = config.analytics.snippet;
   props.browserConfig = settings.web.browserConfig;
   props.appManifest = settings.web.appManifest;
-  props.swRegistrationScript = settings.web.serviceWorker.registration;
+  props.swRegistrationScript = settings.web.assets.swRegScript();
   props.swMainScript = settings.web.serviceWorker.main;
 
   debug('Creating app state');

@@ -6,6 +6,7 @@
 
 var webpack = require('webpack');
 var swPrecache = require('sw-precache');
+var merge = require('lodash/object/merge');
 var _nconfig;
 
 /**
@@ -18,6 +19,7 @@ function webpackStatsPlugin(self) {
     var path = require('path');
     var fs = require('fs');
 
+    var assetsJsonFile = path.join(__dirname, self.options.custom.assetsJson);
     var data = stats.toJson();
     var assets = data.assetsByChunkName;
     var output = {
@@ -35,10 +37,16 @@ function webpackStatsPlugin(self) {
       output.assets[key] = value;
     });
 
-    fs.writeFileSync(
-      path.join(__dirname, self.options.custom.assetsJson),
-      JSON.stringify(output, null, 4)
-    );
+
+    // if file exists, merge output
+    if (fs.existsSync(assetsJsonFile)) {
+      var previousOutput = JSON.parse(
+        fs.readFileSync(assetsJsonFile, { encoding: 'utf8' })
+      );
+      output = merge(previousOutput, output);
+    }
+
+    fs.writeFileSync(assetsJsonFile, JSON.stringify(output, null, 4));
   });
 }
 
@@ -61,15 +69,22 @@ module.exports = function (grunt) {
       }
     },
 
-    clean: ['<%= project.dist.baseDir %>'],
+    clean: {
+      before: [
+        '<%= project.dist.baseDir %>',
+        '<%= project.src.assetsJson %>'
+      ],
+      after: [
+        '<%= project.dist.serviceWorker.main %>'
+      ]
+    },
 
     copy: {
       assets: {
         files: [{
           expand: true,
           cwd: '<%= project.src.assets %>',
-          // change back to !scripts/**, use uglifyjs to transfer
-          src: ['**', '!**/styles/**', '!images/*.svg', '!scripts/header*'],
+          src: ['**', '!**/styles/**', '!images/*.svg', '!scripts/**'],
           dest: '<%= project.dist.baseDir %>/'
         }]
       }
@@ -227,16 +242,13 @@ module.exports = function (grunt) {
       }
     },
 
-    '_service-worker': {
+    _service_worker: {
       options: {
         cacheId: '<%= pkg.name %>',
         serviceWorkerScript: '<%= project.dist.serviceWorker.main %>',
         directoryIndex: false,
         stripPrefix: '<%= project.dist.baseDir %>',
         replacePrefix: '<%= project.web.baseDir %>',
-        importScripts: [
-          '<%= project.web.serviceWorker.import %>'
-        ],
         staticFileGlobs: [
           '<%= project.dist.fonts %>/**.*',
           '<%= project.dist.images %>/**.*',
@@ -251,7 +263,10 @@ module.exports = function (grunt) {
       },
       prod: {
         options: {
-          handleFetch: true
+          handleFetch: true,
+          staticFileGlobsAddons: [
+            '<%= project.web.assets.mainScript() %>'
+          ]
         }
       }
     },
@@ -325,8 +340,89 @@ module.exports = function (grunt) {
           new webpack.optimize.UglifyJsPlugin({
             compress: {
               warnings: false
+            },
+            output: {
+              comments: false
             }
           })
+        ]
+      },
+      'swReg-dev': {
+        entry: {
+          swReg: './<%= project.src.serviceWorker.registration %>'
+        },
+        output: {
+          path: '<%= project.dist.scripts %>',
+          publicPath: '<%= project.web.scripts %>',
+          filename: '[name].js'
+        },
+        plugins: [
+          function () {
+            return webpackStatsPlugin(this);
+          }
+        ]
+      },
+      'swReg-prod': {
+        entry: {
+          swReg: './<%= project.src.serviceWorker.registration %>'
+        },
+        output: {
+          path: '<%= project.dist.scripts %>',
+          publicPath: '<%= project.web.scripts %>',
+          filename: '[name].[chunkhash].min.js'
+        },
+        plugins: [
+          new webpack.optimize.UglifyJsPlugin({
+            compress: {
+              warnings: false
+            },
+            output: {
+              comments: false
+            }
+          }),
+          function () {
+            return webpackStatsPlugin(this);
+          }
+        ]
+      },
+      'sw-dev': {
+        entry: {
+          sw: './<%= project.dist.serviceWorker.main %>'
+        },
+        output: {
+          path: '<%= project.dist.scripts %>',
+          publicPath: '<%= project.web.scripts %>',
+          filename: '[name].js'
+        },
+        target: 'webworker',
+        plugins: [
+          function () {
+            return webpackStatsPlugin(this);
+          }
+        ]
+      },
+      'sw-prod': {
+        entry: {
+          sw: './<%= project.dist.serviceWorker.main %>'
+        },
+        output: {
+          path: '<%= project.dist.scripts %>',
+          publicPath: '<%= project.web.scripts %>',
+          filename: '[name].[chunkhash].min.js'
+        },
+        target: 'webworker',
+        plugins: [
+          new webpack.optimize.UglifyJsPlugin({
+            compress: {
+              warnings: false
+            },
+            output: {
+              comments: false
+            }
+          }),
+          function () {
+            return webpackStatsPlugin(this);
+          }
         ]
       },
       dev: {
@@ -607,22 +703,26 @@ module.exports = function (grunt) {
 
   /**
    * Custom task to generate the service worker script.
-   * Run from service-worker task.
+   * Must be run from service-worker task.
    *
    * @access private
    */
-  grunt.registerMultiTask('_service-worker', function () {
+  grunt.registerMultiTask('_service_worker', function () {
     var done = this.async();
     var options = this.options();
 
-    grunt.task.requires('nconfig:'+this.target);
-
     options.logger = grunt.log.writeln;
+
+    if (options.staticFileGlobsAddons) {
+      options.staticFileGlobs = options.staticFileGlobs.concat(options.staticFileGlobsAddons);
+    }
+
     swPrecache.write(options.serviceWorkerScript, options, done);
   });
 
   /**
    * Custom task to generate the service worker script.
+   * Runs nconfig before _service_worker subtask.
    * target must be dev or prod:
    *  service-worker:dev | service-worker:prod
    *
@@ -630,7 +730,15 @@ module.exports = function (grunt) {
    */
   grunt.registerTask('service-worker', function () {
     var target = this.args.shift();
-    grunt.task.run(['nconfig:'+target, '_service-worker:'+target]);
+    var tasks = _nconfig ? [] : ['nconfig:'+target];
+
+    tasks = tasks.concat([
+      'webpack:swReg-'+target,
+      '_service_worker:'+target,
+      'webpack:sw-'+target
+    ]);
+
+    grunt.task.run(tasks);
   });
 
   // serial task sequences for concurrent, external grunt processes
@@ -641,22 +749,28 @@ module.exports = function (grunt) {
   grunt.registerTask('_cc-nodemon-dev', ['nconfig:dev', 'nodemon:app']);
   grunt.registerTask('_cc-nodemon-debug', ['nconfig:dev', 'nodemon:debug']);
   grunt.registerTask('_cc-nodemon-prod', ['nconfig:prod', 'nodemon:app']);
-  grunt.registerTask('_cc-webpack-dev', ['nconfig:dev', 'webpack:headerDev', 'service-worker:dev', 'webpack:dev']);
-  grunt.registerTask('_cc-webpack-prod', ['nconfig:prod', 'webpack:headerProd', 'webpack:prod', 'service-worker:prod']);
-  grunt.registerTask('_cc-webpack-perf', ['nconfig:prod', 'webpack:headerProd', 'webpack:perf', 'service-worker:prod']);
+  grunt.registerTask('_cc-webpack-dev', [
+    'nconfig:dev', 'webpack:headerDev', 'service-worker:dev', 'clean:after', 'webpack:dev'
+  ]);
+  grunt.registerTask('_cc-webpack-prod', [
+    'nconfig:prod', 'webpack:headerProd', 'webpack:prod', 'service-worker:prod', 'clean:after'
+  ]);
+  grunt.registerTask('_cc-webpack-perf', [
+    'nconfig:prod', 'webpack:headerProd', 'webpack:perf', 'service-worker:prod', 'clean:after'
+  ]);
 
   // Other development grunt commands commonly used:
   // dumpconfig:dev | dumpconfig:prod - dump nconfig configuration
 
   // script interface
   grunt.registerTask('default', 'dev');
-  grunt.registerTask('dev', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:dev']);
-  grunt.registerTask('debug', ['nconfig:dev', 'clean', 'copy', 'jshint', 'concurrent:debug']);
-  grunt.registerTask('prod', ['nconfig:prod', 'clean', 'copy', 'jshint', 'imagemin', 'concurrent:prod']);
-  grunt.registerTask('perf', ['nconfig:prod', 'clean', 'copy', 'jshint', 'imagemin', 'concurrent:perf']);
+  grunt.registerTask('dev', ['nconfig:dev', 'clean:before', 'copy', 'jshint', 'concurrent:dev']);
+  grunt.registerTask('debug', ['nconfig:dev', 'clean:before', 'copy', 'jshint', 'concurrent:debug']);
+  grunt.registerTask('prod', ['nconfig:prod', 'clean:before', 'copy', 'jshint', 'imagemin', 'concurrent:prod']);
+  grunt.registerTask('perf', ['nconfig:prod', 'clean:before', 'copy', 'jshint', 'imagemin', 'concurrent:perf']);
   grunt.registerTask('build', [
-    'nconfig:prod', 'clean', 'copy', 'imagemin', 'ccss:prod', 'webpack:headerProd', 'webpack:prod',
-    'service-worker:prod'
+    'nconfig:prod', 'clean:before', 'copy', 'imagemin', 'ccss:prod', 'webpack:headerProd', 'webpack:prod',
+    'service-worker:prod', 'clean:after'
   ]);
   // Also used:
   //   1. fixtures:dev | fixtures:prod - generate/update test fixtures from backend

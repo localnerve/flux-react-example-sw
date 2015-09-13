@@ -34,13 +34,11 @@ var data = require(baseDir + '/services/data');
 var settings = config.settings;
 var protocol = require(settings.web.ssl ? 'https' : 'http');
 
+var swRule = new RegExp('^(' + settings.web.serviceWorker.main + ')$', 'i');
 var rewriteRules = [
   // rewrite root image requests to settings.web.images
   '^/([^\\/]+\\.(?:png|jpg|jpeg|webp|ico|svg|gif)(?:\\?.*)?$) ' +
     settings.web.images + '/$1 [NC L]',
-  // rewrite root service worker request to settings.web.baseDir
-  '^(' + settings.web.serviceWorker.main +')$ ' +
-    settings.web.baseDir + '$1 [NC L]',
   // alias home to root
   '^/home/?$ / [L]',
   // forbid 404 and 500 direct requests
@@ -54,15 +52,28 @@ app.use(favicon(settings.dist.favicon));
 app.use(logger(settings.loggerFormat));
 app.use(compress());
 app.use(errorHandler.maintenance());
+
+// Handle special requests
 app.use(rewrite(rewriteRules));
+// Service worker rewrite evaluated later so assets.json not required on start.
+app.use(function (req, res, next) {
+  if (swRule.test(req.url)) {
+    req.url = req.url.replace(swRule, settings.web.assets.swMainScript());
+  }
+  next();
+});
+
+// Serve statics
 app.use(settings.web.baseDir, express.static(
   settings.dist.baseDir, { maxAge: settings.web.assetAge }
 ));
+
+// Setup security
 app.use(cookieParser({ httpOnly: true, secure: settings.web.ssl }));
 app.use(bodyParser.json());
 app.use(csrf({ cookie: true }));
 
-// Access fetchr plugin instance, register services, and setup middleware
+// Register services, handle service requests
 var fetchrPlugin = fluxibleApp.getPlugin('FetchrPlugin');
 fetchrPlugin.registerService(require(baseDir + '/services/routes'));
 fetchrPlugin.registerService(require(baseDir + '/services/page'));
@@ -72,6 +83,7 @@ app.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
 // Every other request gets the app bootstrap
 app.use(main(fluxibleApp));
 
+// Handle all errors
 app.use(errorHandler({
   server: server,
   static: {

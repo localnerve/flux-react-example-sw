@@ -3,7 +3,8 @@
     "./node_modules/**",
     "./dist/**",
     "./reports/**",
-    "./tests/fixtures/**"
+    "./tests/fixtures/**",
+    "./assets/scripts/sw/precache.js"
   ],
 
   "errorFilter": "./tests/utils/jscsFilter.js",

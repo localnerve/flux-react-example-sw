@@ -32,19 +32,13 @@ var commonFiles = {
   sitemap: 'sitemap.xml',
   headerScript: path.join(commonDirs.scripts, 'header.js'),
   appManifest: 'manifest.json',
-  browserConfig: 'browserconfig.xml',
-  serviceWorker: {
-    registration: path.join(commonDirs.scripts, 'service-worker-registration.js'),
-    precache: 'service-worker-precache.js',
-    main: 'service-worker.js'
-  }
+  browserConfig: 'browserconfig.xml'
 };
 
 /***
  * Directories and files that are in both dist and web
  */
 var outputDirs = {
-  // scripts: 'scripts'
 };
 var outputFiles = {
   css: path.join(commonDirs.styles, 'index.css')
@@ -56,10 +50,16 @@ var outputFiles = {
 var srcDirs = {
   components: 'components',
   config: 'configs',
-  assets: assetsbase
+  assets: assetsbase,
+  scripts: path.join(assetsbase, commonDirs.scripts)
 };
 var srcFiles = {
-  assetsJson: path.join(srcDirs.config, path.basename(__dirname), assets.assetsJsonFile)
+  assetsJson: path.join(srcDirs.config, path.basename(__dirname), assets.assetsJsonFile),
+  serviceWorker: {
+    registration: path.join(srcDirs.scripts, 'service-worker-registration.js'),
+    precache: path.join(srcDirs.scripts, 'sw', 'precache.js'),
+    entry: path.join(srcDirs.scripts, 'sw', 'index.js')
+  }
 };
 
 /**
@@ -113,7 +113,11 @@ function makeConfig (nconf) {
       baseDir: publicbase,
       assetAge: 0,
       assetHost: 'localhost',
-      ssl: false
+      ssl: false,
+      serviceWorker: {
+        // Set to root to allow service worker full app control
+        main: '/service-worker.js'
+      }
     },
 
     // unmovable project directories
@@ -148,8 +152,6 @@ function makeConfig (nconf) {
     );
   });
   config.web.assets = assets.assetsConfig(config.web.scripts);
-  // Set to root to allow service worker full app control
-  config.web.serviceWorker.main = '/' + commonFiles.serviceWorker.main;
 
   return config;
 }

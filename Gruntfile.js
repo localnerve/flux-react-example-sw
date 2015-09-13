@@ -75,7 +75,7 @@ module.exports = function (grunt) {
         '<%= project.src.assetsJson %>'
       ],
       after: [
-        '<%= project.dist.serviceWorker.main %>'
+        // '<%= project.dist.serviceWorker.main %>'
       ]
     },
 
@@ -245,7 +245,7 @@ module.exports = function (grunt) {
     _service_worker: {
       options: {
         cacheId: '<%= pkg.name %>',
-        serviceWorkerScript: '<%= project.dist.serviceWorker.main %>',
+        serviceWorkerScript: '<%= project.src.serviceWorker.precache %>',
         directoryIndex: false,
         stripPrefix: '<%= project.dist.baseDir %>',
         replacePrefix: '<%= project.web.baseDir %>',
@@ -387,7 +387,7 @@ module.exports = function (grunt) {
       },
       'sw-dev': {
         entry: {
-          sw: './<%= project.dist.serviceWorker.main %>'
+          sw: './<%= project.src.serviceWorker.entry %>'
         },
         output: {
           path: '<%= project.dist.scripts %>',
@@ -403,7 +403,7 @@ module.exports = function (grunt) {
       },
       'sw-prod': {
         entry: {
-          sw: './<%= project.dist.serviceWorker.main %>'
+          sw: './<%= project.src.serviceWorker.entry %>'
         },
         output: {
           path: '<%= project.dist.scripts %>',

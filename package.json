@@ -115,6 +115,7 @@
     "serialize-javascript": "^1.0.0",
     "serve-favicon": "^2.2.0",
     "superagent": "^1.2.0",
+    "sw-toolbox": "git://github.com/localnerve/sw-toolbox",
     "swipe-js-iso": "^2.0.1"
   }
 }

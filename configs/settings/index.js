@@ -58,6 +58,7 @@ var srcFiles = {
   serviceWorker: {
     registration: path.join(srcDirs.scripts, 'service-worker-registration.js'),
     precache: path.join(srcDirs.scripts, 'sw', 'precache.js'),
+    data: path.join(srcDirs.scripts, 'sw', 'data.js'),
     entry: path.join(srcDirs.scripts, 'sw', 'index.js')
   }
 };

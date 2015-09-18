@@ -4,7 +4,8 @@
     "./dist/**",
     "./reports/**",
     "./tests/fixtures/**",
-    "./assets/scripts/sw/precache.js"
+    "./assets/scripts/sw/precache.js",
+    "./assets/scripts/sw/data.js"
   ],
 
   "errorFilter": "./tests/utils/jscsFilter.js",

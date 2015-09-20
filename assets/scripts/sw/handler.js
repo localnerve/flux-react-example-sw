@@ -6,25 +6,35 @@
  */
 'use strict';
 
-var okResult = {
-  error: null
-};
+var backgrounds = require('./backgrounds');
+var routes = require('./routes');
 
 var commands = {
   init: init
 };
 
 /**
- * Handle init command
+ * Handle init command.
+ * Gets executed every app load (once per session).
+ * Installs background and route fetch handling, additional precaching.
  *
- * TODO:
- * 1. Fetch and cache main routes so every main route is up-to-date and works offline.
- * 2. Setup background fetches on proper origin. This should install prefetching.
+ * @param {Object} payload - Initial store state
+ * @param {Function} responder - Function to call to resolve the message
  */
 function init (payload, responder) {
   console.log('[sw handler] init command');
 
-  responder(okResult);
+  backgrounds(payload).then(function () {
+    routes(payload).then(function () {
+      responder({
+        error: null
+      });
+    });
+  }).catch(function (error) {
+    responder({
+      error: error
+    });
+  });
 }
 
 /**

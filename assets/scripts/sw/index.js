@@ -28,21 +28,11 @@ require('./messages');
 // Setup the in-project static asset precaching
 require('./precache');
 
+// TODO:
+// Review this, it looks like the api reqs maybe changing depending on order.
 // Handle the api gets
 data.api_gets.forEach(function (path) {
   toolbox.router.get(path+'*', toolbox.networkFirst, { debug: data.debug });
-});
-
-// TODO:
-// Remove this, prefetch and cache in init_stores
-toolbox.router.get('/(.*)', toolbox.networkFirst, { debug: data.debug });
-
-// TODO:
-// Remove this, setup in init_stores, setup prefetching
-// add new command for background size update
-toolbox.router.get('*', toolbox.networkFirst, {
-  debug: data.debug,
-  origin: 'lorempixel.com'
 });
 
 // TODO:

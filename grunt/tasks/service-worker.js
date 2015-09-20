@@ -58,6 +58,7 @@ module.exports = function (grunt) {
     },
     prod: {
       options: {
+        debug: true,
         handleFetch: true,
         staticFileGlobsAddons: [
           '<%= project.web.assets.mainScript() %>'

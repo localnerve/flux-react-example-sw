@@ -39,8 +39,8 @@ function precacheBackgrounds (backgroundUrls, request, values, options) {
     background = urlm.getLastPathSegment(backgroundUrls[key]);
 
     if (current && background && current !== background) {
-      reCurrent = new RegExp(regexEscape(current) + '(?:\/)?$');
-      notCurrent = request.url.replace(reCurrent, background);
+      reCurrent = new RegExp('(' + regexEscape(current) + ')(\/)?$');
+      notCurrent = request.url.replace(reCurrent, background + '$2');
       reqNotCurrent = new Request(notCurrent, {
         mode: 'no-cors'
       });

@@ -1,4 +1,10 @@
-/**
+/***
+ * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+ * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ *
+ * A modified serviceWorker registration script originally from Google.
+ */
+/***
  * Copyright 2015 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +20,6 @@
  * limitations under the License.
  */
 /* global document, window */
-
 'use strict';
 
 if ('serviceWorker' in window.navigator &&
@@ -22,6 +27,28 @@ if ('serviceWorker' in window.navigator &&
     (window.location.protocol === 'https:' ||
      window.location.hostname === 'localhost' ||
      window.location.hostname.indexOf('127.') === 0)) {
+  var serviceWorkerContainer = window.navigator.serviceWorker;
+
+  // When the ServiceWorkerContainer is ready, send the init message
+  // to the active worker. The message payload contains the latest routes
+  // and other store data directly from the server. This gives whomever is in
+  // charge a chance to update the cache with the latest info.
+  // See https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-container-ready-attribute
+  serviceWorkerContainer.ready.then(function (registration) {
+    var messages = require('../../utils/messages');
+    var stores = JSON.parse(JSON.stringify(window.App.context.dispatcher.stores));
+
+    messages.workerSendMessage({
+      command: 'init',
+      payload: stores
+    }, registration.active
+    ).then(function () {
+      console.log('[sw-reg] Successfully sent init to worker');
+    }).catch(function (error) {
+      console.error('[sw-reg] Failed to send init to worker:', error);
+    });
+  });
+
   // Pull the name of the service worker script from the data-service-worker attribute
   var serviceWorkerScript = document.currentScript.dataset.serviceWorker;
 
@@ -29,7 +56,7 @@ if ('serviceWorker' in window.navigator &&
   // It won't be able to control pages unless it's located at the same level or higher than them.
   // *Don't* register service worker file in, e.g., a scripts/ sub-directory!
   // See https://github.com/slightlyoff/ServiceWorker/issues/468
-  window.navigator.serviceWorker.register(serviceWorkerScript, {
+  serviceWorkerContainer.register(serviceWorkerScript, {
     scope: './'
   }).then(function (registration) {
     // Check to see if there's an updated version of service-worker.js with new files to cache:
@@ -52,29 +79,29 @@ if ('serviceWorker' in window.navigator &&
       installingWorker.onstatechange = function () {
         switch (installingWorker.state) {
           case 'installed':
-            if (window.navigator.serviceWorker.controller) {
+            if (serviceWorkerContainer.controller) {
               // At this point, the old content will have been purged and the fresh content will
               // have been added to the cache.
               // It's the perfect time to display a "New content is available; please refresh."
               // message in the page's interface.
-              console.log('New or updated content is available.');
+              console.log('[sw-reg] New or updated content is available.');
             } else {
               // At this point, everything has been precached, but the service worker is not
               // controlling the page. The service worker will not take control until the next
               // reload or navigation to a page under the registered scope.
               // It's the perfect time to display a "Content is cached for offline use." message.
-              console.log('Content is cached, and will be available for offline use the ' +
+              console.log('[sw-reg] Content is cached, and will be available for offline use the ' +
                           'next time the page is loaded.');
             }
           break;
 
           case 'redundant':
-            console.error('The installing service worker became redundant.');
+            console.error('[sw-reg] The installing service worker became redundant.');
           break;
         }
       };
     };
   }).catch(function (e) {
-    console.error('Error during service worker registration:', e);
+    console.error('[sw-reg] Error during service worker registration:', e);
   });
 }

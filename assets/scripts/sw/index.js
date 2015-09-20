@@ -22,33 +22,24 @@ toolbox.precache(data.assets.map(function (asset) {
   });
 }));
 
+// Setup message handling
+require('./messages');
+
 // Setup the in-project static asset precaching
 require('./precache');
 
-// TODO:
-// Is this even necessary?
 // Handle the api gets
 data.api_gets.forEach(function (path) {
   toolbox.router.get(path+'*', toolbox.networkFirst, { debug: data.debug });
 });
 
 // TODO:
-// Handle the dynamic routes
-// Since these are dynamic, and all routes are dynamic:
-//   1. dont need to get from built 'data'
-//   2. just catch /(:route)? since all are the dynamic routes, whatever they are
-//   3. must be on this origin
-//   3. they all have the same network strategy
+// Remove this, prefetch and cache in init_stores
 toolbox.router.get('/(.*)', toolbox.networkFirst, { debug: data.debug });
 
 // TODO:
-// Handle the background requests, try for prefetch
-// Need no-cors requests
-// Data needs:
-// 1. full urls
-// 2. other background images to replace for prefetch
-//   a. the background store does this perfectly
-// 3. prefetch only if first not in cache
+// Remove this, setup in init_stores, setup prefetching
+// add new command for background size update
 toolbox.router.get('*', toolbox.networkFirst, {
   debug: data.debug,
   origin: 'lorempixel.com'
@@ -56,4 +47,4 @@ toolbox.router.get('*', toolbox.networkFirst, {
 
 // TODO:
 // Handle the post request?
-// What should it do? retry in the background?
+// Use background sync to handle when available.

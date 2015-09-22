@@ -10,7 +10,8 @@ var backgrounds = require('./backgrounds');
 var routes = require('./routes');
 
 var commands = {
-  init: init
+  init: init,
+  dumpCache: dumpCache
 };
 
 /**
@@ -33,6 +34,26 @@ function init (payload, responder) {
   }).catch(function (error) {
     responder({
       error: error
+    });
+  });
+}
+
+// This is just for dumpCache
+var helpers = require('sw-toolbox/lib/helpers');
+/**
+ * Dump cache governed by sw-toolbox.
+ *
+ * TODO: this is just for debugging, make conditional soon
+ */
+function dumpCache () {
+  helpers.openCache().then(function (cache) {
+    cache.keys().then(function (keys) {
+      console.log('[sw-toolbox] cache');
+      keys.forEach(function (key) {
+        cache.match(key).then(function (value) {
+          console.log('[sw cache] key:', key, ' value:', value);
+        });
+      });
     });
   });
 }

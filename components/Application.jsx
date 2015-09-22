@@ -58,7 +58,7 @@ var Application = React.createClass({
 
     return (
       <div className="app-block">
-        <Background prefetch={true} />
+        <Background prefetch={false} />
         <Header
           selected={navPages[routeOrdinal].page}
           links={navPages}

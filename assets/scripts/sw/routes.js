@@ -10,37 +10,56 @@
 var toolbox = require('sw-toolbox');
 
 /**
- * Fetch the main navigation routes of the application and update the cache.
+ * What this does:
+ * 1. Fetch the mainNav routes of the application and update the cache with the responses.
+ * 2. Install route handlers for all the main nav routes.
  *
- * On the precache:
+ * NOTE:
  * If the server supported it, here would be a good place to add a parameter
- * that indicates the server should not do server-side render, only rely on
- * client side render. This would take load off the server for these prefetches,
- * and the main app bundle is already cached.
+ * that indicates the server should not do server-side application render, only rely on
+ * client side render. This would take load off the server for these prefetches.
+ * In an offline state, the main app bundle is already cached, so client-side only
+ * rendering would suffice.
  *
- * @param {Object} payload - The payload of the
+ * Currently, without this support, this is very much increasing the work the server
+ * has to do to render the app by many times (work x mainNav-routes times).
+ *
+ * TODO:
+ * Add server support for doing 'helmet' only renders, in which it does not
+ * run the application render, but only serves the static html and state, relying
+ * solely on the client side render of the application.
+ *
+ * @param {Object} payload - The payload of the init message.
+ * @param {Object} payload.RouteStore.routes - The routes of the application.
  */
 module.exports = function cacheRoutes (payload) {
-  var promises = [];
+  var results = [];
+  var routes = payload.RouteStore.routes;
 
-  Object.keys(payload.RouteStore.routes)
-    .forEach(function (route) {
-      if (payload.RouteStore.routes[route].mainNav) {
-        var url = payload.RouteStore.routes[route].path;
-
-        if (toolbox.options.debug) {
-          console.log('[sw routes] caching:', url);
-        }
-
-        // Install a read-thru cache on the mainNav route.
-        toolbox.router.get(url, toolbox.networkFirst, {
-          debug: toolbox.options.debug
-        });
-
-        // Precache the route.
-        promises.push(toolbox.cache(url));
+  if (toolbox.options.debug) {
+    console.log('[sw routes] received routes:', routes);
+    var mainNavRoutes = [];
+    Object.keys(routes).forEach(function (route) {
+      if (routes[route].mainNav) {
+        mainNavRoutes.push(routes[route].path);
       }
     });
+    console.log('[sw routes] cache and install read-thru and caching routes:', mainNavRoutes);
+  }
 
-  return Promise.all(promises);
+  Object.keys(routes).forEach(function (route) {
+    if (routes[route].mainNav) {
+      var url = routes[route].path;
+
+      // Install a read-thru cache handler on the mainNav route.
+      toolbox.router.get(url, toolbox.networkFirst, {
+        debug: toolbox.options.debug
+      });
+
+      // Add the route to the cache.
+      results.push(toolbox.cache(url));
+    }
+  });
+
+  return Promise.all(results);
 };

@@ -22,18 +22,22 @@ toolbox.precache(data.assets.map(function (asset) {
   });
 }));
 
+// Handle the api gets
+// Broken: sw-toolbox issue #35
+data.api_gets.forEach(function (path) {
+  toolbox.router.get(path+'*', function (request, values, options) {
+    var req = new Request(request, {
+      credentials: 'include'
+    });
+    return toolbox.networkFirst(req, values, options);
+  }, { debug: data.debug });
+});
+
 // Setup message handling
 require('./messages');
 
 // Setup the in-project static asset precaching
 require('./precache');
-
-// TODO:
-// Review this, it looks like the api reqs maybe changing depending on order.
-// Handle the api gets
-data.api_gets.forEach(function (path) {
-  toolbox.router.get(path+'*', toolbox.networkFirst, { debug: data.debug });
-});
 
 // TODO:
 // Handle the post request?

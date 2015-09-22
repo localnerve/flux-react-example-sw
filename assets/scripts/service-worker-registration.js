@@ -2,9 +2,8 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * A modified serviceWorker registration script originally from Google.
- */
-/***
+ * A heavily modified serviceWorker registration script originally from Google:
+ *
  * Copyright 2015 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,28 +28,61 @@ if ('serviceWorker' in window.navigator &&
      window.location.hostname.indexOf('127.') === 0)) {
   var serviceWorkerContainer = window.navigator.serviceWorker;
 
-  // When the ServiceWorkerContainer is ready, send the init message
-  // to the active worker. The message payload contains the latest routes
-  // and other store data directly from the server. This gives whomever is in
-  // charge a chance to update the cache with the latest info.
-  // See https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-container-ready-attribute
-  serviceWorkerContainer.ready.then(function (registration) {
-    var messages = require('../../utils/messages');
-    var stores = JSON.parse(JSON.stringify(window.App.context.dispatcher.stores));
-
-    messages.workerSendMessage({
-      command: 'init',
-      payload: stores
-    }, registration.active
-    ).then(function () {
-      console.log('[sw-reg] Successfully sent init to worker');
-    }).catch(function (error) {
-      console.error('[sw-reg] Failed to send init to worker:', error);
-    });
-  });
-
   // Pull the name of the service worker script from the data-service-worker attribute
   var serviceWorkerScript = document.currentScript.dataset.serviceWorker;
+
+  /**
+   * When DOMContentLoaded and serviceWorkerContainer is ready,
+   * send the init event to transfer the initial flux store state to the service worker.
+   * The flux store state contains config and data from the data backend.
+   *
+   * Since the flux store state comes from the server on each server side render,
+   * we wait until DOMContentLoaded to ensure the state is available to transfer.
+   *
+   * NOTE: If the network is absent, any fetches implied here will fail,
+   *  cache.add/addAll will fail, and the cache will not be modified.
+   */
+  document.addEventListener('DOMContentLoaded', function contentReady (event) {
+    document.removeEventListener('DOMContentLoaded', contentReady);
+
+    /**
+     * When the ServiceWorkerContainer is ready, send the init message
+     * to the active worker. The message payload contains the latest store data
+     * directly from the server. This gives whomever is in
+     * charge a chance to update the cache with the latest info.
+     * See https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-container-ready-attribute
+     */
+    serviceWorkerContainer.ready.then(function (registration) {
+      var messages = require('../../utils/messages');
+      var stores = JSON.parse(JSON.stringify(window.App.context.dispatcher.stores));
+
+      messages.workerSendMessage({
+        command: 'init',
+        payload: stores
+      }, registration.active
+      ).then(function () {
+        console.log('[sw-reg] Successfully sent init to worker');
+
+        // @@@
+        // This '@@@' is just for debugging only.
+        // For now, after 20 seconds of population, dump the contents.
+        // TODO: expose a button for debugging that will execute this.
+        setTimeout(function () {
+          messages.workerSendMessage({
+            command: 'dumpCache'
+          }, registration.active
+          ).then(function () {
+            console.log('[sw-reg] Successfully sent dumpCache to worker');
+          }).catch(function (error) {
+            console.log('[sw-reg] Failed to send dumpCache to worker');
+          });
+        }, 20000);
+        // @@@
+      }).catch(function (error) {
+        console.error('[sw-reg] Failed to send init to worker:', error);
+      });
+    });
+  });
 
   // Your service-worker.js *must* be located at the top-level directory relative to your site.
   // It won't be able to control pages unless it's located at the same level or higher than them.

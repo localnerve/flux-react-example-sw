@@ -18,11 +18,27 @@ function regexEscape(s) {
 }
 
 /**
+ * Precache a request if the response does NOT exist.
+ *
+ * @param {Object} options - options to accompany the cache operation.
+ * @param {Object} req - The Request object to cache.
+ * @param {Object} res - The Response object, if null, Request should be cached.
+ */
+function precacheBackground (options, req, res) {
+  if (!res) {
+    if (options.debug) {
+      console.log('[sw backgrounds] precaching:', req.url);
+    }
+    toolbox.cache(req.clone(), options);
+  }
+}
+
+/**
  * A precaching read-thru cache
  * When a background request comes in, checks against the other backgrounds.
  * If one or more of the other backgrounds is not in the cache, fetch and cache
  * them right now.
- * Serve the current background request in the fastest way, updating the cache.
+ * Serve the current background request, updating the cache as you go.
  *
  * @param {Object} backgroundUrls - The backgroundUrls used to init the BackgroundStore.
  * @param {Object} request - A Request object
@@ -31,32 +47,30 @@ function regexEscape(s) {
  */
 function precacheBackgrounds (backgroundUrls, request, values, options) {
   var background,
-      notCurrent, reqNotCurrent,
-      reCurrent, current = urlm.getLastPathSegment(request.url);
+      reCurrent, notCurrent, reqNotCurrent,
+      current = urlm.getLastPathSegment(request.url);
 
   // precache backgrounds not for this request that are not in cache already.
   Object.keys(backgroundUrls).forEach(function (key) {
     background = urlm.getLastPathSegment(backgroundUrls[key]);
 
     if (current && background && current !== background) {
+      // build the request for the not current background
       reCurrent = new RegExp('(' + regexEscape(current) + ')(\/)?$');
       notCurrent = request.url.replace(reCurrent, background + '$2');
       reqNotCurrent = new Request(notCurrent, {
         mode: 'no-cors'
       });
 
-      toolbox.cacheOnly(reqNotCurrent).then(function (response) {
-        if (!response) {
-          if (options.debug) {
-            console.log('[sw backgrounds] precaching:', notCurrent);
-          }
-          toolbox.cache(reqNotCurrent.clone(), options);
-        }
-      });
+      // if reqNotCurrent not in cache, falsy will be the response given to
+      // precacheBackground.
+      toolbox.cacheOnly(reqNotCurrent).then(
+        precacheBackground.bind(this, options, reqNotCurrent)
+      );
     }
   });
 
-  return toolbox.fastest(request, values, options);
+  return toolbox.networkFirst(request, values, options);
 }
 
 /**
@@ -77,7 +91,7 @@ module.exports = function backgroundHandler (payload) {
   });
 
   // Nothing deferred, so return placeholder Promise
-  return new Promise(function (resolve, reject) {
+  return new Promise(function (resolve) {
     resolve();
   });
 };

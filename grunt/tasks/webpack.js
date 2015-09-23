@@ -132,6 +132,21 @@ module.exports = function (grunt) {
         }
       ]
     },
+    'swReg-perf': {
+      entry: {
+        swReg: './<%= project.src.serviceWorker.registration %>'
+      },
+      output: {
+        path: '<%= project.dist.scripts %>',
+        publicPath: '<%= project.web.scripts %>',
+        filename: '[name].[chunkhash].min.js'
+      },
+      plugins: [
+        function () {
+          return webpackStatsPlugin(this);
+        }
+      ]
+    },
     'sw-dev': {
       entry: {
         sw: './<%= project.src.serviceWorker.entry %>'
@@ -167,6 +182,22 @@ module.exports = function (grunt) {
             comments: false
           }
         }),
+        function () {
+          return webpackStatsPlugin(this);
+        }
+      ]
+    },
+    'sw-perf': {
+      entry: {
+        sw: './<%= project.src.serviceWorker.entry %>'
+      },
+      output: {
+        path: '<%= project.dist.scripts %>',
+        publicPath: '<%= project.web.scripts %>',
+        filename: '[name].[chunkhash].min.js'
+      },
+      target: 'webworker',
+      plugins: [
         function () {
           return webpackStatsPlugin(this);
         }

@@ -8,6 +8,7 @@
 'use strict';
 
 var toolbox = require('sw-toolbox');
+var debug = require('./debug')('routes');
 
 /**
  * What this does:
@@ -36,25 +37,20 @@ module.exports = function cacheRoutes (payload) {
   var results = [];
   var routes = payload.RouteStore.routes;
 
-  if (toolbox.options.debug) {
-    console.log('[sw routes] received routes:', routes);
-    var mainNavRoutes = [];
-    Object.keys(routes).forEach(function (route) {
-      if (routes[route].mainNav) {
-        mainNavRoutes.push(routes[route].path);
-      }
-    });
-    console.log('[sw routes] cache and install read-thru and caching routes:', mainNavRoutes);
-  }
+  debug(toolbox.options, 'received routes', routes);
 
   Object.keys(routes).forEach(function (route) {
     if (routes[route].mainNav) {
       var url = routes[route].path;
 
+      debug(toolbox.options, 'install route handler on', url);
+
       // Install a read-thru cache handler on the mainNav route.
       toolbox.router.get(url, toolbox.networkFirst, {
         debug: toolbox.options.debug
       });
+
+      debug(toolbox.options, 'cache route', url);
 
       // Add the route to the cache.
       results.push(toolbox.cache(url));

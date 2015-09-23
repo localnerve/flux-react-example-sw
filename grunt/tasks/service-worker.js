@@ -40,7 +40,7 @@ module.exports = function (grunt) {
             re: /url\(([^\)]+)\)/ig
           }]
         }],
-        api_gets: [{
+        api_paths: [{
           file: 'app.js',
           captures: [{
             global: false,
@@ -56,9 +56,17 @@ module.exports = function (grunt) {
         handleFetch: false
       }
     },
-    prod: {
+    perf: {
       options: {
         debug: true,
+        handleFetch: true,
+        staticFileGlobsAddons: [
+          '<%= project.web.assets.mainScript() %>'
+        ]
+      }
+    },
+    prod: {
+      options: {
         handleFetch: true,
         staticFileGlobsAddons: [
           '<%= project.web.assets.mainScript() %>'
@@ -81,7 +89,7 @@ module.exports = function (grunt) {
       debug: options.debug ? true : false,
       cacheId: options.cacheId,
       assets: [],
-      api_gets: []
+      api_paths: []
     };
     var reClean = /^(?:\s+|"|')|(?:\s+|"|')$/g;
     var replacement = 'DATA';
@@ -104,8 +112,8 @@ module.exports = JSON.parse(JSON.stringify(\n' + replacement + '\n));';
     options = options.captureData;
 
     if (options) {
-      // build output.assets, output.api_gets from respective options
-      ['assets', 'api_gets'].forEach(function (item) {
+      // build output.assets, output.api_paths from respective options
+      ['assets', 'api_paths'].forEach(function (item) {
         options[item].forEach(function (input) {
           input.contents = fs.readFileSync(input.file, { encoding: 'utf8' });
 

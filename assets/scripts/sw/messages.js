@@ -10,6 +10,7 @@
 // For now, this only works in dev builds, sw-toolbox issue #31
 var toolbox = require('sw-toolbox');
 var handler = require('./handler');
+var debug = require('./debug')('messages');
 
 /**
  * Sends a response back to the message originator.
@@ -38,9 +39,7 @@ self.addEventListener('message', function (event) {
   var command = event.data.command;
   var payload = event.data.payload;
 
-  if (toolbox.options.debug) {
-    console.log('[sw message] command: ' + command + ' payload: ', payload);
-  }
+  debug(toolbox.options, '\'' + command + '\' command received', payload);
 
   handler(command, payload, sendResponse.bind(this, event));
 });

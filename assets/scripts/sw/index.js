@@ -31,7 +31,3 @@ require('./messages');
 
 // Setup the sw-precache managed cache
 require('./precache');
-
-// TODO:
-// Handle the post request?
-// Use background sync to handle when available.

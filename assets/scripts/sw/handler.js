@@ -6,8 +6,10 @@
  */
 'use strict';
 
+var toolbox = require('sw-toolbox');
 var backgrounds = require('./backgrounds');
 var routes = require('./routes');
+var debug = require('./debug')('handler');
 
 var commands = {
   init: init,
@@ -23,7 +25,7 @@ var commands = {
  * @param {Function} responder - Function to call to resolve the message
  */
 function init (payload, responder) {
-  console.log('[sw handler] init command');
+  debug(toolbox.options, 'init command handler');
 
   backgrounds(payload).then(function () {
     routes(payload).then(function () {
@@ -63,7 +65,7 @@ function dumpCache () {
  */
 function unknownCommand (payload, responder) {
   responder({
-    error: '[sw handler] Unknown command received by service worker.'
+    error: 'Unknown command received by service worker.'
   });
 }
 

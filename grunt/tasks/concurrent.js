@@ -36,6 +36,6 @@ module.exports = function (grunt) {
     'nconfig:prod', 'webpack:headerProd', 'webpack:prod', 'service-worker:prod'
   ]);
   grunt.registerTask('_cc-webpack-perf', [
-    'nconfig:prod', 'webpack:headerProd', 'webpack:perf', 'service-worker:prod'
+    'nconfig:prod', 'webpack:headerProd', 'webpack:perf', 'service-worker:perf'
   ]);
 };

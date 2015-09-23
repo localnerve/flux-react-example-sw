@@ -9,6 +9,7 @@
 
 var toolbox = require('sw-toolbox');
 var urlm = require('../../../utils/urls');
+var debug = require('./debug')('backgrounds');
 
 /**
  * Escape a string for usage in a regular expression.
@@ -26,9 +27,7 @@ function regexEscape(s) {
  */
 function precacheBackground (options, req, res) {
   if (!res) {
-    if (options.debug) {
-      console.log('[sw backgrounds] precaching:', req.url);
-    }
+    debug(options, 'precaching background', req);
     toolbox.cache(req.clone(), options);
   }
 }
@@ -70,6 +69,7 @@ function precacheBackgrounds (backgroundUrls, request, values, options) {
     }
   });
 
+  // want fastest, but it has a bug (or works unexpectedly)
   return toolbox.networkFirst(request, values, options);
 }
 
@@ -79,9 +79,7 @@ function precacheBackgrounds (backgroundUrls, request, values, options) {
 module.exports = function backgroundHandler (payload) {
   var backgroundStore = payload.BackgroundStore;
 
-  if (toolbox.options.debug) {
-    console.log('[sw backgrounds] install background handling', backgroundStore);
-  }
+  debug(toolbox.options, 'install background image handler', backgroundStore);
 
   // Install a precaching, read-thru cache on all requests to the background image service
   toolbox.router.get('*',

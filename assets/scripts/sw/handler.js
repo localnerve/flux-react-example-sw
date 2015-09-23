@@ -28,14 +28,15 @@ function init (payload, responder) {
   debug(toolbox.options, 'init command handler');
 
   backgrounds(payload).then(function () {
-    routes(payload).then(function () {
+    return routes(payload).then(function () {
       responder({
         error: null
       });
     });
   }).catch(function (error) {
+    debug(toolbox.options, 'init failed', error);
     responder({
-      error: error
+      error: error.toString()
     });
   });
 }

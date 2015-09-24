@@ -16,7 +16,7 @@ var debug = require('./debug')('apis');
 var content = require('./content');
 
 /**
- * strip search time!
+ * strip search!
  * Removes the search/query portion from a URL.
  * E.g. stripSearchParameters("http://example.com/index.html?a=b&c=d")
  *     ➔ "http://example.com/index.html"
@@ -30,9 +30,13 @@ function stripSearchParameters(url) {
 /**
  * Handle an api request.
  *
- * Api requests are read-thru cached (network first strategy).
+ * Api requests are read-thru cached (network first strategy). Net failures
+ * fallback to cache, and cache failures fallback to initially rendered content
+ * in IndexedDB init.content.
+ *
  * Api is CSRF protected, so we include the cookie and ignoreSearch
  * on the cache match.
+ * Api requests that fail to be found in cache
  *
  * ignoreSearch option is not implemented yet in cache.match/matchAll,
  * so we stripSearchParameters to ignoreSearch ourselves in the request we cache.
@@ -40,6 +44,19 @@ function stripSearchParameters(url) {
  *
  * Response from Google:
  * https://github.com/GoogleChrome/sw-toolbox/issues/35
+ *
+ * NOTE:
+ *   Network First, Fallback to Cache, Fallback to Content
+ *   For every app render, on any entry route, there is always one api GET that
+ *   is never made, because it is not required - it was already made on the
+ *   server for the initial render - but its data is available in app state
+ *   (in the ContentStore). This is why content.resourceContentResponse.
+ *   This populated in the 'init' command by content.storeOnlineContent.
+ *
+ * Example:
+ *   The api get for the home route is not made for the app rendered on '/'.
+ *   While offline, if the user starts the app on /contact and goes to '/', that
+ *   req-res mapping will not be in the cache.
  */
 function handleApiRequest (request, values, options) {
   options = options || {};
@@ -61,6 +78,8 @@ function handleApiRequest (request, values, options) {
     throw response;
   }).catch(function (error) {
     debug(options, 'network req failed, fallback to cache', error);
+
+    // Returned cached response, if there's none, try getting from content.
     return caches.open(toolbox.options.cacheName).then(function (cache) {
       var response = cache.match(reqCache);
       return response.then(function (data) {
@@ -69,32 +88,12 @@ function handleApiRequest (request, values, options) {
         }
         return response;
       });
-      // return response || content.matchInitialContent(reqCache);
     });
   });
 }
 
 /**
  * Install route handlers for all api paths.
- *
- * Since this only catches api requests and caches them, it doesn't catch
- * api requests not made.
- *
- * NOTE:
- *   For every app render, on any entry route, there is always one api get that
- *   is never made, because it is not required - it was already made on the
- *   server for the initial render - but its data is available in app state.
- * TODO:
- *   Think of a nice way to cache responses to this api request not made with
- *   the data that is already here.
- *   1. we know what api request will not be made - it's always the one for
- *      the currentRoute on 'init'.
- *   2. we could setup to catch this api request separately using matching rules.
- *   3. we could find that data in app state and return it for the response.
- * Example:
- *   The api get for the home route is not made for the app rendered on '/'.
- *   While offline, if the user starts the app on /contact and goes to '/', that
- *   req-res mapping will not be in the cache.
  */
 function installApiRequestProxies () {
   data.api_paths.forEach(function (path) {

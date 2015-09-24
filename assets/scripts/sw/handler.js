@@ -20,8 +20,12 @@ var commands = {
 
 /**
  * Handle init command.
+ *
  * Gets executed every app load (once per session).
+ * Gets executed at the beginning of sw load.
+ *
  * Installs background and route fetch handling, additional precaching.
+ * Updates the initial stores and content stored in IndexedDB.
  *
  * @param {Object} payload - Initial store state
  * @param {Function} responder - Function to call to resolve the message
@@ -74,6 +78,9 @@ function dumpCache () {
 
 /**
  * Handle unknown commands
+ *
+ * @param {Object} payload - Initial store state
+ * @param {Function} responder - Function to call to resolve the message
  */
 function unknownCommand (payload, responder) {
   responder({
@@ -81,6 +88,9 @@ function unknownCommand (payload, responder) {
   });
 }
 
+/**
+ * Run a command
+ */
 module.exports = function run (command, payload, responder) {
   var handler = commands[command] || unknownCommand;
   return handler(payload, responder);

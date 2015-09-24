@@ -12,14 +12,20 @@ var debug = require('./debug')('content');
 var idb = require('./idb');
 
 /**
- * Store the content separately if the app is online.
+ * Update the init content (must be stored/addressed separately from init stores)
+ * if the app is online.
+ *
+ * @param {Object} payload - The initial stores payload.
+ * @return {Object} A Promise.
  */
 function storeOnlineContent (payload) {
   return fetch('/beacon').then(function (response) {
     if (response.ok) {
       return idb.put('init', 'content', payload.ContentStore);
     }
-    throw new Error('Beacon not online');
+    throw response;
+  }).catch(function (error) {
+    debug(toolbox.options, 'App not online, not updating init.content', error);
   });
 }
 
@@ -27,16 +33,12 @@ function storeOnlineContent (payload) {
  * Pull the resource request from the given request url.
  * Return the content response for that resource.
  *
- * TODO: populate 'init' with another key to store the initial content.
- * Why? because an offline reload will cause the ContentStore to update
- * with a new initial content set - which will omit/replace the original online initial rendered
- * set.
- * Look that content set up instead of the 'init' 'stores' ContentStore.
- * Call it 'init' 'content'.
- * The key? ONLY store that content set if online.
+ * Uses IndexedDB init content to retrieve the initially served content.
+ * @see ./apis.js: handleApiRequest
  *
  * @param {String} request - the request url to find the resource in.
- * @return {Object} A promise that resolves to the Response with the initial content.
+ * @return {Object} A promise that resolves to the Response with the initial
+ * content for the resource specified in the request.
  */
 function resourceContentResponse (request) {
   var matches = request.match(/resource=([\w\-]+)/);
@@ -46,7 +48,7 @@ function resourceContentResponse (request) {
     return idb.get('init', 'content').then(function (payload) {
       var content = payload && payload.contents && payload.contents[resource];
 
-      debug(toolbox.options, 'resourceContentResponse, resource:', resource, 'response:', content);
+      debug(toolbox.options, 'resourceContentResponse, resource:', resource, ', response:', content);
 
       return new Promise(function (resolve, reject) {
         if (content) {

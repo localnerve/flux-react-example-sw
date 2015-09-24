@@ -9,6 +9,8 @@
 var toolbox = require('sw-toolbox');
 var backgrounds = require('./backgrounds');
 var routes = require('./routes');
+var idb = require('./idb');
+var content = require('./content');
 var debug = require('./debug')('handler');
 
 var commands = {
@@ -27,13 +29,22 @@ var commands = {
 function init (payload, responder) {
   debug(toolbox.options, 'init command handler');
 
-  backgrounds(payload).then(function () {
-    return routes(payload).then(function () {
-      responder({
-        error: null
-      });
+  idb.put('init', 'stores', payload)
+  .then(function () {
+    return content.storeOnlineContent(payload);
+  })
+  .then(function () {
+    return backgrounds(payload);
+  })
+  .then(function () {
+    return routes(payload);
+  })
+  .then(function () {
+    responder({
+      error: null
     });
-  }).catch(function (error) {
+  })
+  .catch(function (error) {
     debug(toolbox.options, 'init failed', error);
     responder({
       error: error.toString()

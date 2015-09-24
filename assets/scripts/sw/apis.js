@@ -13,6 +13,7 @@
 var toolbox = require('sw-toolbox');
 var data = require('./data');
 var debug = require('./debug')('apis');
+var content = require('./content');
 
 /**
  * strip search time!
@@ -61,7 +62,14 @@ function handleApiRequest (request, values, options) {
   }).catch(function (error) {
     debug(options, 'network req failed, fallback to cache', error);
     return caches.open(toolbox.options.cacheName).then(function (cache) {
-      return cache.match(reqCache);
+      var response = cache.match(reqCache);
+      return response.then(function (data) {
+        if (!data) {
+          return content.resourceContentResponse(reqCache);
+        }
+        return response;
+      });
+      // return response || content.matchInitialContent(reqCache);
     });
   });
 }
@@ -96,6 +104,7 @@ function installApiRequestProxies () {
     toolbox.router.get(path+'*', handleApiRequest, {
       debug: toolbox.options.debug
     });
+
     // TODO: handle the post request.
     // This could store in indexedDB and use background sync to resolve.
   });

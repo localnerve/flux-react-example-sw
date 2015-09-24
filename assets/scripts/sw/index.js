@@ -10,8 +10,11 @@
 'use strict';
 
 var toolbox = require('sw-toolbox');
+var debug = require('./debug')('index');
 var data = require('./data');
 var apis = require('./apis');
+var idb = require('./idb');
+var handler = require('./handler');
 
 toolbox.options.cacheName = data.cacheId + '-' + toolbox.options.cacheName;
 toolbox.options.debug = data.debug;
@@ -31,3 +34,19 @@ require('./messages');
 
 // Setup the sw-precache managed cache
 require('./precache');
+
+// If init stores exists, since this is starting, re-initialize.
+// The init message may never come if this was just restarted by the system.
+idb.get('init', 'stores').then(function (payload) {
+  if (payload) {
+    handler('init', payload, function (res) {
+      if (res.error) {
+        return console.error('init command failed', res.error);
+      }
+    });
+  } else {
+    debug(toolbox.options, 'init stores not found');
+  }
+}).catch(function (error) {
+  console.error('init stores error', error);
+});

@@ -62,6 +62,10 @@ app.use(function (req, res, next) {
   }
   next();
 });
+// Handle special beacon request
+app.use('/beacon', function (req, res, next) {
+  res.status(200).send('pong');
+});
 
 // Serve statics
 app.use(settings.web.baseDir, express.static(

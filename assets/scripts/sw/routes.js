@@ -57,5 +57,7 @@ module.exports = function cacheRoutes (payload) {
     }
   });
 
-  return Promise.all(results);
+  return Promise.all(results).catch(function (error) {
+    debug(toolbox.options, 'failed to cache route', error);
+  });
 };

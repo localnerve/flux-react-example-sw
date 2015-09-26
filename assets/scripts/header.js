@@ -13,4 +13,7 @@ new window.FontFaceObserver('Source Sans Pro', {})
 .check()
 .then(function() {
   window.document.documentElement.className += 'fonts-loaded';
+})
+.catch(function (error) {
+  console.error('font failed to load: ', error);
 });

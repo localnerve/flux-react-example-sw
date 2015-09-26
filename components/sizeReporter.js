@@ -108,7 +108,8 @@ function reportRenderedSize (Component, selector, options) {
     reportSize: function () {
       var width, height, top,
           el = document.querySelector(selector),
-          rect = el ? el.getBoundingClientRect() : { top: 0, bottom: 0 };
+          rect = el ? el.getBoundingClientRect() :
+            { top: 0, right: 0, bottom: 0, left: 0 };
 
       if (options.reportWidth) {
         width = this.round('width', rect.right - rect.left);

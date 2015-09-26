@@ -40,7 +40,9 @@ var Nav = React.createClass({
 
 module.exports = sizeReporter(Nav, '.navigation', {
   reportTop: true,
-  widthCeiling: true,
-  heightCeiling: true,
-  heightNearest10: true
+  reportHeight: true,
+  cover: {
+    top: 5,
+    height: 10
+  }
 });

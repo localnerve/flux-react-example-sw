@@ -52,6 +52,34 @@ function reportRenderedSize (Component, selector, options) {
     },
 
     /**
+     * Round a number according to rules.
+     *
+     * If options.cover specified, uses 'type' to go to lower or upper bound.
+     * If a 'type' specified in options.cover as Object, then use specified units.
+     *
+     * Otherwise, just go to nearest (plain round).
+     *
+     * Coverage rules:
+     *   upper = ceil, lower = floor, nearest = round.
+     *   top = lower; width/height = upper.
+     *
+     * @param {String} type - Can be one of 'top', 'width', or 'height'.
+     * @param {Number} value - The raw value.
+     */
+    round: function (type, value) {
+      var unit = 1.0, roundOp = Math.round;
+
+      if (options.cover) {
+        roundOp = Math[type === 'top' ? 'floor' : 'ceil'];
+        if ('object' === typeof options.cover) {
+          unit = options.cover[type] || 1.0;
+        }
+      }
+
+      return roundOp(value / unit) * unit;
+    },
+
+    /**
      * Render the wrapped component with props.
      */
     render: function () {
@@ -78,37 +106,23 @@ function reportRenderedSize (Component, selector, options) {
      * ceil is used on clientRect to reduce the differences in width, height.
      */
     reportSize: function () {
-      var width, height, top, rect,
-          el = document.querySelector(selector);
+      var width, height, top,
+          el = document.querySelector(selector),
+          rect = el ? el.getBoundingClientRect() : { top: 0, bottom: 0 };
 
-      if (el) {
-        rect = el.getBoundingClientRect();
-
-        if (options.reportWidth) {
-          width = rect.right - rect.left;
-          if (options.widthCeiling) {
-            width = options.widthNearest10 ? Math.ceil(width / 10.0) * 10.0 :
-              Math.ceil(width);
-          } else {
-            width = options.widthNearest10 ? Math.round(width / 10.0) * 10.0 :
-              Math.round(width);
-          }
-        }
-      } else {
-        rect = { top: 0, bottom: 0 };
+      if (options.reportWidth) {
+        width = this.round('width', rect.right - rect.left);
       }
 
       if (options.reportTop) {
-        top = rect.top + window.pageYOffset - document.documentElement.clientTop;
+        top = this.round(
+          'top',
+          rect.top + window.pageYOffset - document.documentElement.clientTop
+        );
       }
 
-      height = rect.bottom - rect.top;
-      if (options.heightCeiling) {
-        height = options.heightNearest10 ? Math.ceil(height / 10.0) * 10.0 :
-          Math.ceil(height);
-      } else {
-        height = options.heightNearest10 ? Math.round(height / 10.0) * 10.0 :
-          Math.round(height);
+      if (options.reportHeight) {
+        height = this.round('height', rect.bottom - rect.top);
       }
 
       this.context.executeAction(sizeAction, {
@@ -117,6 +131,7 @@ function reportRenderedSize (Component, selector, options) {
         top: top,
         add: callCount % reporters !== 0
       });
+
       callCount++;
     }
   });

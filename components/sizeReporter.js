@@ -75,23 +75,44 @@ function reportRenderedSize (Component, selector, options) {
 
     /**
      * Report the size of the DOM element found at `selector`.
+     * ceil is used on clientRect to reduce the differences in width, height.
      */
     reportSize: function () {
-      var el = document.querySelector(selector);
+      var width, height, top, rect,
+          el = document.querySelector(selector);
 
-      var width;
-      if (options.reportWidth) {
-        width = el ? el.clientWidth : null;
+      if (el) {
+        rect = el.getBoundingClientRect();
+
+        if (options.reportWidth) {
+          width = rect.right - rect.left;
+          if (options.widthCeiling) {
+            width = options.widthNearest10 ? Math.ceil(width / 10.0) * 10.0 :
+              Math.ceil(width);
+          } else {
+            width = options.widthNearest10 ? Math.round(width / 10.0) * 10.0 :
+              Math.round(width);
+          }
+        }
+      } else {
+        rect = { top: 0, bottom: 0 };
       }
 
-      var top;
       if (options.reportTop) {
-        var rect = el ? el.getBoundingClientRect() : { top: 0 };
         top = rect.top + window.pageYOffset - document.documentElement.clientTop;
       }
 
+      height = rect.bottom - rect.top;
+      if (options.heightCeiling) {
+        height = options.heightNearest10 ? Math.ceil(height / 10.0) * 10.0 :
+          Math.ceil(height);
+      } else {
+        height = options.heightNearest10 ? Math.round(height / 10.0) * 10.0 :
+          Math.round(height);
+      }
+
       this.context.executeAction(sizeAction, {
-        height: el ? el.clientHeight : null,
+        height: height,
         width: width,
         top: top,
         add: callCount % reporters !== 0

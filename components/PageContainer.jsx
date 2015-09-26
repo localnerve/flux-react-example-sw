@@ -18,5 +18,8 @@ var PageContainer = React.createClass({
 });
 
 module.exports = sizeReporter(PageContainer, '.page', {
-  reportWidth: true
+  reportWidth: true,
+  widthCeiling: true,
+  heightCeiling: true,
+  heightNearest10: true
 });

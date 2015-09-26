@@ -41,7 +41,7 @@ function precacheBackground (options, req, res) {
  *
  * @param {Object} backgroundUrls - The backgroundUrls used to init the BackgroundStore.
  * @param {Object} request - A Request object
- * @param {Object} values - A values object used by toolbox router routes.
+ * @param {Object} values - Ignored.
  * @param {Object} options - The router options.
  */
 function precacheBackgrounds (backgroundUrls, request, values, options) {

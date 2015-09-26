@@ -19,12 +19,16 @@ var commands = {
 };
 
 /**
- * Handle init command.
+ * Handle the 'init' command.
+ *
+ * It uses the initial store data sent from the server to setup dynamic request
+ * handling, and to keep the store data up-to-date.
  *
  * Gets executed every app load (once per session).
- * Gets executed at the beginning of sw load.
+ * Gets executed at the beginning of service worker start.
  *
- * Installs background and route fetch handling, additional precaching.
+ * Installs background and route fetch handling.
+ * Precaches backgrounds and routes.
  * Updates the initial stores and content stored in IndexedDB.
  *
  * @param {Object} payload - Initial store state

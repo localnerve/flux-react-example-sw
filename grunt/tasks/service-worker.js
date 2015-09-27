@@ -24,7 +24,8 @@ module.exports = function (grunt) {
       replacePrefix: '<%= project.web.baseDir %>',
       staticFileGlobs: [
         '<%= project.dist.fonts %>/**.*',
-        '<%= project.dist.images %>/**.*',
+        // in this project, photos are only served via image service
+        '<%= project.dist.images %>/**.!(jpg|jpeg)',
         '<%= project.dist.scripts %>/!(header|inline).*'
       ],
       verbose: true,

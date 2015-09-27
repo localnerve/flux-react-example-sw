@@ -37,7 +37,6 @@ function webpackStatsPlugin(self) {
       output.assets[key] = value;
     });
 
-
     // if file exists, merge output
     if (fs.existsSync(assetsJsonFile)) {
       var previousOutput = JSON.parse(
@@ -101,13 +100,15 @@ module.exports = function (grunt) {
       output: {
         path: '<%= project.dist.scripts %>',
         publicPath: '<%= project.web.scripts %>',
-        filename: '[name].js'
+        filename: '[name].js',
+        devtoolModuleFilenameTemplate: 'webpack:///sw-reg/[resource-path]'
       },
       plugins: [
         function () {
           return webpackStatsPlugin(this);
         }
-      ]
+      ],
+      devtool: 'source-map'
     },
     'swReg-prod': {
       entry: {
@@ -119,6 +120,8 @@ module.exports = function (grunt) {
         filename: '[name].[chunkhash].min.js'
       },
       plugins: [
+        new webpack.optimize.DedupePlugin(),
+        new webpack.optimize.OccurenceOrderPlugin(),
         new webpack.optimize.UglifyJsPlugin({
           compress: {
             warnings: false
@@ -139,13 +142,16 @@ module.exports = function (grunt) {
       output: {
         path: '<%= project.dist.scripts %>',
         publicPath: '<%= project.web.scripts %>',
-        filename: '[name].[chunkhash].min.js'
+        filename: '[name].[chunkhash].min.js',
+        devtoolModuleFilenameTemplate: 'webpack:///sw-reg/[resource-path]'
       },
       plugins: [
         function () {
           return webpackStatsPlugin(this);
         }
-      ]
+      ],
+      devtool: 'source-map',
+      progress: false
     },
     'sw-dev': {
       entry: {
@@ -154,14 +160,16 @@ module.exports = function (grunt) {
       output: {
         path: '<%= project.dist.scripts %>',
         publicPath: '<%= project.web.scripts %>',
-        filename: '[name].js'
+        filename: '[name].js',
+        devtoolModuleFilenameTemplate: 'webpack:///sw/[resource-path]'
       },
       target: 'webworker',
       plugins: [
         function () {
           return webpackStatsPlugin(this);
         }
-      ]
+      ],
+      devtool: 'source-map'
     },
     'sw-prod': {
       entry: {
@@ -174,6 +182,8 @@ module.exports = function (grunt) {
       },
       target: 'webworker',
       plugins: [
+        new webpack.optimize.DedupePlugin(),
+        new webpack.optimize.OccurenceOrderPlugin(),
         new webpack.optimize.UglifyJsPlugin({
           compress: {
             warnings: false
@@ -194,14 +204,16 @@ module.exports = function (grunt) {
       output: {
         path: '<%= project.dist.scripts %>',
         publicPath: '<%= project.web.scripts %>',
-        filename: '[name].[chunkhash].min.js'
+        filename: '[name].[chunkhash].min.js',
+        devtoolModuleFilenameTemplate: 'webpack:///sw/[resource-path]'
       },
       target: 'webworker',
       plugins: [
         function () {
           return webpackStatsPlugin(this);
         }
-      ]
+      ],
+      devtool: 'source-map'
     },
     dev: {
       resolve: {
@@ -212,7 +224,8 @@ module.exports = function (grunt) {
         path: '<%= project.dist.scripts %>',
         publicPath: '<%= project.web.scripts %>',
         filename: '[name].js',
-        chunkFilename: '[name].js'
+        chunkFilename: '[name].js',
+        devtoolModuleFilenameTemplate: 'webpack:///main/[resource-path]'
       },
       module: {
         loaders: [
@@ -301,7 +314,8 @@ module.exports = function (grunt) {
         path: '<%= project.dist.scripts %>',
         publicPath: '<%= project.web.scripts %>',
         filename: '[name].[chunkhash].min.js',
-        chunkFilename: '[name].[chunkhash].min.js'
+        chunkFilename: '[name].[chunkhash].min.js',
+        devtoolModuleFilenameTemplate: 'webpack:///main/[resource-path]'
       },
       module: {
         loaders: [

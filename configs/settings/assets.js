@@ -72,6 +72,23 @@ function assetsConfig (baseDir) {
       this.load();
       var sw = Array.isArray(this.assets.sw) ? this.assets.sw[0] : this.assets.sw;
       return path.join(this.baseDir, sw);
+    },
+
+    /**
+     * Same as swMainScript, but for the source map asset.
+     *
+     * @param {Boolean} nameOnly - If true, only return the asset name, not whole asset path.
+     * @returns {String} The service-worker source map if found.
+     */
+    swMainScriptMap: function (nameOnly) {
+      this.load();
+      var swMap = Array.isArray(this.assets.sw) ? this.assets.sw[1] : undefined;
+
+      var swSourceMap;
+      if (swMap) {
+        swSourceMap = nameOnly ? swMap : path.join(this.baseDir, swMap);
+      }
+      return swSourceMap;
     }
   };
 

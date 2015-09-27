@@ -55,19 +55,26 @@ app.use(errorHandler.maintenance());
 
 // Handle special requests
 app.use(rewrite(rewriteRules));
-// Service worker rewrite evaluated later so assets.json not required on start.
+// Service worker rewrites delayed so assets.json not required on app start.
 app.use(function (req, res, next) {
+  var reSourceMap;
   if (swRule.test(req.url)) {
     req.url = req.url.replace(swRule, settings.web.assets.swMainScript());
+  } else {
+    reSourceMap = new RegExp(
+      '^(/' + settings.web.assets.swMainScriptMap(true) + ')$', 'i'
+    );
+    if (reSourceMap.test(req.url)) {
+      req.url = req.url.replace(reSourceMap, settings.web.assets.swMainScriptMap());
+    }
   }
   next();
 });
-// Handle special beacon request
 app.use('/beacon', function (req, res, next) {
   res.status(200).send('pong');
 });
 
-// Serve statics
+// Serve cached statics
 app.use(settings.web.baseDir, express.static(
   settings.dist.baseDir, { maxAge: settings.web.assetAge }
 ));

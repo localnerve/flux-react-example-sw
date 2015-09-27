@@ -14,8 +14,7 @@ var content = require('./content');
 var debug = require('./debug')('handler');
 
 var commands = {
-  init: init,
-  dumpCache: dumpCache
+  init: init
 };
 
 /**
@@ -56,26 +55,6 @@ function init (payload, responder) {
     debug(toolbox.options, 'init failed', error);
     responder({
       error: error.toString()
-    });
-  });
-}
-
-// This is just for dumpCache
-var helpers = require('sw-toolbox/lib/helpers');
-/**
- * Dump cache governed by sw-toolbox.
- *
- * TODO: this is just for debugging, make conditional soon
- */
-function dumpCache () {
-  helpers.openCache().then(function (cache) {
-    cache.keys().then(function (keys) {
-      console.log('[sw-toolbox] cache');
-      keys.forEach(function (key) {
-        cache.match(key).then(function (value) {
-          console.log('[sw cache] key:', key, ' value:', value);
-        });
-      });
     });
   });
 }

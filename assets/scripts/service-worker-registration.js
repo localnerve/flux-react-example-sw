@@ -62,22 +62,6 @@ if ('serviceWorker' in window.navigator &&
       }, registration.active
       ).then(function () {
         console.log('[sw-reg] Successfully sent init to worker');
-
-        // @@@
-        // This '@@@' is just for debugging only.
-        // For now, after 20 seconds of population, dump the contents.
-        // TODO: expose a button for debugging that will execute this.
-        setTimeout(function () {
-          messages.workerSendMessage({
-            command: 'dumpCache'
-          }, registration.active
-          ).then(function () {
-            console.log('[sw-reg] Successfully sent dumpCache to worker');
-          }).catch(function (error) {
-            console.log('[sw-reg] Failed to send dumpCache to worker');
-          });
-        }, 20000);
-        // @@@
       }).catch(function (error) {
         console.error('[sw-reg] Failed to send init to worker:', error);
       });

@@ -8,7 +8,7 @@
 'use strict';
 
 var toolbox = require('sw-toolbox');
-var debug = require('./debug')('routes');
+var debug = require('../utils/debug')('routes');
 
 /**
  * What this does:

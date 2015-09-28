@@ -8,8 +8,8 @@
 'use strict';
 
 var toolbox = require('sw-toolbox');
-var urlm = require('../../../utils/urls');
-var debug = require('./debug')('backgrounds');
+var urlm = require('../../../../utils/urls');
+var debug = require('../utils/debug')('backgrounds');
 
 /**
  * Escape a string for usage in a regular expression.

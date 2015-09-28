@@ -9,8 +9,31 @@
 
 // For now, this only works in dev builds, sw-toolbox issue #31
 var toolbox = require('sw-toolbox');
-var handler = require('./handler');
-var debug = require('./debug')('messages');
+var debug = require('./utils/debug')('messages');
+
+/**
+ * Add any new messaging command handlers to this object.
+ *
+ * Signature: command (payload, responder)
+ * All commands must accept arguments payload, responder.
+ * The payload is the message payload object, and responder is a function that
+ * accepts a single object that contains an optional error property.
+ */
+var commands = {
+  init: require('./init').command
+};
+
+/**
+ * Handle unknown commands
+ *
+ * @param {Object} payload - Ignored.
+ * @param {Function} responder - Function to call to resolve the message
+ */
+function unknownCommand (payload, responder) {
+  responder({
+    error: 'Unknown command received by service worker.'
+  });
+}
 
 /**
  * Sends a response back to the message originator.
@@ -41,5 +64,6 @@ self.addEventListener('message', function (event) {
 
   debug(toolbox.options, '\'' + command + '\' command received', payload);
 
-  handler(command, payload, sendResponse.bind(this, event));
+  var handler = commands[command] || unknownCommand;
+  handler(payload, sendResponse.bind(this, event));
 });

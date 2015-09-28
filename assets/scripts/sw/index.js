@@ -10,15 +10,14 @@
 'use strict';
 
 var toolbox = require('sw-toolbox');
-var debug = require('./debug')('index');
 var data = require('./data');
-var apis = require('./apis');
-var assets = require('./assets');
-var idb = require('./idb');
-var handler = require('./handler');
-
 toolbox.options.cacheName = data.cacheId + '-' + toolbox.options.cacheName;
 toolbox.options.debug = data.debug;
+
+var debug = require('./utils/debug')('index');
+var init = require('./init');
+var apis = require('./apis');
+var assets = require('./assets');
 
 // Setup non-project static asset precaching (cdn requests)
 assets.setupAssetRequests();
@@ -32,18 +31,14 @@ require('./messages');
 // Setup the sw-precache managed cache
 require('./precache');
 
-// If init stores exists, since this is starting, re-initialize.
-// The init message may never come if this was just restarted by the system.
-idb.get('init', 'stores').then(function (payload) {
-  if (payload) {
-    handler('init', payload, function (res) {
-      if (res.error) {
-        return console.error('init command failed', res.error);
-      }
-    });
-  } else {
-    debug(toolbox.options, 'init stores not found');
-  }
+// If init.stores exists (and service-worker is starting), run the init command.
+// The init message may never come if service-worker was restarted by the system.
+init.getStores().then(function (payload) {
+  init.command(payload, function (res) {
+    if (res.error) {
+      console.error('startup init command failed', res.error);
+    }
+  });
 }).catch(function (error) {
-  console.error('init stores error', error);
+  debug(toolbox.options, 'startup not running init command');
 });

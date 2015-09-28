@@ -12,8 +12,8 @@
 
 var toolbox = require('sw-toolbox');
 var data = require('./data');
-var debug = require('./debug')('apis');
-var content = require('./content');
+var debug = require('./utils/debug')('apis');
+var stores = require('./init/stores');
 
 /**
  * strip search!
@@ -84,7 +84,7 @@ function handleApiRequest (request, values, options) {
       var response = cache.match(reqCache);
       return response.then(function (data) {
         if (!data) {
-          return content.resourceContentResponse(reqCache);
+          return stores.resourceContentResponse(reqCache);
         }
         return response;
       });
@@ -99,7 +99,7 @@ function installApiRequestProxies () {
   data.api_paths.forEach(function (path) {
     debug(toolbox.options, 'install api handler', path);
 
-    // for now, just handle get requests
+    // Handle get requests
     toolbox.router.get(path+'*', handleApiRequest, {
       debug: toolbox.options.debug
     });

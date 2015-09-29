@@ -8,6 +8,7 @@ These dynamic data are sent down from the app server each time the main app is r
 
 ## Execution
 The 'init' command can be executed two ways:
+
 1. At service worker startup
   This must happen since the lifetime of a service worker is unknown.
   Since the service worker can shutdown at any time, the process must be initialized each time it is started back up
@@ -21,6 +22,7 @@ The 'init' command can be executed multiple times in the service worker lifetime
 
 ## Flow
 When the init command is executed, the following work is performed:
+
 1. If the application is online, update the stored app state in IndexedDB with a potentially new app state.
   It will only be actually new (different) if there was indeed a change and the command is being run as the result of an 'init' message. Otherwise, it just roundtrips the app state out and back into the IndexedDB.  
 2. Setup a precaching route handler for background images for the specified image service.

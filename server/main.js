@@ -25,13 +25,15 @@ var settings = config.settings;
 /**
  * Render the full application with props and send the response.
  *
+ * @param {Object} req - The Request object.
  * @param {Object} res - The Response object.
  * @param {Object} context - The fluxible application context.
  * @param {Object} app - The fluxible app.
  * @param {Object} props - The already accumulated props object.
  */
-function renderApp (res, context, app, props) {
-  var state;
+function renderApp (req, res, context, app, props) {
+  var state,
+      clientSideRenderOnly = req.query.render === '0';
 
   props.mainScript = settings.web.assets.mainScript();
   props.images = settings.web.images;
@@ -46,8 +48,14 @@ function renderApp (res, context, app, props) {
   state.analytics = config.analytics.globalRef;
   props.state = 'window.App=' + serialize(state) + ';';
 
-  debug('Rendering app component into html');
-  props.markup = React.renderToString(context.createElement());
+  if (clientSideRenderOnly) {
+    debug('NOT Rendering app component');
+    props.markup = '';
+  } else {
+    debug('Rendering app component into html');
+    props.markup = React.renderToString(context.createElement());
+  }
+
   props.context = context.getComponentContext();
 
   res.send('<!DOCTYPE html>' +
@@ -160,7 +168,7 @@ function bootstrap (app) {
     .then(function (headerScript) {
       debug('Rendering the application');
       renderProps.headerScript = headerScript;
-      renderApp(res, context, app, renderProps);
+      renderApp(req, res, context, app, renderProps);
     })
     .catch(function (err) {
       debug('bootstrap main route failed');

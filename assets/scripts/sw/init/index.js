@@ -55,9 +55,10 @@ function init (payload, responder) {
 }
 
 /**
- * Expose the init command and a simplified way to read stores.
+ * Expose the init command and public stores methods.
  */
 module.exports = {
   command: init,
-  getStores: stores.readInitStores
+  getStores: stores.readInitStores,
+  resourceContentResponse: stores.resourceContentResponse
 };

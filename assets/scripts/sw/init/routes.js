@@ -4,31 +4,43 @@
  *
  * Handling for routes
  */
-/* global Promise */
+/* global Promise, Request, URL, location */
 'use strict';
 
 var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('routes');
+var networkFirst = require('../utils/customNetworkFirst');
+
+/**
+ * Create a request for network use.
+ * Adds a parameter to skip rendering.
+ *
+ * @param {Object|String} request - The Request from sw-toolbox router, or a string.
+ * @returns String of the new request url.
+ */
+function networkRequest (request) {
+  var skipRenderParam = 'render=0',
+      requestUrl = (typeof request !== 'string') ? request.url : request,
+      skipRenderUrl = new URL(requestUrl, location.origin);
+
+  if (skipRenderUrl.search) {
+    skipRenderUrl.search += '&' + skipRenderParam;
+  } else {
+    skipRenderUrl.search = '?' + skipRenderParam;
+  }
+
+  return new Request(skipRenderUrl.toString());
+}
 
 /**
  * What this does:
  * 1. Fetch the mainNav routes of the application and update the cache with the responses.
  * 2. Install route handlers for all the main nav routes.
  *
- * NOTE:
- * If the server supported it, here would be a good place to add a parameter
- * that indicates the server should not do server-side application render, only rely on
- * client side render. This would take load off the server for these prefetches.
- * In an offline state, the main app bundle is already cached, so client-side only
- * rendering would suffice.
- *
- * Currently, without this support, this is very much increasing the work the server
- * has to do to render the app by many times (work x mainNav-routes times).
- *
- * TODO:
- * Add server support for doing 'helmet' only renders, in which it does not
- * run the application render, but only serves the static html and state, relying
- * solely on the client side render of the application.
+ * Route fetches add a parameter that indicates no server-side rendering
+ * of the application should be done.
+ * This reduces the load on the server, and the rendered application markup is not
+ * required in this case, since the main app bundle is already cached.
  *
  * @param {Object} payload - The payload of the init message.
  * @param {Object} payload.RouteStore.routes - The routes of the application.
@@ -46,14 +58,16 @@ module.exports = function cacheRoutes (payload) {
       debug(toolbox.options, 'install route handler on', url);
 
       // Install a read-thru cache handler on the mainNav route.
-      toolbox.router.get(url, toolbox.networkFirst, {
+      toolbox.router.get(url, networkFirst.routeHandlerFactory(
+        networkRequest, networkFirst.passThru
+      ), {
         debug: toolbox.options.debug
       });
 
       debug(toolbox.options, 'cache route', url);
 
-      // Add the route to the cache.
-      results.push(toolbox.cache(url));
+      // Fetch the route and add the response to the cache.
+      results.push(networkFirst.fetchAndCache(networkRequest(url), url));
     }
   });
 

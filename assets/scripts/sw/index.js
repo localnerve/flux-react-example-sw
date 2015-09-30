@@ -11,13 +11,23 @@
 
 var toolbox = require('sw-toolbox');
 var data = require('./data');
-toolbox.options.cacheName = data.cacheId + '-' + toolbox.options.cacheName;
+
 toolbox.options.debug = data.debug;
+
+// Construct cache name and save scope.
+// Relies on sw-toolbox default name format for scope.
+// CacheId must always start name.
+var m = toolbox.options.cacheName.match(/([^\$]+)\${3}$/);
+toolbox.options.scope = m && m[1];
+toolbox.options.cacheName = data.cacheId + '-' + toolbox.options.cacheName;
 
 var debug = require('./utils/debug')('index');
 var init = require('./init');
 var apis = require('./apis');
 var assets = require('./assets');
+
+// Setup our activate handling
+require('./activate');
 
 // Setup non-project static asset precaching (cdn requests)
 assets.setupAssetRequests();

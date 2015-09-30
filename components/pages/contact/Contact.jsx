@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var TimeoutTransitionGroup = require('react-components/js/timeout-transition-group');
+var TimeoutTransitionGroup = require('timeout-transition-group');
 var cx = require('classnames');
 var contactAction = require('../../../actions/contact');
 var ContactSteps = require('./Steps.jsx');

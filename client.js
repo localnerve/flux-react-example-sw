@@ -26,7 +26,9 @@ app.rehydrate(dehydratedState, function (err, context) {
     throw err;
   }
 
-  window.context = context;
+  if (DEBUG) {
+    window.context = context;
+  }
 
   debug('rendering app');
   React.render(

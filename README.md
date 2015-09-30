@@ -1,10 +1,24 @@
 # flux-react-example-sw
 
+[![Build Status](https://secure.travis-ci.org/localnerve/flux-react-example-sw.png?branch=master)](http://travis-ci.org/localnerve/flux-react-example-sw)
+[![Coverage Status](https://coveralls.io/repos/localnerve/flux-react-example-sw/badge.svg?branch=master)](https://coveralls.io/r/localnerve/flux-react-example-sw?branch=master)
+[![Dependency Status](https://david-dm.org/localnerve/flux-react-example-sw.svg)](https://david-dm.org/localnerve/flux-react-example-sw)
+[![devDependency Status](https://david-dm.org/localnerve/flux-react-example-sw/dev-status.svg)](https://david-dm.org/localnerve/flux-react-example-sw#info=devDependencies)
+
 > A WIP learning playground for service worker
 
-This repository is downstream from [flux-react-example](https://github.com/localnerve/flux-react-example) and adds a service worker to test progressive app offline and push capabilities based on that architecture.
+This repository is downstream from [flux-react-example](https://github.com/localnerve/flux-react-example) and adds a **service worker** to test progressive app offline and push capabilities based on that architecture.
+
+## Service Worker Info
+* This implementation leverages Google projects `sw-precache` and `sw-toolbox` for precaching static and dynamic assets, and the general ease of setting up fetch handling on routes/origins.
+* The worker and registration source is located at `assets/scripts/sw` and `assets/scripts/service-worker-registration.js`
+* The application's Flux Stores are sent to the service worker using the 'init' command and referenced from IndexedDB.
+* The best way to demo capabilities and have a look around at things is
+  1. Using the 'perf' build. This is just like the 'prod' build, but doesn't Uglify. `npm run perf` will build and start the server at `localhost:3000`.
+  2. Use a 'New Chrome Incognito Window' with devtools open and navigate to `localhost:3000` to play with and inspect source, network, and resources.
 
 ------------------------------
+## Flux-React-Example Info
 Flux-React-Example is an example contact web application. Serves as a reference app to inspire isomorphic application development solutions.
 
 * Features a **data-driven** isomorphic React application that follows the flux flow using [Fluxible](https://github.com/yahoo/fluxible).

@@ -10,6 +10,7 @@
 var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('stores');
 var idb = require('../utils/idb');
+var storeName = 'stores';
 
 /**
  * Update IndexedDB init.stores only if the app is online.
@@ -22,7 +23,7 @@ function updateInitStores (payload) {
   return fetch('/beacon').then(function (response) {
     if (response.ok) {
       debug(toolbox.options, 'App online, updating init.stores');
-      return idb.put('init', 'stores', payload);
+      return idb.put(idb.stores.init, storeName, payload);
     }
     throw response;
   }).catch(function (error) {
@@ -36,7 +37,7 @@ function updateInitStores (payload) {
  * @returns A new promise that simplifies handling, has base catch, and debugging.
  */
 function readInitStores () {
-  return idb.get('init', 'stores').then(function (payload) {
+  return idb.get(idb.stores.init, storeName).then(function (payload) {
     return new Promise(function (resolve, reject) {
       if (payload) {
         debug(toolbox.options, 'successfully read init.stores');
@@ -64,7 +65,7 @@ function resourceContentResponse (request) {
   var resource = matches && matches[1];
 
   if (resource) {
-    return idb.get('init', 'stores').then(function (payload) {
+    return idb.get(idb.stores.init, storeName).then(function (payload) {
       var content = payload && payload.ContentStore &&
         payload.ContentStore.contents[resource];
 

@@ -11,15 +11,23 @@ var treo = require('treo');
 
 var IDB_VERSION = 1;
 var IDB_NAME = 'service-worker';
+var IDB_STORES = {
+  init: 'init',
+  posts: 'posts'
+};
 
 /**
  * Return database and store references.
  */
 function _dbAndStore (storeName) {
-  var schema = treo.schema()
-    .version(IDB_VERSION)
-    .addStore(storeName);
-  var db = treo(IDB_NAME, schema);
+  var db, schema = treo.schema()
+    .version(IDB_VERSION);
+
+  Object.keys(IDB_STORES).forEach(function (store) {
+    schema.addStore(IDB_STORES[store]);
+  });
+
+  db = treo(IDB_NAME, schema);
 
   return {
     /**
@@ -117,5 +125,6 @@ module.exports = {
   batch: batch,
   del: del,
   get: get,
-  put: put
+  put: put,
+  stores: IDB_STORES
 };

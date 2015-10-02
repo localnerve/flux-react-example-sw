@@ -2,7 +2,9 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * Module to contain indexedDB interactions
+ * Module to contain indexedDB interactions (treo only referenced here).
+ * Currently wraps Treo and exposes a handful of simple, asynchronous
+ * objectStore operations.
  */
 /* global Promise */
 'use strict';
@@ -11,13 +13,18 @@ var treo = require('treo');
 
 var IDB_VERSION = 1;
 var IDB_NAME = 'service-worker';
+
+// To add a new ObjectStore to the schema, add it here.
 var IDB_STORES = {
   init: 'init',
-  posts: 'posts'
+  requests: 'requests'
 };
 
 /**
  * Return database and store references.
+ *
+ * @param {String} storeName - The name of the objectStore.
+ * @returns An Object with the store and a db close method exposed.
  */
 function _dbAndStore (storeName) {
   var db, schema = treo.schema()
@@ -42,89 +49,58 @@ function _dbAndStore (storeName) {
 }
 
 /**
- * Put a collection of key, value pairs in an indexedDB store.
+ * Promisify/Simplify Treo.
+ * Penalty: Open and close the database on every interaction.
  *
- * @param {String} storeName - The store name.
- * @param {Array} kvCollection - An array of keys and values.
- * @return {Object} A promise.
+ * @param {String} method - The ObjectStore method name, prebound on exports.
+ * @param {String} storeName - The ObjectStore name.
+ * The rest of the parameters are (in order):
+ * 1. key/value/collection/none Arguments to the store operation exposed by Treo.
+ * 2. the callback, which we always add at the end in here.
+ * @returns A Promise that resolves with the supplied callback from Treo.
  */
-function batch (storeName, kvCollection) {
+function treoWrapper (method, storeName) {
+  // Get the key, value, or collection arguments.
+  var args = Array.prototype.slice.call(arguments, 2);
+
   return new Promise(function (resolve, reject) {
     var o = _dbAndStore(storeName);
-
-    o.store.batch(kvCollection, function (err, res) {
+    /**
+     * callback bridge to Promise resolution
+     */
+    var cb = function treoCallback (err, res) {
       if (err) {
         return reject(err);
       }
       resolve(res);
       o.close();
-    });
+    };
+
+    // Add the callback as the last argument.
+    args.push(cb);
+
+    // Call the method and resolve the promise.
+    o.store[method].apply(o.store, args);
   });
 }
 
-/**
- * Remove a key, value pair from the store
- */
-function del (storeName, key) {
-  return new Promise(function (resolve, reject) {
-    var o = _dbAndStore(storeName);
-
-    o.store.del(key, function (err, res) {
-      if (err) {
-        return reject(err);
-      }
-      resolve(res);
-      o.close();
-    });
-  });
-}
-
-/**
- * Get a value from an indexedDB store.
- *
- * @param {String} storeName - The store name.
- * @param {String} key - The key to retrieve the value with.
- */
-function get (storeName, key) {
-  return new Promise(function (resolve, reject) {
-    var o = _dbAndStore(storeName);
-
-    o.store.get(key, function (err, res) {
-      if (err) {
-        return reject(err);
-      }
-      resolve(res);
-      o.close();
-    });
-  });
-}
-
-/**
- * Put a key, value pair in an indexedDB store.
- *
- * @param {String} storeName - The name of the store.
- * @param {String} key - The name of the key.
- * @param {Object} value - The value to store.
- * @return {Object} A promise.
- */
-function put (storeName, key, value) {
-  return new Promise(function (resolve, reject) {
-    var o = _dbAndStore(storeName);
-
-    o.store.put(key, value, function (err, res) {
-      if (err) {
-        return reject(err);
-      }
-      resolve(res);
-      o.close();
-    });
-  });
-}
-
+// Create the exposed Object.
 module.exports = {
-  batch: batch,
-  del: del,
-  get: get,
-  put: put,
   stores: IDB_STORES
 };
+
+/**
+ * Add the exposed database operations.
+ * These all have the signature:
+ *   StoreName [, argument]
+ *
+ * Specific Signature Reminders:
+ * all   (storeName)
+ * batch (storeName, kvCollection)
+ * del   (storeName, key)
+ * get   (storeName, key)
+ * put   (storeName, key, value)
+ */
+['all', 'batch', 'del', 'get', 'put'].forEach(function (method) {
+  module.exports[method] = treoWrapper.bind(null, method);
+});

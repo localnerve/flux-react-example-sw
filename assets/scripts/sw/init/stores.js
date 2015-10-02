@@ -2,13 +2,13 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * Various handling for Flux Stores saved in IndexedDB 'init' ObjectStore.
+ * Various handling for Flux Stores saved in IndexedDB 'init.stores' ObjectStore.
  */
 /* global Promise, Response, Blob, fetch, JSON */
 'use strict';
 
 var toolbox = require('sw-toolbox');
-var debug = require('../utils/debug')('stores');
+var debug = require('../utils/debug')('init.stores');
 var idb = require('../utils/idb');
 var storeName = 'stores';
 
@@ -34,7 +34,7 @@ function updateInitStores (payload) {
 /**
  * Read IndexedDB init.stores
  *
- * @returns A new promise that simplifies handling, has base catch, and debugging.
+ * @returns A new promise that simplifies handling and debugging.
  */
 function readInitStores () {
   return idb.get(idb.stores.init, storeName).then(function (payload) {
@@ -49,6 +49,7 @@ function readInitStores () {
     });
   });
 }
+
 /**
  * Pull the resource request from the given request url and
  * return the content response for that resource (if one exists).

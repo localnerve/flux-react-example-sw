@@ -44,14 +44,14 @@ function networkRequest (request) {
  *
  * @param {Object} payload - The payload of the init message.
  * @param {Object} payload.RouteStore.routes - The routes of the application.
+ * @return {Object} A Promise with all aggregate route fetchesAndCache results.
  */
 module.exports = function cacheRoutes (payload) {
-  var results = [];
   var routes = payload.RouteStore.routes;
 
   debug(toolbox.options, 'received routes', routes);
 
-  Object.keys(routes).forEach(function (route) {
+  return Promise.all(Object.keys(routes).map(function (route) {
     if (routes[route].mainNav) {
       var url = routes[route].path;
 
@@ -67,11 +67,9 @@ module.exports = function cacheRoutes (payload) {
       debug(toolbox.options, 'cache route', url);
 
       // Fetch the route and add the response to the cache.
-      results.push(networkFirst.fetchAndCache(networkRequest(url), url));
+      return networkFirst.fetchAndCache(networkRequest(url), url);
     }
-  });
 
-  return Promise.all(results).catch(function (error) {
-    debug(toolbox.options, 'failed to cache route', error);
-  });
+    return Promise.resolve();
+  }));
 };

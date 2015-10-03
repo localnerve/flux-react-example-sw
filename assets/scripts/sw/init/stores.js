@@ -87,9 +87,7 @@ function resourceContentResponse (request) {
 
   // No resource, so Promise resolves to undefined.
   debug(toolbox.options, 'resourceContentResponse: no resource');
-  return new Promise(function (resolve) {
-    resolve();
-  });
+  return Promise.resolve();
 }
 
 module.exports = {

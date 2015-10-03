@@ -4,12 +4,14 @@
  *
  * Handlers to fulfill service worker message commands.
  */
+/* global Promise */
 'use strict';
 
 var toolbox = require('sw-toolbox');
 var backgrounds = require('./backgrounds');
 var routes = require('./routes');
 var stores = require('./stores');
+var apis = require('./apis');
 var debug = require('../utils/debug')('init');
 
 /**
@@ -28,18 +30,23 @@ var debug = require('../utils/debug')('init');
  * 2. Installs background and route fetch handling.
  * 3. Precaches backgrounds and routes.
  *
- * @param {Object} payload - Initial store state
+ * @param {Object} payload - Initial payload
+ * @param {Object} payload.stores - The flux stores for the app.
+ * @param {Object} payload.apis - The api information for the app.
  * @param {Function} responder - Function to call to resolve the message
  */
 function init (payload, responder) {
-  debug(toolbox.options, 'Running init');
+  debug(toolbox.options, 'Running init, payload:', payload);
 
-  stores.updateInitStores(payload)
+  stores.updateInitStores(payload.stores)
   .then(function () {
-    return backgrounds(payload);
+    return apis.updateInitApis(payload.apis);
   })
   .then(function () {
-    return routes(payload);
+    return backgrounds(payload.stores);
+  })
+  .then(function () {
+    return routes(payload.stores);
   })
   .then(function () {
     responder({
@@ -55,10 +62,28 @@ function init (payload, responder) {
 }
 
 /**
- * Expose the init command and public stores methods.
+ * Reads all the stored init data.
+ *
+ * @returns A promise that resolves to a Object with the init data:
+ * { stores: <stores>, apis: <apis> }
+ */
+function initData () {
+  return Promise.all([
+    stores.readInitStores(),
+    apis.readInitApis()
+  ]).then(function (data) {
+    return {
+      stores: data[0],
+      apis: data[1]
+    };
+  });
+}
+
+/**
+ * Expose the init command and public storage access for init things.
  */
 module.exports = {
   command: init,
-  getStores: stores.readInitStores,
+  data: initData,
   resourceContentResponse: stores.resourceContentResponse
 };

@@ -2,7 +2,8 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * A heavily modified serviceWorker registration script originally from Google:
+ * A heavily modified serviceWorker registration script originally from Google.
+ * This module is the entry point for an sw-reg bundle.
  *
  * Copyright 2015 Google Inc. All rights reserved.
  *
@@ -26,6 +27,8 @@ if ('serviceWorker' in window.navigator &&
     (window.location.protocol === 'https:' ||
      window.location.hostname === 'localhost' ||
      window.location.hostname.indexOf('127.') === 0)) {
+  // this, and named things like it are not leaking globally because this
+  // file is built as a module.
   var serviceWorkerContainer = window.navigator.serviceWorker;
 
   // Pull the name of the service worker script from the data-service-worker attribute
@@ -38,12 +41,18 @@ if ('serviceWorker' in window.navigator &&
    *
    * Since the flux store state comes from the server on each server side render,
    * we wait until DOMContentLoaded to ensure the state is available to transfer.
-   *
-   * NOTE: If the network is absent, any fetches implied here will fail,
-   *  cache.add/addAll will fail, and the cache will not be modified.
    */
   document.addEventListener('DOMContentLoaded', function contentReady (event) {
     document.removeEventListener('DOMContentLoaded', contentReady);
+    // Now, its safe to get app state from the DOM.
+    // NOTE: Very App state format dependent (yucky).
+    var stores =
+      JSON.parse(JSON.stringify(window.App.context.dispatcher.stores));
+    var fetchrPlugin =
+      JSON.parse(JSON.stringify(window.App.context.plugins.FetchrPlugin));
+
+    var apis = {};
+    apis[fetchrPlugin.xhrPath] = fetchrPlugin;
 
     /**
      * When the ServiceWorkerContainer is ready, send the init message
@@ -54,11 +63,13 @@ if ('serviceWorker' in window.navigator &&
      */
     serviceWorkerContainer.ready.then(function (registration) {
       var messages = require('../../utils/messages');
-      var stores = JSON.parse(JSON.stringify(window.App.context.dispatcher.stores));
 
       messages.workerSendMessage({
         command: 'init',
-        payload: stores
+        payload: {
+          stores: stores,
+          apis: apis
+        }
       }, registration.active
       ).then(function () {
         console.log('[sw-reg] Successfully sent init to worker');

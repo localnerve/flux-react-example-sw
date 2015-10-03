@@ -41,9 +41,10 @@ require('./messages');
 // Setup the sw-precache managed cache
 require('./precache');
 
-// If init.stores exists (and service-worker is starting), run the init command.
+// If all init.data exists (and service-worker is starting), run the init command.
 // The init message may never come if service-worker was restarted by the system.
-init.getStores().then(function (payload) {
+init.data()
+.then(function (payload) {
   init.command(payload, function (res) {
     if (res.error) {
       console.error('startup init command failed', res.error);

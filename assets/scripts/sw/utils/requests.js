@@ -2,9 +2,9 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * Module to contain indexedDB interactions
+ * Module to contain request handling operations.
  */
-/* global Promise, Response, Request, Blob, URL, fetch */
+/* global Promise, Response, Request, Blob, URL, fetch, self */
 'use strict';
 
 var toolbox = require('sw-toolbox');
@@ -16,16 +16,15 @@ var apiStoreName = require('../init/apis').storeName;
  * This is called if the fetch fails.
  *
  * NOTE:
- * 1. Stores the old csrf token in the url. Replaced when serviced later.
- * 2. TODO: Do not allow method to succeed nor store a request if background sync
- * is not available in the client.
+ * 1. Stores the old csrf token in the url. Must replace when serviced later.
  *
  * @param {String} apiPath - The key used to service the requets in proper xhrContext.
  * @param {Object} request - A Request object to use to make the post request.
  * @return A Promise that resolves to Response that reflects the success or failure of this operation.
  */
 function deferRequest (apiPath, request) {
-  // TODO: If BackgroundSync not supported, fail right here.
+  // TODO: Update this test to ensure permissions have been obtained.
+  var hasSync = !!self.registration.sync;
 
   return dehydrateRequest(request, 'json').then(function (dehydratedRequest) {
     var key = Date.now().toString();
@@ -40,8 +39,10 @@ function deferRequest (apiPath, request) {
     // Add it to IndexedDB.
     return idb.put(idb.stores.requests, key, dehydratedRequest)
       .then(function () {
-        return new Response('ok', {
-          status: 203
+        return new Response('deferred', {
+          // If no sync, show user failure, However, replay request on next init.
+          status: hasSync ? 203 : 400
+          // Remember, the user can replay their own requests, too.
         });
       });
   });
@@ -61,21 +62,25 @@ function deferRequest (apiPath, request) {
 function serviceAllRequests (options) {
   var successResponses = options.successResponses || toolbox.options.successResponses;
 
+  // Read all requests from IndexedDB
   return idb.all(idb.stores.requests).then(function (requests) {
     return Promise.all(requests.map(function (request) {
-      var apiPath = request.apiPath,
-          key = request.key;
+      var key = request.key;
 
-      return idb.get(idb.stores.init, apiStoreName, apiPath).then(function (apiInfo) {
-        var req = rehydrateRequest(request, apiInfo);
+      // Lookup this request's current api info by apiPath.
+      return idb.get(idb.stores.init, apiStoreName, request.apiPath)
+        .then(function (apiInfo) {
+          var req = rehydrateRequest(request, apiInfo);
 
-        return fetch(req).then(function (response) {
-          if (successResponses.test(response.status)) {
-            return idb.del(idb.stores.requests, key);
-          }
-          throw response;
+          // Make the network request, delete the stored request on success.
+          return fetch(req).then(function (response) {
+            if (successResponses.test(response.status)) {
+              return idb.del(idb.stores.requests, key);
+            }
+            throw response;
+          });
+          // TODO: catch here and add attempt count
         });
-      });
     }));
   });
 }
@@ -125,7 +130,7 @@ function rehydrateRequest (state, apiInfo) {
   if (csrfToken) {
     reCsrf = new RegExp('(&'+csrfName+'=)([^&]+)');
 
-    // fix url
+    // replace/add the csrfToken in the url.
     if (reCsrf.test(state.url)) {
       url = state.url.replace(reCsrf, '$1'+csrfToken);
     } else {
@@ -133,13 +138,13 @@ function rehydrateRequest (state, apiInfo) {
       url += [csrfName, csrfToken].join('=');
     }
 
-    // fix body
+    // replace/add the csrfToken in the body.
     if (state.body.context && state.body.context[csrfName]) {
       state.body.context[csrfName] = csrfToken;
     }
   }
 
-  // Only supporting json bodyType for now
+  // Only supporting json bodyType for this app.
   if (state.bodyType === 'json') {
     body = new Blob([JSON.stringify(state.body)], {
       type: 'application/json'
@@ -149,7 +154,7 @@ function rehydrateRequest (state, apiInfo) {
   return new Request (url, {
     method: state.method,
     body: body,
-    credentials: 'same-origin'
+    credentials: 'include'
   });
 }
 

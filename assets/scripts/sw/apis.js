@@ -26,7 +26,8 @@ var requests = require('./utils/requests');
  * @returns A Request object that includes the cookie.
  */
 function networkRequest (request) {
-  return new Request(request.clone(), { credentials: 'same-origin' });
+  // Thought 'same-origin' would work by spec, but it doesn't. 'include' does.
+  return new Request(request.clone(), { credentials: 'include' });
 }
 
 /**

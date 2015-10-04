@@ -55,19 +55,21 @@ module.exports = function cacheRoutes (payload) {
     if (routes[route].mainNav) {
       var url = routes[route].path;
 
-      debug(toolbox.options, 'install route handler on', url);
-
-      // Install a read-thru cache handler on the mainNav route.
-      toolbox.router.get(url, networkFirst.routeHandlerFactory(
-        networkRequest, networkFirst.passThru
-      ), {
-        debug: toolbox.options.debug
-      });
-
       debug(toolbox.options, 'cache route', url);
 
-      // Fetch the route and add the response to the cache.
-      return networkFirst.fetchAndCache(networkRequest(url), url);
+      // Fetch and cache the mainNav route.
+      return networkFirst.fetchAndCache(networkRequest(url), url).then(function () {
+        debug(toolbox.options, 'install route handler on', url);
+
+        // Install read-thru cache handler.
+        toolbox.router.get(url, networkFirst.routeHandlerFactory(
+          networkRequest, networkFirst.passThru
+        ), {
+          debug: toolbox.options.debug
+        });
+
+        return Promise.resolve();
+      });
     }
 
     return Promise.resolve();

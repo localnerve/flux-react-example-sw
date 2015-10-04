@@ -4,7 +4,7 @@
  *
  * Handling for background image requests
  */
-/* global Promise, Request */
+/* global Promise, Request, caches */
 'use strict';
 
 var toolbox = require('sw-toolbox');
@@ -28,8 +28,9 @@ function regexEscape(s) {
 function precacheBackground (options, req, res) {
   if (!res) {
     debug(options, 'precaching background', req);
-    toolbox.cache(req.clone(), options);
+    return toolbox.cache(req.clone(), options);
   }
+  return Promise.resolve();
 }
 
 /**
@@ -41,32 +42,35 @@ function precacheBackground (options, req, res) {
  *
  * @param {Object} backgroundUrls - The backgroundUrls used to init the BackgroundStore.
  * @param {Object} request - A Request object
- * @param {Object} values - Ignored.
+ * @param {Object} values - Ignored, passed on to networkFirst strategy.
  * @param {Object} options - The router options.
  */
 function precacheBackgrounds (backgroundUrls, request, values, options) {
-  var background,
-      reCurrent, notCurrent, reqNotCurrent,
-      current = urlm.getLastPathSegment(request.url);
-
-  // precache backgrounds not for this request that are not in cache already.
-  Object.keys(backgroundUrls).forEach(function (key) {
-    background = urlm.getLastPathSegment(backgroundUrls[key]);
+  // precache/prefetch backgrounds that will be needed next that are not already cached.
+  // NOTE: This is an async side-effect - we don't wait for (or handle) the result.
+  Promise.all(Object.keys(backgroundUrls).map(function (key) {
+    var background = urlm.getLastPathSegment(backgroundUrls[key]),
+        reCurrent, notCurrent, reqNotCurrent,
+        current = urlm.getLastPathSegment(request.url);
 
     if (current && background && current !== background) {
-      // build the request for the not current background
+      // build the request for the next background
       reCurrent = new RegExp('(' + regexEscape(current) + ')(\/)?$');
       notCurrent = request.url.replace(reCurrent, background + '$2');
       reqNotCurrent = new Request(notCurrent, {
-        mode: 'no-cors'
+        mode: 'no-cors' // these are from a cdn
       });
 
-      // if reqNotCurrent not in cache, falsy will be the response given to
+      // if reqNotCurrent not in cache, a falsy response will be given to
       // precacheBackground.
-      toolbox.cacheOnly(reqNotCurrent).then(
-        precacheBackground.bind(this, options, reqNotCurrent)
-      );
+      return caches.open(toolbox.options.cacheName).then(function (cache) {
+        return cache.match(reqNotCurrent).then(
+          precacheBackground.bind(this, options, reqNotCurrent)
+        );
+      });
     }
+  })).catch(function (error) {
+    debug(toolbox.options, 'Error prefetching next backgrounds:', error);
   });
 
   // want fastest, but it has a bug (or works unexpectedly)

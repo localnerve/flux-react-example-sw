@@ -10,7 +10,7 @@
 var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('init.apis');
 var idb = require('../utils/idb');
-var storeName = 'apis';
+var keyName = 'apis';
 
 /**
  * Update IndexedDB init.apis only if the app is online.
@@ -24,7 +24,7 @@ function updateInitApis (payload) {
   return fetch('/beacon').then(function (response) {
     if (response.ok) {
       debug(toolbox.options, 'App online, updating init.apis');
-      return idb.put(idb.stores.init, storeName, payload);
+      return idb.put(idb.stores.init, keyName, payload);
     }
     throw response;
   }).catch(function (error) {
@@ -38,7 +38,7 @@ function updateInitApis (payload) {
  * @returns A new promise that simplifies handling and debugging.
  */
 function readInitApis () {
-  return idb.get(idb.stores.init, storeName).then(function (payload) {
+  return idb.get(idb.stores.init, keyName).then(function (payload) {
     return new Promise(function (resolve, reject) {
       if (payload) {
         debug(toolbox.options, 'successfully read init.apis');
@@ -53,6 +53,5 @@ function readInitApis () {
 
 module.exports = {
   readInitApis: readInitApis,
-  updateInitApis: updateInitApis,
-  storeName: storeName
+  updateInitApis: updateInitApis
 };

@@ -9,7 +9,7 @@
 
 var toolbox = require('sw-toolbox');
 var idb = require('./idb');
-var apiStoreName = require('../init/apis').storeName;
+var initApis = require('../init/apis');
 
 /**
  * Defer a request until later by storing it in IndexedDB.
@@ -68,9 +68,12 @@ function serviceAllRequests (options) {
       var key = request.key;
 
       // Lookup this request's current api info by apiPath.
-      return idb.get(idb.stores.init, apiStoreName, request.apiPath)
-        .then(function (apiInfo) {
-          var req = rehydrateRequest(request, apiInfo);
+      return initApis.readInitApis().then(function (payload) {
+        var req, apiInfo = payload[request.apiPath];
+
+        // Info found for request.apiPath
+        if (apiInfo) {
+          req = rehydrateRequest(request, apiInfo);
 
           // Make the network request, delete the stored request on success.
           return fetch(req).then(function (response) {
@@ -80,7 +83,11 @@ function serviceAllRequests (options) {
             throw response;
           });
           // TODO: catch here and add attempt count
-        });
+        }
+
+        // No info found for request.apiPath
+        throw new Error('API Info for '+request.apiPath+' not found');
+      });
     }));
   });
 }

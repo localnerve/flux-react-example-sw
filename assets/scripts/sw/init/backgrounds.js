@@ -92,8 +92,6 @@ module.exports = function backgroundHandler (payload) {
     origin: urlm.getHostname(backgroundStore.imageServiceUrl)
   });
 
-  // Nothing deferred, so return placeholder Promise
-  return new Promise(function (resolve) {
-    resolve();
-  });
+  // Nothing deferred (yet), so return a resolved Promise
+  return Promise.resolve();
 };

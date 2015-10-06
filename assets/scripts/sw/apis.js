@@ -15,7 +15,8 @@ var data = require('./data');
 var debug = require('./utils/debug')('apis');
 var networkFirst = require('./utils/customNetworkFirst');
 var init = require('./init');
-var requests = require('./utils/requests');
+var sync = require('./sync');
+var requestLib = require('./utils/requests');
 
 /**
  * Create the network request for fetch.
@@ -45,7 +46,7 @@ function networkRequest (request) {
  * @returns A string of the modified request url to be used in caching.
  */
 function cacheRequest (request) {
-  return networkFirst.stripSearchParameters(request.url);
+  return requestLib.stripSearchParameters(request.url);
 }
 
 /**
@@ -77,7 +78,7 @@ function installApiRequestProxies () {
 
     // Handle post requests
     toolbox.router.post(path+'*', networkFirst.routeHandlerFactory(
-      networkRequest, networkRequest, requests.deferRequest.bind(null, path)
+      networkRequest, networkRequest, sync.deferRequest.bind(null, path)
     ), {
       debug: toolbox.options.debug
     });

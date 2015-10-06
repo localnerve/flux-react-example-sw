@@ -4,32 +4,39 @@
  *
  * Handling for routes
  */
-/* global Promise, Request, URL, location */
+/* global Promise, Request */
 'use strict';
 
 var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('routes');
 var networkFirst = require('../utils/customNetworkFirst');
+var requestLib = require('../utils/requests');
 
 /**
  * Create a request for network use.
- * Adds a parameter to skip rendering.
+ * Adds a parameter to tell the server to skip rendering.
+ * Adds a parameter to tell the server this is for offline cache purpose.
+ * Adds credentials.
  *
  * @param {Object|String} request - The Request from sw-toolbox router, or a string.
+ * @param {Boolean} forCache - Used to indicate this request is for cache population.
  * @returns String of the new request url.
  */
-function networkRequest (request) {
-  var skipRenderParam = 'render=0',
-      requestUrl = (typeof request !== 'string') ? request.url : request,
-      skipRenderUrl = new URL(requestUrl, location.origin);
+function networkRequest (request, forCache) {
+  var url =
+    requestLib.addOrReplaceUrlSearchParameter(
+      (typeof request !== 'string') ? request.url : request, 'render', '0'
+    );
 
-  if (skipRenderUrl.search) {
-    skipRenderUrl.search += '&' + skipRenderParam;
-  } else {
-    skipRenderUrl.search = '?' + skipRenderParam;
+  if (forCache) {
+    // If the server can reduce it's workload further because this is for
+    // offline use later, then let it know that.
+    url = requestLib.addOrReplaceUrlSearchParameter(url, 'cache', '1');
   }
 
-  return new Request(skipRenderUrl.toString());
+  return new Request(url, {
+    credentials: 'include'
+  });
 }
 
 /**
@@ -58,7 +65,8 @@ module.exports = function cacheRoutes (payload) {
       debug(toolbox.options, 'cache route', url);
 
       // Fetch and cache the mainNav route.
-      return networkFirst.fetchAndCache(networkRequest(url), url).then(function () {
+      return networkFirst.fetchAndCache(networkRequest(url, true), url)
+      .then(function () {
         debug(toolbox.options, 'install route handler on', url);
 
         // Install read-thru cache handler.

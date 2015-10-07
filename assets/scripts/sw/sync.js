@@ -63,16 +63,14 @@ function deferRequest (apiPath, request) {
 function serviceAllRequests (options) {
   var successResponses = options.successResponses || toolbox.options.successResponses;
 
-  // Read all requests from IndexedDB
-  return idb.all(idb.stores.requests).then(function (requests) {
-    return Promise.all(requests.map(function (request) {
-      var key = request.key;
+  return initApis.readInitApis().then(function (apis) {
+    return idb.all(idb.stores.requests).then(function (requests) {
+      return Promise.all(requests.map(function (request) {
+        var req,
+            key = request.key,
+            apiInfo = apis[request.apiPath];
 
-      // Lookup this request's current api info by apiPath.
-      return initApis.readInitApis().then(function (payload) {
-        var req, apiInfo = payload[request.apiPath];
-
-        // Info found for request.apiPath
+        // apiInfo found for this request
         if (apiInfo) {
           req = requestLib.rehydrateRequest(request, apiInfo);
 
@@ -88,8 +86,8 @@ function serviceAllRequests (options) {
 
         // No info found for request.apiPath
         throw new Error('API Info for '+request.apiPath+' not found');
-      });
-    }));
+      }));
+    });
   });
 }
 

@@ -10,7 +10,7 @@
 
 var uaID = {
   development: 'UA-XXXXXXXX-D',
-  production: 'UA-31065754-3'
+  production: 'UA-XXXXXXXX-P'
 };
 
 var uaRef = 'ga';

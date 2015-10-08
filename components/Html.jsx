@@ -49,9 +49,9 @@ var Html = React.createClass({
           <link rel="icon" type="image/png" href={this.props.images + '/favicon-16x16.png'} sizes="16x16" />
           <link rel="manifest" href={this.props.appManifest} />
           <meta name="msapplication-config" content={this.props.browserConfig} />
-          <meta name="msapplication-TileColor" content="#00a300" />
+          <meta name="msapplication-TileColor" content="#1B5E20" />
           <meta name="msapplication-TileImage" content={this.props.images + '/mstile-144x144.png'} />
-          <meta name="theme-color" content="#ffffff" />
+          <meta name="theme-color" content="#1B5E20" />
           <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>
           <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>
           <script async src={this.props.swRegistrationScript} data-service-worker={this.props.swMainScript}></script>

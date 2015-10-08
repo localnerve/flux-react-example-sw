@@ -2,22 +2,29 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * Handling for routes.
+ * Handling for dynamic routes.
+ *
  * NOTE: Not really idempotent, because toolbox router Map will have old routes in it.
  * TODO: Handle that little issue.
  */
-/* global Promise, Request */
+/* global Promise, Request, URL, location */
 'use strict';
 
 var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('init.routes');
 var networkFirst = require('../utils/customNetworkFirst');
+var idb = require('../utils/idb');
 var requestLib = require('../utils/requests');
 
 /**
  * Create a request for network use.
  * Adds a parameter to tell the server to skip rendering.
- * Adds credentials.
+ * Includes credentials.
+ *
+ * Route requests require a parameter that indicates no server-side rendering
+ * of the application should be done.
+ * This reduces the load on the server. The rendered application markup is not
+ * required in this case, since the main app bundle is already cached.
  *
  * @param {Object|String} request - The Request from sw-toolbox router, or a string.
  * @returns String of the new request url.
@@ -34,18 +41,95 @@ function networkRequest (request) {
 }
 
 /**
+ * Add the given successful request url and timestamp to init.routes IDB store.
+ * This handler stores the request as a side effect and just returns the response.
+ *
+ * @param {Request} request - The request of the successful network fetch.
+ * @param {Response} response - The response of the successful network fetch.
+ * @return {Promise} A Promise resolving to the input response.
+ */
+function addSkipRoute (request, response) {
+  return idb.put(idb.stores.init, 'skipRoute', {
+    url: request.url,
+    timestamp: Date.now()
+  }).then(function () {
+    return response;
+  });
+}
+
+/**
+ * Look up the given url in skipRoute to see if fetchAndCache should be skipped.
+ *
+ * @param {String} url - The url pathname to test.
+ * @return {Promise} Promise resolves to Boolean, true if cache should be skipped.
+ */
+function getSkipRoute (url) {
+  // Anything older than this and its like it didn't happen
+  var maxAge = 1000 * 10;
+
+  return idb.get(idb.stores.init, 'skipRoute').then(function (skipRoute) {
+    var age = Date.now() - skipRoute.timestamp;
+    var skipUrl = (new URL(skipRoute.url, location.origin)).pathname;
+
+    if (age < maxAge && url === skipUrl) {
+      debug(toolbox.options, 'skipping fetchAndCache for '+url);
+      return true;
+    }
+
+    return false;
+  });
+}
+
+/**
+ * Fetch and cache a route, the install route handler.
+ *
+ * @param {String} url - The url to cache and install.
+ * @return {Promise} A Promise resolving on success (no sig value).
+ */
+function cacheAndInstallRoute (url) {
+  debug(toolbox.options, 'cache route', url);
+
+  return networkFirst.fetchAndCache(networkRequest(url), url)
+  .then(function () {
+    return installRouteGetHandler(url);
+  });
+}
+
+/**
+ * Install a read-thru cache handler for the given route url.
+ *
+ * @param {String} url - The url to install route GET handler on.
+ * @return {Promise} A Promise resolving on success (no sig value).
+ */
+function installRouteGetHandler (url) {
+  debug(toolbox.options, 'install route GET handler on', url);
+
+  toolbox.router.get(url, networkFirst.routeHandlerFactory(
+    networkRequest, networkFirst.passThru
+  ), {
+    debug: toolbox.options.debug,
+    successHandler: addSkipRoute
+  });
+
+  return Promise.resolve();
+}
+
+/**
  * What this does:
  * 1. Fetch the mainNav routes of the application and update the cache with the responses.
  * 2. Install route handlers for all the main nav routes.
  *
- * Route fetches add a parameter that indicates no server-side rendering
- * of the application should be done.
- * This reduces the load on the server, and the rendered application markup is not
- * required in this case, since the main app bundle is already cached.
+ * The route GET handler will be the start of a main navigation entry point for
+ * the application. It will be fetched and cached from the network, unless offline.
+ * The page returned, if it has new data from the server, will cause an 'init'
+ * command to execute.
+ * So, to prevent a route from being fetched and cached twice, a skipRoute
+ * lookaside scheme is used to keep track of routes recently fetched and cached
+ * from the route GET handler.
  *
  * @param {Object} payload - The payload of the init message.
  * @param {Object} payload.RouteStore.routes - The routes of the application.
- * @return {Object} A Promise with all aggregate route fetchesAndCache results.
+ * @return {Promise} A Promise with all aggregate route results.
  */
 module.exports = function cacheRoutes (payload) {
   var routes = payload.RouteStore.routes;
@@ -56,21 +140,14 @@ module.exports = function cacheRoutes (payload) {
     if (routes[route].mainNav) {
       var url = routes[route].path;
 
-      debug(toolbox.options, 'cache route', url);
-
-      // Fetch and cache the mainNav route.
-      return networkFirst.fetchAndCache(networkRequest(url), url)
-      .then(function () {
-        debug(toolbox.options, 'install route handler on', url);
-
-        // Install read-thru cache handler.
-        toolbox.router.get(url, networkFirst.routeHandlerFactory(
-          networkRequest, networkFirst.passThru
-        ), {
-          debug: toolbox.options.debug
-        });
-
-        return Promise.resolve();
+      return getSkipRoute(url).then(function (skipCache) {
+        if (skipCache) {
+          return installRouteGetHandler(url);
+        }
+        return cacheAndInstallRoute(url);
+      }).catch(function (error) {
+        debug(toolbox.options, 'failed to get skipRoute');
+        return cacheAndInstallRoute(url);
       });
     }
 

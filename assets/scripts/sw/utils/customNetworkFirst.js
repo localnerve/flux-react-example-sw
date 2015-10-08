@@ -5,7 +5,7 @@
  * A custom network first sw-toolbox route handler, factory, and supportive
  * methods.
  */
-/* global fetch, caches */
+/* global Promise, fetch, caches */
 'use strict';
 
 var toolbox = require('sw-toolbox');
@@ -27,11 +27,13 @@ function passThru (param) {
  * the request url in the cache, network cookie preservation, changing VARY, etc.
  * @see https://code.google.com/p/chromium/issues/detail?id=426309
  *
- * @param {Object} reqNet - A Request used to fetch from the network.
- * @param {Object|String} [reqCache] - A RequestOrUrl used to update the cache.
+ * @param {Request} reqNet - A Request used to fetch from the network.
+ * @param {Request|String} [reqCache] - A RequestOrUrl used to update the cache.
  * Required only for GET requests.
  * @param {Object} [options] - Options to modify behavior.
  * @param {RegExp} [options.successResponses] - Defines a successful response test.
+ * @param {Function} [options.successHandler] - Receives Request, Response; Returns Promise.
+ * Supply to optionally post process a successful response.
  * @return {Response} A Response Promise.
  * @throws {Response} A Response Promise if response is not successful.
  */
@@ -41,19 +43,29 @@ function fetchAndCache (reqNet, reqCache, options) {
 
   return fetch(reqNet).then(function (response) {
     if (successResponses.test(response.status)) {
-      // Only update cache for GET requests
-      if (reqNet.method === 'GET') {
-        return caches.open(toolbox.options.cacheName).then(function (cache) {
-          debug(
-            toolbox.options, 'caching successful network request as:', reqCache
-          );
-          return cache.put(reqCache, response.clone()).then(function () {
-            return response;
-          });
-        });
+      var promResponse = Promise.resolve(response);
+
+      if (options.successHandler) {
+        promResponse = options.successHandler(reqNet, response);
       }
-      return response;
+
+      return promResponse.then(function (res) {
+        // Only update cache for GET requests
+        if (reqNet.method === 'GET') {
+          return caches.open(toolbox.options.cacheName).then(function (cache) {
+            debug(
+              toolbox.options, 'caching successful network request as:', reqCache
+            );
+            return cache.put(reqCache, res.clone()).then(function () {
+              return res;
+            });
+          });
+        }
+
+        return res;
+      });
     }
+
     // Raise an error and trigger the catch
     throw response;
   });
@@ -80,12 +92,19 @@ function fetchAndCache (reqNet, reqCache, options) {
  * @param {Function} fetchRequest - Produces the network request, given the original.
  * @param {Function} cacheRequest - Produces the cache request, given the original.
  * @param {Function} [cacheFallback] - Receives the cacheRequest,
- * returns a Promise=>Response in the event of a fallback cache miss.
+ * returns a Promise (resolves to) Response in the event of a fallback cache miss.
  * @return {Function} An sw-toolbox route handler (request, values, options)
  */
 function routeHandlerFactory (fetchRequest, cacheRequest, cacheFallback) {
   /**
    * The custom network first sw-toolbox route handler
+   *
+   * @param {Request} request - The request from sw-toolbox router.
+   * @param {Object} values - route values, not used.
+   * @param {Object} [options] - The options passed to sw-toolbox router.
+   * @param {Function} [options.successHandler] - Receives the Request and Response for
+   * optional post processing of successful fetch.
+   * @return {Promise} Resolves to a Response on success.
    */
   return function customNetworkFirst (request, values, options) {
     options = options || {};

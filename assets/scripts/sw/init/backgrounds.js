@@ -75,8 +75,7 @@ function precacheBackgrounds (backgroundUrls, request, values, options) {
     debug(toolbox.options, 'Error prefetching next backgrounds:', error);
   });
 
-  // want fastest, but it has a bug (or works unexpectedly)
-  return toolbox.networkFirst(request, values, options);
+  return toolbox.fastest(request, values, options);
 }
 
 /**

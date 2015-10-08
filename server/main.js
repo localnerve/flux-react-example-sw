@@ -46,6 +46,7 @@ function renderApp (req, res, context, app, props) {
   debug('Creating app state');
   state = app.dehydrate(context);
   state.analytics = config.analytics.globalRef;
+  state.timestamp = Date.now();
   props.state = 'window.App=' + serialize(state) + ';';
 
   if (clientSideRenderOnly) {

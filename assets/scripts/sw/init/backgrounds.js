@@ -2,14 +2,16 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * Handling for background image requests
+ * Handling for background image requests.
+ * NOTE: Not really idempotent, because toolbox router Map will have old routes in it.
+ * TODO: Handle that little issue.
  */
 /* global Promise, Request, caches */
 'use strict';
 
 var toolbox = require('sw-toolbox');
 var urlm = require('../../../../utils/urls');
-var debug = require('../utils/debug')('backgrounds');
+var debug = require('../utils/debug')('init.backgrounds');
 
 /**
  * Escape a string for usage in a regular expression.

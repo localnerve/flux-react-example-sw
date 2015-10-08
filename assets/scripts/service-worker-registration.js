@@ -45,13 +45,13 @@ if ('serviceWorker' in window.navigator &&
   document.addEventListener('DOMContentLoaded', function contentReady (event) {
     document.removeEventListener('DOMContentLoaded', contentReady);
     // Now, its safe to get app state from the DOM.
-    // NOTE: Very App state format dependent (yucky).
+    var timestamp = window.App.timestamp;
+
     var stores =
       JSON.parse(JSON.stringify(window.App.context.dispatcher.stores));
-    var fetchrPlugin =
-      JSON.parse(JSON.stringify(window.App.context.plugins.FetchrPlugin));
 
-    var apis = {};
+    var apis = {}, fetchrPlugin =
+      JSON.parse(JSON.stringify(window.App.context.plugins.FetchrPlugin));
     apis[fetchrPlugin.xhrPath] = fetchrPlugin;
 
     /**
@@ -68,7 +68,8 @@ if ('serviceWorker' in window.navigator &&
         command: 'init',
         payload: {
           stores: stores,
-          apis: apis
+          apis: apis,
+          timestamp: timestamp
         }
       }, registration.active
       ).then(function () {

@@ -4,7 +4,7 @@
  *
  * Various handling for Flux Stores saved in IndexedDB 'init.stores' ObjectStore.
  */
-/* global Promise, Response, Blob, fetch, JSON */
+/* global Promise, Response, Blob, JSON */
 'use strict';
 
 var toolbox = require('sw-toolbox');
@@ -13,40 +13,64 @@ var idb = require('../utils/idb');
 var keyName = 'stores';
 
 /**
- * Update IndexedDB init.stores only if the app is online.
- * Eats any network error and just logs it.
+ * Update IndexedDB init.stores.
  *
- * @param {Object} payload - The initial Flux Stores payload.
- * @return {Object} A Promise, which hides network errors.
+ * @param {Object} stores - The initial Flux Stores payload.
+ * @return {Promise} A Promise that resolves to the result of idb.put.
  */
-function updateInitStores (payload) {
-  return fetch('/beacon').then(function (response) {
-    if (response.ok) {
-      debug(toolbox.options, 'App online, updating init.stores');
-      return idb.put(idb.stores.init, keyName, payload);
-    }
-    throw response;
-  }).catch(function (error) {
-    debug(toolbox.options, 'App not online, not updating init.stores', error);
+function updateInitStores (stores) {
+  debug(toolbox.options, 'Updating init.stores');
+  return mergeContent(stores).then(function (merged) {
+    return idb.put(idb.stores.init, keyName, merged);
   });
 }
 
 /**
  * Read IndexedDB init.stores
  *
- * @returns A new promise that simplifies handling and debugging.
+ * @return {Promise} A Promise that resolves to the stores Object.
  */
 function readInitStores () {
-  return idb.get(idb.stores.init, keyName).then(function (payload) {
+  return idb.get(idb.stores.init, keyName).then(function (stores) {
     return new Promise(function (resolve, reject) {
-      if (payload) {
+      if (stores) {
         debug(toolbox.options, 'successfully read init.stores');
-        resolve(payload);
+        resolve(stores);
       } else {
         debug(toolbox.options, 'init.stores not found');
         reject();
       }
     });
+  });
+}
+
+/**
+ * Keep old ContentStore content if it does not exist in newStores.
+ * This is used by resourceContentResponse
+ * @see resourceContentResponse
+ *
+ * NOTE: This grows the content over time. There is not currently a purging
+ * mechanism.
+ * TODO: Add IndexedDB purge to activate.
+ *
+ * @param {Object} newStores - The newer version of Flux Store data.
+ * @return {Promise} A Promise that resolves to the new data merged with old content.
+ */
+function mergeContent (newStores) {
+  return idb.get(idb.stores.init, keyName).then(function (oldStores) {
+    if (newStores && oldStores) {
+      var oldContent = oldStores.ContentStore.contents;
+      var newContent = newStores.ContentStore.contents;
+
+      Object.keys(oldContent).forEach(function (resource) {
+        // If the content is missing in newStores, it lives on.
+        if (!newContent[resource]) {
+          newContent[resource] = oldContent[resource];
+        }
+      });
+    }
+
+    return Promise.resolve(newStores);
   });
 }
 
@@ -79,7 +103,7 @@ function resourceContentResponse (request) {
           });
           resolve(new Response(blob));
         } else {
-          reject();
+          reject(new Error('Content not found for resource: ' + resource));
         }
       });
     });

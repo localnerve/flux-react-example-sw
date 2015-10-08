@@ -4,7 +4,7 @@
  *
  * Various handling for api info saved in IndexedDB 'init.apis' ObjectStore.
  */
-/* global Promise, fetch */
+/* global Promise */
 'use strict';
 
 var toolbox = require('sw-toolbox');
@@ -13,36 +13,28 @@ var idb = require('../utils/idb');
 var keyName = 'apis';
 
 /**
- * Update IndexedDB init.apis only if the app is online.
+ * Update IndexedDB init.apis.
  * This updates the api info for different apis used by the app, incl. CSRF tokens.
- * Eats any network error and just logs it.
  *
- * @param {Object} payload - The new Apis payload.
- * @return {Object} A Promise, which hides network errors.
+ * @param {Object} apis - The new Apis payload.
+ * @return {Promise} A Promise that resolves to the result of idb.put.
  */
-function updateInitApis (payload) {
-  return fetch('/beacon').then(function (response) {
-    if (response.ok) {
-      debug(toolbox.options, 'App online, updating init.apis');
-      return idb.put(idb.stores.init, keyName, payload);
-    }
-    throw response;
-  }).catch(function (error) {
-    debug(toolbox.options, 'App not online, not updating init.apis', error);
-  });
+function updateInitApis (apis) {
+  debug(toolbox.options, 'Updating init.apis');
+  return idb.put(idb.stores.init, keyName, apis);
 }
 
 /**
  * Read IndexedDB init.apis
  *
- * @returns A new promise that simplifies handling and debugging.
+ * @return {Promise} A Promise that resolves to the apis Object.
  */
 function readInitApis () {
-  return idb.get(idb.stores.init, keyName).then(function (payload) {
+  return idb.get(idb.stores.init, keyName).then(function (apis) {
     return new Promise(function (resolve, reject) {
-      if (payload) {
+      if (apis) {
         debug(toolbox.options, 'successfully read init.apis');
-        resolve(payload);
+        resolve(apis);
       } else {
         debug(toolbox.options, 'init.apis not found');
         reject();

@@ -10,8 +10,10 @@
 var toolbox = require('sw-toolbox');
 var backgrounds = require('./backgrounds');
 var routes = require('./routes');
+var update = require('./update');
 var stores = require('./stores');
 var apis = require('./apis');
+var timestamp = require('./timestamp');
 var debug = require('../utils/debug')('init');
 
 /**
@@ -31,22 +33,25 @@ var debug = require('../utils/debug')('init');
  * 3. Precaches backgrounds and routes.
  *
  * @param {Object} payload - Initial payload
+ * @param {Number} payload.timestamp - The timestamp of the payload.
  * @param {Object} payload.stores - The flux stores for the app.
  * @param {Object} payload.apis - The api information for the app.
+ * @param {Boolean} payload.startup - Indicates the sw started up and memory
+ * needs initializing.
  * @param {Function} responder - Function to call to resolve the message
  */
 function init (payload, responder) {
   debug(toolbox.options, 'Running init, payload:', payload);
 
-  stores.updateInitStores(payload.stores)
-  .then(function () {
-    return apis.updateInitApis(payload.apis);
-  })
-  .then(function () {
-    return backgrounds(payload.stores);
-  })
-  .then(function () {
-    return routes(payload.stores);
+  update(payload).then(function (updated) {
+    if (updated || payload.startup) {
+      return backgrounds(payload.stores).then(function () {
+        return routes(payload.stores);
+      });
+    } else {
+      debug(toolbox.options, 'init skipped');
+      return Promise.resolve();
+    }
   })
   .then(function () {
     responder({
@@ -64,17 +69,18 @@ function init (payload, responder) {
 /**
  * Reads all the stored init data.
  *
- * @returns A promise that resolves to a Object with the init data:
- * { stores: <stores>, apis: <apis> }
+ * @return {Promise} A Promise that resolves to a Object with the init payload.
  */
 function initData () {
   return Promise.all([
     stores.readInitStores(),
-    apis.readInitApis()
+    apis.readInitApis(),
+    timestamp.readInitTimestamp()
   ]).then(function (data) {
     return {
       stores: data[0],
-      apis: data[1]
+      apis: data[1],
+      timestamp: data[2]
     };
   });
 }

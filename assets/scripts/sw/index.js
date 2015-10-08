@@ -45,6 +45,7 @@ require('./precache');
 // The init message may never come if service-worker was restarted by the system.
 init.data()
 .then(function (payload) {
+  payload.startup = true;
   init.command(payload, function (res) {
     if (res.error) {
       console.error('startup init command failed', res.error);

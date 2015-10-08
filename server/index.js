@@ -70,9 +70,6 @@ app.use(function (req, res, next) {
   }
   next();
 });
-app.use('/beacon', function (req, res, next) {
-  res.status(200).send('pong');
-});
 
 // Serve cached statics
 app.use(settings.web.baseDir, express.static(

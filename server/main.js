@@ -2,13 +2,13 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
+/* global Promise */
 'use strict';
 
 var baseDir = '..';
 
 var debug = require('debug')('Example:Server');
 var fs = require('fs');
-var Q = require('q');
 var serialize = require('serialize-javascript');
 var React = require('react');
 var navigateAction = require('fluxible-router').navigateAction;
@@ -21,6 +21,33 @@ var config = require(baseDir + '/configs').create({
   baseDir: baseDir
 });
 var settings = config.settings;
+
+/**
+ * Utility to promisify a Node function
+ *
+ * @param {Function} nodeFunc - The node function to Promisify.
+ */
+function nodeCall (nodeFunc /* args... */) {
+  var nodeArgs = Array.prototype.slice.call(arguments, 1);
+
+  return new Promise(function (resolve, reject) {
+    /**
+     * Resolve a node callback
+     */
+    function nodeResolver (err, value) {
+      if (err) {
+        reject(err);
+      } else if (arguments.length > 2) {
+        resolve.apply(resolve, Array.prototype.slice.call(arguments, 1));
+      } else {
+        resolve(value);
+      }
+    }
+
+    nodeArgs.push(nodeResolver);
+    nodeFunc.apply(nodeFunc, nodeArgs);
+  });
+}
 
 /**
  * Render the full application with props and send the response.
@@ -123,15 +150,12 @@ function bootstrap (app) {
     })
     .then(function () {
       debug('Prefetching priority 0 route content');
-      var promises = [];
-      Object.keys(routes).forEach(function (route) {
+      return Promise.all(Object.keys(routes).map(function (route) {
         if (routes[route].priority === 0) {
-          promises.push(context.executeAction(
-            routes[route].action, {}
-          ));
+          return context.executeAction(routes[route].action, {});
         }
-      });
-      return Q.all(promises);
+        return Promise.resolve();
+      }));
     })
     .then(function () {
       debug('Executing navigate action');
@@ -139,13 +163,7 @@ function bootstrap (app) {
         url: req.url
       });
     })
-    .then(function () {
-      debug('Navigate succeeded');
-      // just move on to next
-      var deferred = Q.defer();
-      deferred.resolve();
-      return deferred.promise;
-    }, function (reason) {
+    .then(null, function (reason) {
       debug('Navigate failure reason: ' +
         require('util').inspect(reason, { depth: null }));
       res.status(reason.statusCode);
@@ -155,14 +173,14 @@ function bootstrap (app) {
     })
     .then(function () {
       debug('Reading the header styles from ' + settings.dist.css);
-      return Q.nfcall(fs.readFile, settings.dist.css, {
+      return nodeCall(fs.readFile, settings.dist.css, {
         encoding: 'utf8'
       });
     })
     .then(function (headerStyles) {
       debug('Reading the header scripts from ' + settings.dist.headerScript);
       renderProps.headerStyles = headerStyles;
-      return Q.nfcall(fs.readFile, settings.dist.headerScript, {
+      return nodeCall(fs.readFile, settings.dist.headerScript, {
         encoding: 'utf8'
       });
     })

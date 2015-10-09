@@ -10,7 +10,9 @@ var config = require('../../configs').create().data;
 // setup some canned responses
 var defaultResponse = 'aGVsbG8gd29ybGQK'; // base64 encoded 'hello world'
 var responses = {};
-responses[config.FRED.url()] = routesResponse;
+// base64 encode routes-response fixture as response for FRED.url
+responses[config.FRED.url()] =
+  new Buffer(JSON.stringify(routesResponse)).toString(config.FRED.contentEncoding());
 
 function SuperAgent () {
 }

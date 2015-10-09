@@ -10,6 +10,7 @@
  * Environment variables can override the following:
  *   FRED_URL - The full url to the resource manifest
  *   FRED_MEDIATYPE - The media type to Accept
+ *   FRED_CONTENTENCODING - The encoding of the content
  *   FRED_BRANCH - A 'ref' parameter added to the FRED_URL.
  *     For GH, this changes the commit/branch/tag to query from
  *     (default is the repo default branch)
@@ -47,6 +48,18 @@ function FRED_URL () {
  */
 function FRED_MEDIATYPE () {
   return process.env.FRED_MEDIATYPE || 'application/vnd.github.v3+json';
+}
+
+/**
+ * Get the FRED_CONTENTENCODING configuration value.
+ * This is the content encoding of the media type.
+ * Defaults to the v3 GH content encoding.
+ * This value is consumed by a NodeJS Buffer.
+ * @see https://developer.github.com/v3/repos/contents/
+ * @see https://nodejs.org/api/buffer.html#buffer_new_buffer_str_encoding
+ */
+function FRED_CONTENTENCODING () {
+  return process.env.FRED_CONTENTENCODING || 'base64';
 }
 
 /**
@@ -98,6 +111,13 @@ function makeConfig (nconf) {
        */
       mediaType: function () {
         return FRED_MEDIATYPE();
+      },
+
+      /**
+       * @see FRED_CONTENTENCODING
+       */
+      contentEncoding: function () {
+        return FRED_CONTENTENCODING();
       },
 
       /**

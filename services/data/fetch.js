@@ -2,10 +2,10 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
+/* global Promise */
 'use strict';
 
 var request = require('superagent');
-var Q = require('q');
 var debug = require('debug')('Example:Data:Fetch');
 
 var cache = require('./cache');
@@ -42,7 +42,7 @@ function fetchOne (params, callback) {
 
     if (content) {
       debug('Content successfully retrieved for', params.url);
-      cache.put(params, new Buffer(content, 'base64').toString());
+      cache.put(params, new Buffer(content, config.FRED.contentEncoding()).toString());
       return callback(null, cache.get(params.resource));
     }
 
@@ -77,9 +77,16 @@ function fetchAll (callback) {
       return callback(err);
     }
 
-    Q.all(
+    Promise.all(
       Object.keys(routes).map(function (route) {
-        return Q.nfcall(fetchOne, routes[route].action.params);
+        return new Promise(function (resolve, reject) {
+          fetchOne(routes[route].action.params, function (err, res) {
+            if (err) {
+              return reject(err);
+            }
+            return resolve(res);
+          });
+        });
       })
     )
     .then(function (result) {

@@ -11,7 +11,9 @@ var debug = require('debug')('Example:Server');
 var fs = require('fs');
 var serialize = require('serialize-javascript');
 var React = require('react');
+var ReactDOM = require('react-dom/server');
 var navigateAction = require('fluxible-router').navigateAction;
+var createElement = require('fluxible-addons-react').createElementWithContext;
 
 var HtmlComponent = React.createFactory(require(baseDir + '/components/Html.jsx'));
 var routesAction = require(baseDir + '/actions/routes');
@@ -81,13 +83,13 @@ function renderApp (req, res, context, app, props) {
     props.markup = '';
   } else {
     debug('Rendering app component into html');
-    props.markup = React.renderToString(context.createElement());
+    props.markup = ReactDOM.renderToString(createElement(context));
   }
 
   props.context = context.getComponentContext();
 
   res.send('<!DOCTYPE html>' +
-    React.renderToStaticMarkup(HtmlComponent(props))
+    ReactDOM.renderToStaticMarkup(HtmlComponent(props))
   );
 }
 

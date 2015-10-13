@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var TimeoutTransitionGroup = require('timeout-transition-group');
+var ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 var cx = require('classnames');
 var contactAction = require('../../../actions/contact');
 var ContactSteps = require('./Steps.jsx');
@@ -125,21 +125,21 @@ var Contact = React.createClass({
             this.props.resultMessageSuccess}
           retry={this.handleRetry} />
         <form className="contact-form" onSubmit={this.handleSubmit}>
-          <TimeoutTransitionGroup
+          <ReactCSSTransitionGroup
             component="div"
             className={cx({
               'contact-anim-container': true,
               'final': this.state.step === this.props.stepFinal
             })}
-            enterTimeout={animTimeout}
-            leaveTimeout={animTimeout}
+            transitionEnterTimeout={animTimeout}
+            transitionLeaveTimeout={animTimeout}
             transitionEnter={this.state.step < this.props.stepFinal}
             transitionLeave={false}
             transitionName={'contact-anim-' + this.state.direction}>
             <div className="contact-anim" key={step.name}>
               {contactElement}
             </div>
-          </TimeoutTransitionGroup>
+          </ReactCSSTransitionGroup>
           <ContactNav
             stepCurrent={this.state.step}
             stepFinal={this.props.stepFinal}
@@ -153,8 +153,7 @@ var Contact = React.createClass({
   setBlur: function () {
     setTimeout(function (self, final) {
       if (!final && self.inputElement) {
-        var el = React.findDOMNode(self.inputElement);
-        el.blur();
+        self.inputElement.blur();
       }
     }, 0, this, this.state.step === this.props.stepFinal);
   },
@@ -209,7 +208,7 @@ var Contact = React.createClass({
     event.preventDefault();
     var step = this.props.steps[this.state.step];
 
-    var fieldValue = React.findDOMNode(this.inputElement).value.trim();
+    var fieldValue = this.inputElement.value.trim();
     if (!fieldValue) {
       return;
     }

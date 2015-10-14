@@ -4,10 +4,8 @@
  *
  * Utilities for dealing with messages to different app domains.
  */
-/* global window, MessageChannel */
+/* global window, MessageChannel, Promise */
 'use strict';
-
-var Promise = (global && global.Promise) || require('es6-promise').Promise;
 
 /**
  * Send a message to a worker.

@@ -7,6 +7,9 @@
 /* global document, window, DEBUG */
 'use strict';
 
+// Apply polyfills
+require('./polyfill');
+
 var debugLib = require('debug');
 var debug = debugLib('Example:Client');
 var ReactDOM = require('react-dom');

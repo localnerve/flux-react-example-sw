@@ -50,7 +50,7 @@ function workerSendMessage (message, worker) {
         message.port = messageChannel.port2;
         transfer = [messageChannel.port2];
       } else {
-        if (worker.onmessage) {
+        if ('onmessage' in worker) {
           worker.onmessage = messageHandler;
         } else {
           if (worker === defaultTargetWorker) {

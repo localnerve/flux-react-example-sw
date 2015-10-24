@@ -5,17 +5,24 @@
 'use strict';
 
 var React = require('react');
-var ContentPage = require('./ContentPage.jsx');
-var Contact = require('./contact');
-var conformErrorStatus = require('../../utils').conformErrorStatus;
 var merge = require('lodash/object/merge');
+var conformErrorStatus = require('../../utils').conformErrorStatus;
+
+/***
+ * Add additional modal types here.
+ * Each modal type receives props: content, models
+ */
+var modalTypes = {
+  Settings: require('./Settings.jsx')
+};
+
 
 /***
  * Component to class map
  */
 var pageTypes = {
-  ContentPage: ContentPage,
-  Contact: Contact
+  ContentPage: require('./ContentPage.jsx'),
+  Contact: require('./contact')
 };
 
 /**
@@ -109,7 +116,22 @@ function createElements (navPages, contentStore) {
   });
 }
 
+/**
+ * Create a React element for a modal dialog given component and props.
+ *
+ * @param {String} component - The name of the component for the modal.
+ * @param {Object} props - The props for the component.
+ * @returns {Object} A React Element.
+ */
+function createModalElement (component, props) {
+  if (component) {
+    return React.createElement(modalTypes[component], props);
+  }
+  return null;
+}
+
 module.exports = {
   createElements: createElements,
-  getMainNavPages: getMainNavPages
+  getMainNavPages: getMainNavPages,
+  createModalElement: createModalElement
 };

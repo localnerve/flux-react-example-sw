@@ -14,6 +14,7 @@ var ContentStore = require('./stores/ContentStore');
 var ContactStore = require('./stores/ContactStore');
 var BackgroundStore = require('./stores/BackgroundStore');
 var RouteStore = require('./stores/RouteStore');
+var ModalStore = require('./stores/ModalStore');
 
 debug('Creating FluxibleApp');
 var app = new FluxibleApp({
@@ -29,5 +30,6 @@ app.registerStore(ContentStore);
 app.registerStore(ContactStore);
 app.registerStore(BackgroundStore);
 app.registerStore(RouteStore);
+app.registerStore(ModalStore);
 
 module.exports = app;

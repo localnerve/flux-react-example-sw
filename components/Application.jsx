@@ -12,7 +12,9 @@ var provideContext = require('fluxible-addons-react/provideContext');
 var handleHistory = require('fluxible-router').handleHistory;
 var navigateAction = require('fluxible-router').navigateAction;
 var ReactSwipe = require('react-swipe');
+var ReactModal = require('react-modal');
 
+var modalAction = require('../actions/modal').stopModal;
 var pages = require('./pages');
 var Header = require('./header');
 var Footer = require('./footer');
@@ -39,6 +41,10 @@ var Application = React.createClass({
     }
   },
 
+  modalClose: function () {
+    this.context.executeAction(modalAction);
+  },
+
   render: function () {
     debug('pageName', this.props.pageName);
     debug('pages', this.props.pages);
@@ -56,8 +62,17 @@ var Application = React.createClass({
       navPages, this.context.getStore('ContentStore')
     );
 
+    var modalElement = pages.createModalElement(
+      this.props.modalComponent, this.props.modalProps
+    );
+
     return (
       <div className="app-block">
+        <ReactModal
+          isOpen={this.props.modalOpen}
+          onRequestClose={this.modalClose}>
+          {modalElement}
+        </ReactModal>
         <Background prefetch={false} />
         <Header
           selected={navPages[routeOrdinal].page}
@@ -97,9 +112,10 @@ var Application = React.createClass({
 });
 
 Application = connectToStores(
-  Application, ['ApplicationStore', 'ContentStore', 'RouteStore'],
+  Application, ['ApplicationStore', 'ContentStore', 'RouteStore', 'ModalStore'],
   function (context) {
     var routeStore = context.getStore('RouteStore'),
+        modalStore = context.getStore('ModalStore'),
         appStore = context.getStore('ApplicationStore'),
         currentRoute = routeStore.getCurrentRoute(),
         pageName = (currentRoute && currentRoute.get('page')) ||
@@ -110,7 +126,10 @@ Application = connectToStores(
       pageName: pageName,
       pageTitle: appStore.getCurrentPageTitle(),
       pageModels: context.getStore('ContentStore').getCurrentPageModels(),
-      pages: routeStore.getRoutes()
+      pages: routeStore.getRoutes(),
+      modalOpen: modalStore.getIsOpen(),
+      modalComponent: modalStore.getComponent(),
+      modalProps: modalStore.getProps()
     };
 });
 

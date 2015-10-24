@@ -50,6 +50,13 @@ module.exports = {
         });
       break;
 
+      case 'settings':
+        callback(null, {
+          models: models,
+          content: '<h2>Settings</h2>'
+        });
+      break;
+
       default:
         throw new Error('service-data test mock recieved unexpected resource request');
     }

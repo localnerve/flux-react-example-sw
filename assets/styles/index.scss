@@ -13,6 +13,8 @@ $app-accent-dark-shadow: rgba($app-accent-dark-bgcolor, 0.7);
 $app-primary-light-color: rgba(255, 255, 255, 0.87);
 $app-primary-dark-color: rgba(0, 0, 0, 0.87);
 
+$app-max-zindex: 2;
+
 @import
   "vendor",
   "icon-fonts",

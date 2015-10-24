@@ -1,0 +1,10 @@
+//
+// React-Modal styles
+//
+.ReactModal__Overlay {
+  z-index: $app-max-zindex;
+}
+.ReactModal__Content {
+  color: $app-accent-dark-bgcolor;
+  background: $app-primary-light-color;
+}

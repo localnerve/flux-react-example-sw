@@ -23,6 +23,7 @@ var Header = React.createClass({
           <Ribbon
             business={this.props.models.LocalBusiness}
             social={this.props.models.SiteInfo.social}
+            settings={this.props.models.Settings}
           />
           <Logo site={this.props.models.SiteInfo.site} />
         </div>

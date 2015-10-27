@@ -9,8 +9,10 @@ var ModalStore = createStore({
   storeName: 'ModalStore',
 
   handlers: {
-    'START_MODAL': 'startModal',
-    'STOP_MODAL': 'stopModal'
+    'MODAL_START': 'modalStart',
+    'RECEIVE_PAGE_CONTENT': 'updateProps',
+    'MODAL_FAILURE': 'modalFailure',
+    'MODAL_STOP': 'modalStop'
   },
 
   /**
@@ -19,30 +21,56 @@ var ModalStore = createStore({
   initialize: function () {
     this.isOpen = false;
     this.component = '';
-    this.props = {};
+    this.failure = false;
+    this.props = null;
   },
 
   /**
-   * START_MODAL handler.
+   * MODAL_START handler.
    * Start a modal dialog.
    *
-   * @param {Object} payload - The START_MODAL action payload.
-   * @param {Object} payload.props - The props for the UI component.
+   * @param {Object} payload - The MODAL_START action payload.
+   * @param {Object} [payload.props] - The props for the UI component.
    * @param {String} payload.component- The UI component.
    */
-  startModal: function (payload) {
+  modalStart: function (payload) {
     this.props = payload.props;
     this.component = payload.component;
     this.isOpen = true;
+    this.failure = false;
     this.emitChange();
   },
 
   /**
-   * STOP_MODAL handler.
+   * RECEIVE_PAGE_CONTENT handler.
+   * Updates the props for a modal dialog.
+   *
+   * @param {Object} payload - The RECEIVE_PAGE_CONTENT action payload.
+   * @param {Object} payload.data - The props for the UI component.
+   */
+  updateProps: function (payload) {
+    this.props = payload.data;
+    this.emitChange();
+  },
+
+  /**
+   * MODAL_STOP handler.
    * Stop a modal dialog.
    */
-  stopModal: function () {
+  modalStop: function () {
     this.isOpen = false;
+    this.component = '';
+    this.props = null;
+    this.failure = false;
+    this.emitChange();
+  },
+
+  /**
+   * MODAL_FAILURE handler.
+   */
+  modalFailure: function (payload) {
+    this.props = payload;
+    this.failure = true;
     this.emitChange();
   },
 
@@ -68,13 +96,21 @@ var ModalStore = createStore({
   },
 
   /**
+   * @returns {Boolean} The failure boolean.
+   */
+  getFailure: function () {
+    return this.failure;
+  },
+
+  /**
    * @returns {Object} The ModalStore state.
    */
   dehydrate: function () {
     return {
       component: this.component,
       props: this.props,
-      isOpen: this.isOpen
+      isOpen: this.isOpen,
+      failure: this.failure
     };
   },
 
@@ -87,6 +123,7 @@ var ModalStore = createStore({
     this.component = state.component;
     this.props = state.props;
     this.isOpen = state.isOpen;
+    this.failure = state.failure;
   }
 });
 

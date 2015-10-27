@@ -1,0 +1,35 @@
+//
+// Settings styles
+//
+.settings {
+  .close {
+    @extend %close-button;
+    &::after {
+      content: '✖'
+    }
+    /*
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 150%;
+    text-shadow: 0 1px 0 $app-accent-dark-shadow;
+    &::after {
+      content: '✖'
+    }
+    */
+  }
+
+  .switch {
+    @include switch;
+    @include switch-layout(rem-calc(60), rem-calc(38));
+    vertical-align: middle;
+  }
+  .switch-label {
+    display: inline-block;
+    padding-left: 0.5rem;
+  }
+
+  .control-section {
+    margin-bottom: 1rem;
+  }
+}

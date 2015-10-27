@@ -13,7 +13,7 @@ var conformErrorStatus = require('../../utils').conformErrorStatus;
  * Each modal type receives props: content, models
  */
 var modalTypes = {
-  Settings: require('./Settings.jsx')
+  Settings: require('./settings')
 };
 
 
@@ -125,7 +125,11 @@ function createElements (navPages, contentStore) {
  */
 function createModalElement (component, props) {
   if (component) {
-    return React.createElement(modalTypes[component], props);
+    props = props || {};
+    return React.createElement(
+      modalTypes[component],
+      getProps(props.content, props.models)
+    );
   }
   return null;
 }

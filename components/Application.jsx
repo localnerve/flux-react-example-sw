@@ -14,7 +14,7 @@ var navigateAction = require('fluxible-router').navigateAction;
 var ReactSwipe = require('react-swipe');
 var ReactModal = require('react-modal');
 
-var modalAction = require('../actions/modal').stopModal;
+var modalAction = require('../actions/modal').closeModal;
 var pages = require('./pages');
 var Header = require('./header');
 var Footer = require('./footer');

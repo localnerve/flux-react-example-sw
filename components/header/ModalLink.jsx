@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var modalAction = require('../../actions/modal').startModal;
+var modalAction = require('../../actions/modal').openModal;
 
 var ModalLink = React.createClass({
   propTypes: {

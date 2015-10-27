@@ -2,62 +2,105 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
+/* global Promise */
 'use strict';
 
 var debug = require('debug')('Example:ModalAction');
+var createFluxibleRouteTransformer = require('../utils').createFluxibleRouteTransformer;
 
 /**
- * Perform the START_MODAL action.
+ * Execute an optional custom action that may be defined for the dialog.
+ *
+ * @param {Object} context - The fluxible action context.
+ * @param {Object} payload - The MODAL action payload.
+ * @returns {Promise} A promise result.
+ */
+function executeCustomAction (context, payload) {
+  if (payload.action) {
+    var transformer = createFluxibleRouteTransformer({
+      actions: require('./interface')
+    }).jsonToFluxible;
+
+    // Make the action executable
+    payload = transformer({
+      payload: payload
+    }).payload;
+
+    return context.executeAction(payload.action);
+  }
+
+  return Promise.resolve();
+}
+
+/**
+ * Open a modal dialog.
+ * Try to get the dialog content from the contentStore first.
+ * After content, execute a custom action if one is specified.
  *
  * @param {Object} context - The fluxible action context.
  * @param {Object} payload - The MODAL action payload.
  * @param {Function} done - The callback to execute on completion.
  */
-function startModal (context, payload, done) {
+function openModal (context, payload, done) {
   var data = context.getStore('ContentStore').get(payload.resource);
 
-  if (data) {
-    debug('Found '+payload.resource+' in cache');
+  debug(payload.resource + (data ? ' found ' : ' not found ') + ' in cache');
 
-    context.dispatch('START_MODAL', {
-      component: payload.component,
-      props: data
-    });
-
-    return done();
-  }
-
-  context.service.read('page', payload, {}, function (err, data) {
-    debug('Page service request complete');
-
-    if (err) {
-      return done(err);
-    }
-    // check data here, but what is the proper error outcome?
-
-    context.dispatch('RECEIVE_PAGE_CONTENT', {
-      resource: payload.resource,
-      data: data
-    });
-
-    context.dispatch('START_MODAL', {
-      component: payload.component,
-      props: data
-    });
-
-    return done();
+  context.dispatch('MODAL_START', {
+    component: payload.component,
+    props: data
   });
+
+  if (!data) {
+    context.service.read('page', payload, {}, function (err, data) {
+      debug('Page service request complete');
+
+      if (err) {
+        context.dispatch('MODAL_FAILURE', err);
+        return done(err);
+      }
+
+      if (!data) {
+        err = new Error('No data found for '+payload.resource);
+        context.dispatch('MODAL_FAILURE', err);
+        return done(err);
+      }
+
+      context.dispatch('RECEIVE_PAGE_CONTENT', {
+        resource: payload.resource,
+        data: data
+      });
+
+      executeCustomAction(context, payload)
+      .then(function () {
+        done();
+      })
+      .catch(function (error) {
+        context.dispatch('MODAL_FAILURE', error);
+        done(error);
+      });
+    });
+  } else {
+    executeCustomAction(context, payload)
+    .then(function () {
+      done();
+    })
+    .catch(function (error) {
+      context.dispatch('MODAL_FAILURE', error);
+      done();
+    });
+  }
 }
 
 /**
- * Perform the STOP_MODAL action.
+ * Close the modal dialog.
  */
-function stopModal (context, payload, done) {
-  context.dispatch('STOP_MODAL');
+function closeModal (context, payload, done) {
+  context.dispatch('MODAL_STOP');
   done();
 }
 
 module.exports = {
-  startModal: startModal,
-  stopModal: stopModal
+  openModal: openModal,
+  closeModal: closeModal
 };

@@ -7,7 +7,6 @@
 
 var expect = require('chai').expect;
 
-var testDom = require('../../utils/testdom');
 var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 var modelsResponse = require('../../fixtures/models-response');
@@ -16,16 +15,17 @@ var ContentStore = require('../../../stores/ContentStore');
 var modalStartAction = require('../../../actions/modal').openModal;
 var modalStopAction = require('../../../actions/modal').closeModal;
 var serviceData = require('../../mocks/service-data');
+var mockActionInterface = require('../../utils/mocks').interface;
 
 describe('modal action', function () {
   var context, params;
 
   before(function () {
-    testDom.start();
+    mockActionInterface.begin();
   });
 
   after(function () {
-    testDom.stop();
+    mockActionInterface.end();
   });
 
   beforeEach(function () {
@@ -40,8 +40,7 @@ describe('modal action', function () {
   });
 
   describe('start', function () {
-    // Needs update to MockActionContext
-    it.skip('should update the ModalStore', function (done) {
+    it('should update the ModalStore', function (done) {
       context.executeAction(modalStartAction, params, function (err) {
         if (err) {
           return done(err);
@@ -61,8 +60,7 @@ describe('modal action', function () {
       });
     });
 
-    // Needs update to MockActionContext
-    it.skip('should update the ContentStore', function (done) {
+    it('should update the ContentStore', function (done) {
       context.executeAction(modalStartAction, params, function (err) {
         if (err) {
           return done(err);

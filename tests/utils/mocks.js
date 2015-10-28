@@ -16,6 +16,7 @@ var cache = require('../mocks/cache');
 var fetch = require('../mocks/fetch');
 var queue = require('../mocks/queue');
 var mailer = require('../mocks/mailer');
+var actionInterface = require('../mocks/actionInterface');
 
 function mockModuleBegin (mocks) {
   mocks.forEach(function (mock) {
@@ -130,6 +131,19 @@ function mockQueueEnd () {
   }]);
 }
 
+function mockInterfaceBegin () {
+  mockModuleBegin([{
+    pattern: './interface',
+    module: actionInterface
+  }]);
+}
+
+function mockInterfaceEnd () {
+  mockModuleEnd([{
+    pattern: './interface'
+  }]);
+}
+
 module.exports = {
   serviceData: {
     begin: mockServiceDataBegin,
@@ -154,5 +168,9 @@ module.exports = {
   queue: {
     begin: mockQueueBegin,
     end: mockQueueEnd
+  },
+  interface: {
+    begin: mockInterfaceBegin,
+    end: mockInterfaceEnd
   }
 };

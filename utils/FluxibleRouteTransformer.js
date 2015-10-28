@@ -52,7 +52,7 @@ FluxibleRouteTransformer.prototype.jsonToFluxible = function jsonToFluxible (jso
      * @param {Function} done - The callback to execute on completion.
      */
     return function dynAction (context, payload, done) {
-      context.executeAction(action, copyParams, done);
+      return context.executeAction(action, copyParams, done);
     };
   };
 

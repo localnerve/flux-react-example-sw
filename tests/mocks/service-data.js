@@ -13,45 +13,47 @@ var models = modelsResponse;
 
 module.exports = {
   fetch: function (params, callback) {
+    var result;
+
     if (params.emulateError) {
       callback(new Error('mock'));
     }
 
     switch (params.resource) {
       case 'routes':
-        callback(null, {
+        result = callback(null, {
           models: undefined,
           content: JSON.parse(JSON.stringify(routesResponse))
         });
       break;
 
       case 'business':
-        callback(null, 'business fixture goes here');
+        result = callback(null, 'business fixture goes here');
       break;
 
       case 'about':
-        callback(null, {
+        result = callback(null, {
           models: models,
           content: '<h2>About</h2>'
         });
       break;
 
       case 'contact':
-        callback(null, {
+        result = callback(null, {
           models: models,
           content: '<h2>Contact</h2>'
         });
       break;
 
       case 'home':
-        callback(null, {
+        result = callback(null, {
           models: models,
           content: '<h2>Home</h2>'
         });
       break;
 
       case 'settings':
-        callback(null, {
+        result = callback(null, {
           models: models,
           content: '<h2>Settings</h2>'
         });
@@ -60,6 +62,8 @@ module.exports = {
       default:
         throw new Error('service-data test mock recieved unexpected resource request');
     }
+
+    return result;
   },
 
   initialize: function (callback) {

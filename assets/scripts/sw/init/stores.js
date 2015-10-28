@@ -98,7 +98,11 @@ function resourceContentResponse (request) {
 
       return new Promise(function (resolve, reject) {
         if (content) {
-          var blob = new Blob([JSON.stringify(content)], {
+          // Fetchr special format requirement: GH/yahoo/fetchr/issues/127
+          var fetchrFormat = {
+            data: content
+          };
+          var blob = new Blob([JSON.stringify(fetchrFormat)], {
             type: 'application/json'
           });
           resolve(new Response(blob));

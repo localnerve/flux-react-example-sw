@@ -70,10 +70,10 @@
     "grunt-svgmin": "^2.0.1",
     "grunt-webpack": "^1.0.8",
     "immutable": "^3.7.4",
-    "istanbul": "^0.3.7",
+    "istanbul": "^0.4.0",
     "jscs": "^2.0.0",
     "jscs-jsdoc": "^1.1.0",
-    "jsdom": "~6.5.1",
+    "jsdom": "~7.0.2",
     "jshint": "2.8.0",
     "jsx-loader": "^0.13.1",
     "mocha": "^2.2.1",
@@ -120,7 +120,7 @@
     "serialize-javascript": "^1.0.0",
     "serve-favicon": "^2.2.0",
     "superagent": "^1.2.0",
-    "sw-toolbox": "^2.1.0",
+    "sw-toolbox": "^3.0.1",
     "swipe-js-iso": "^2.0.1",
     "treo": "^0.5.0"
   }

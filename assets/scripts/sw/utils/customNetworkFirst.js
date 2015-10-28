@@ -52,7 +52,7 @@ function fetchAndCache (reqNet, reqCache, options) {
       return promResponse.then(function (res) {
         // Only update cache for GET requests
         if (reqNet.method === 'GET') {
-          return caches.open(toolbox.options.cacheName).then(function (cache) {
+          return caches.open(toolbox.options.cache.name).then(function (cache) {
             debug(
               toolbox.options, 'caching successful network request as:', reqCache
             );
@@ -117,7 +117,7 @@ function routeHandlerFactory (fetchRequest, cacheRequest, cacheFallback) {
       debug(options, 'network req failed, fallback to cache', error);
 
       // Returned cached response, if none, try cacheFallback if exists.
-      return caches.open(toolbox.options.cacheName).then(function (cache) {
+      return caches.open(toolbox.options.cache.name).then(function (cache) {
         var response = cache.match(reqCache);
 
         return response.then(function (data) {

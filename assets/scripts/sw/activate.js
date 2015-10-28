@@ -36,7 +36,7 @@ self.addEventListener('activate', function (event) {
           if (cacheName.indexOf(cacheId) === 0 &&
               cacheName.indexOf(toolbox.options.scope) > -1 &&
               !/inactive\${3}$/i.test(cacheName) &&
-              cacheName !== toolbox.options.cacheName
+              cacheName !== toolbox.options.cache.name
           ) {
             debug(toolbox.options, 'deleting old cache ', cacheName);
             return caches.delete(cacheName);

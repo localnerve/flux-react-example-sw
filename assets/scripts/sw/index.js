@@ -17,9 +17,9 @@ toolbox.options.debug = data.debug;
 // Construct cache name and save scope.
 // Relies on sw-toolbox default name format for scope.
 // CacheId must always start name.
-var m = toolbox.options.cacheName.match(/([^\$]+)\${3}$/);
+var m = toolbox.options.cache.name.match(/([^\$]+)\${3}$/);
 toolbox.options.scope = m && m[1];
-toolbox.options.cacheName = data.cacheId + '-' + toolbox.options.cacheName;
+toolbox.options.cache.name = data.cacheId + '-' + toolbox.options.cache.name;
 
 var debug = require('./utils/debug')('index');
 var init = require('./init');

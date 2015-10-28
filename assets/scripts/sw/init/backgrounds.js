@@ -65,7 +65,7 @@ function precacheBackgrounds (backgroundUrls, request, values, options) {
 
       // if reqNotCurrent not in cache, a falsy response will be given to
       // precacheBackground.
-      return caches.open(toolbox.options.cacheName).then(function (cache) {
+      return caches.open(toolbox.options.cache.name).then(function (cache) {
         return cache.match(reqNotCurrent).then(
           precacheBackground.bind(this, options, reqNotCurrent)
         );

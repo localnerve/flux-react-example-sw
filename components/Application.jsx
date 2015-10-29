@@ -72,7 +72,18 @@ var Application = React.createClass({
       <div className="app-block">
         <ReactModal
           isOpen={this.props.modal.open}
-          onRequestClose={this.modalClose}>
+          onRequestClose={this.modalClose}
+          style={{
+            content: {
+              top: '50%',
+              left: '50%',
+              right: 'auto',
+              bottom: 'auto',
+              marginRight: '-50%',
+              transform: 'translate(-50%, -50%)'
+            }
+          }}
+          >
           {modalElement}
         </ReactModal>
         <Background prefetch={false} />

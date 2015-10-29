@@ -1,35 +1,121 @@
 //
 // Settings styles
 //
+
 .settings {
+  min-height: rem-calc(350);
+
   .close {
     @extend %close-button;
     &::after {
       content: '✖'
     }
-    /*
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    font-size: 150%;
-    text-shadow: 0 1px 0 $app-accent-dark-shadow;
-    &::after {
-      content: '✖'
-    }
-    */
-  }
-
-  .switch {
-    @include switch;
-    @include switch-layout(rem-calc(60), rem-calc(38));
-    vertical-align: middle;
-  }
-  .switch-label {
-    display: inline-block;
-    padding-left: 0.5rem;
   }
 
   .control-section {
-    margin-bottom: 1rem;
+    margin-top: 1rem;
+
+    .switch {
+      @include switch;
+      @include switch-layout(rem-calc(60), rem-calc(38));
+      vertical-align: middle;
+    }
+    .switch-label {
+      display: inline-block;
+      padding-left: 0.5rem;
+    }
+
+    .notice {
+      margin: 0.4rem;
+      text-align: left;
+    }
+
+    .push-demo {
+      button {
+        @extend %button;
+        @include button-size(large, true);
+        @include button-style(
+          $app-primary-bgcolor,
+          $app-accent-dark-bgcolor,
+          $app-primary-light-color,
+          solid
+        );
+        border-radius: 0.25rem
+      }
+      button:disabled {
+        background: #ccc;
+      }
+    }
+
+    .push-topics {
+      list-style: none;
+
+      .topic-box > input {
+        position: absolute;
+        left: -9999px;
+        outline: none;
+      }
+      .topic-box {
+        display: inline-block;
+        position: relative;
+        vertical-align: middle;
+        width: 2rem;
+        height: 2rem;
+        margin: 0.5rem auto;
+
+        input[type="checkbox"]:checked + label:after {
+          opacity: 1;
+        }
+
+        input[type="checkbox"]:disabled + label,
+        input[type="checkbox"]:disabled + label:after {
+          background: #ccc;
+        }
+
+        label {
+          cursor: pointer;
+          position: absolute;
+          width: 2rem;
+          height: 2rem;
+          top: 0;
+          border-radius: 0.25rem;
+          background: $app-primary-bgcolor;
+
+          &::after {
+            position: absolute;
+            content: '';
+            opacity: 0;
+            width: 0.9rem;
+            height: 0.5rem;
+            background: transparent;
+            top: 0.6rem;
+            left: 0.6rem;
+            border: 3px solid #fcfff4;
+            border-top: none;
+            border-right: none;
+            transform: rotate(-45deg);
+          }
+          &:hover::after {
+            opacity: 0.3;
+          }
+        }
+      }
+      .topic-label {
+        display: inline-block;
+        padding-left: 0.5rem;
+      }
+    }
+  }
+
+  // divider for sections
+  .control-section:not(:last-child) {
+    &::after {
+      content: '';
+      display: block;
+      margin: 1rem 0;
+      border-top: 1px solid $app-primary-bgcolor;
+      border-bottom: 1px solid $app-accent-dark-bgcolor;
+      height: 2px;
+    }
   }
 }

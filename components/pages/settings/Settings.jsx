@@ -57,6 +57,24 @@ var Settings = React.createClass({
   },
 
   /**
+   * Render the settings dialog contents.
+   */
+  renderSettings: function () {
+    var hasSettings = this.props.hasServiceWorker && this.props.hasPushMessaging,
+        notSupported = this.renderNotSupported(hasSettings),
+        settingsControls = this.renderControls();
+
+    return (
+      <div className="settings">
+        <span className="close" onClick={this.closeModal}></span>
+        <h2>{this.props.heading}</h2>
+        {notSupported}
+        {settingsControls}
+      </div>
+    );
+  },
+
+  /**
    * Render a message that indicates lack of support.
    */
   renderNotSupported: function (hasSettings) {
@@ -69,27 +87,7 @@ var Settings = React.createClass({
     }
   },
 
-  /**
-   * Render the settings dialog contents.
-   */
-  renderSettings: function () {
-    var hasSettings = this.props.hasServiceWorker && this.props.hasPushMessaging,
-        notSupported = this.renderNotSupported(hasSettings),
-        settingsControls = this.renderSettingsControls(),
-        demoControls = this.renderDemoControls();
-
-    return (
-      <div className="settings">
-        <span className="close" onClick={this.closeModal}></span>
-        <h2>{this.props.heading}</h2>
-        {notSupported}
-        {settingsControls}
-        {demoControls}
-      </div>
-    );
-  },
-
-  renderSettingsControls: function () {
+  renderControls: function () {
     var pushDisabled =
       !this.props.hasServiceWorker ||
       !this.props.hasPushMessaging ||
@@ -99,12 +97,15 @@ var Settings = React.createClass({
 
     var pushNotice;
     if (!this.props.hasServiceWorker) {
-      pushNotice = this.props.notificationsNotSupported;
+      pushNotice = this.props.pushNotifications.notificationsNotSupported;
     } else if (!this.props.hasPushMessaging) {
-      pushNotice = this.props.pushMessagingNotSupported;
-    } else if (!this.props.blocked) {
-      pushNotice = this.props.notificationsBlocked;
+      pushNotice = this.props.pushNotifications.pushMessagingNotSupported;
+    } else if (this.props.pushBlocked) {
+      pushNotice = this.props.pushNotifications.notificationsBlocked;
     }
+
+    var pushTopics = this.renderPushTopics(pushDisabled, hasSubscription);
+    var pushDemo = this.renderPushDemo(pushDisabled, hasSubscription);
 
     return (
       <div>
@@ -119,11 +120,15 @@ var Settings = React.createClass({
           <div className="switch-label">
             <span>{this.props.pushNotifications.enable}</span>
           </div>
-          <div className={cx({ hide: !pushNotice })}>
+          <div className={cx({
+              hide: !pushNotice,
+              notice: true
+          })}>
             <small>{pushNotice}</small>
           </div>
+          {pushTopics}
+          {pushDemo}
         </div>
-        <hr />
         <div className="control-section">
           <div className="switch">
             <input type="checkbox" id="background-sync-enable" disabled />
@@ -132,8 +137,8 @@ var Settings = React.createClass({
           <div className="switch-label">
             <span>{this.props.backgroundSync.enable}</span>
           </div>
-          <div>
-            <small>Background Sync is not ready yet.</small>
+          <div className="notice">
+            <small>Background Sync not implemented yet &#x2639;</small>
           </div>
         </div>
       </div>
@@ -141,9 +146,54 @@ var Settings = React.createClass({
   },
 
   /**
+   * TODO: check subscription to get value of 'checked' for each topic.
+   */
+  renderPushTopics: function (pushDisabled, hasSubscription) {
+    var topics = this.props.pushNotifications.topics.map(function (topic) {
+      return (
+        <li key={topic.tag}>
+          <div className="topic-box">
+            <input type="checkbox" id={topic.tag} name={topic.tag}
+              checked={true} disabled={pushDisabled || !hasSubscription}
+              onChange={this.topicChange} />
+            <label htmlFor={topic.tag}></label>
+          </div>
+          <div className="topic-label">
+            <span>{topic.label}</span>
+          </div>
+        </li>
+      );
+    }, this);
+
+    return (
+      <ul className="push-topics">
+        {topics}
+      </ul>
+    );
+  },
+
+  /**
+   * Render the push demo content.
+   */
+  renderPushDemo: function (pushDisabled, hasSubscription) {
+    if (this.props.demo && this.props.demo.pushNotification) {
+      return (
+        <div className="push-demo">
+          <button
+            disabled={pushDisabled || !hasSubscription}
+            onClick={this.pushDemo}>
+            <span>Demo Push Notification</span>
+          </button>
+        </div>
+      );
+    }
+
+    return null;
+  },
+
+  /**
    * TODO:
-   * Subscribe/Unsubscribe
-   * On Subscribe, show the categories
+   * Subscribe/Unsubscribe all.
    */
   subscriptionChange: function (event) {
     // a bit of fakery for now:
@@ -154,9 +204,16 @@ var Settings = React.createClass({
 
   /**
    * TODO:
+   * Subscribe/Unsubscribe topic.
    */
-  renderDemoControls: function (hasSettings) {
-    return null;
+  topicChange: function (event) {
+  },
+
+  /**
+   * TODO:
+   * Send a push notification to the current subscription id.
+   */
+  pushDemo: function () {
   },
 
   /**

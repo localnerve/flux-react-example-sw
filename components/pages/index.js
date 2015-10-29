@@ -121,15 +121,16 @@ function createElements (navPages, contentStore) {
  *
  * @param {String} component - The name of the component for the modal.
  * @param {Object} props - The props for the component.
+ * @param {Boolean} failure - Modal creation failure.
  * @returns {Object} A React Element.
  */
-function createModalElement (component, props) {
+function createModalElement (component, props, failure) {
   if (component) {
     props = props || {};
-    return React.createElement(
-      modalTypes[component],
-      getProps(props.content, props.models)
-    );
+
+    props = merge(getProps(props.content, props.models), { failure: failure });
+
+    return React.createElement(modalTypes[component], props);
   }
   return null;
 }

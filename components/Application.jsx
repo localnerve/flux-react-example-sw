@@ -63,13 +63,15 @@ var Application = React.createClass({
     );
 
     var modalElement = pages.createModalElement(
-      this.props.modalComponent, this.props.modalProps
+      this.props.modal.component,
+      this.props.modal.props,
+      this.props.modal.failure
     );
 
     return (
       <div className="app-block">
         <ReactModal
-          isOpen={this.props.modalOpen}
+          isOpen={this.props.modal.open}
           onRequestClose={this.modalClose}>
           {modalElement}
         </ReactModal>
@@ -127,9 +129,12 @@ Application = connectToStores(
       pageTitle: appStore.getCurrentPageTitle(),
       pageModels: context.getStore('ContentStore').getCurrentPageModels(),
       pages: routeStore.getRoutes(),
-      modalOpen: modalStore.getIsOpen(),
-      modalComponent: modalStore.getComponent(),
-      modalProps: modalStore.getProps()
+      modal: {
+        open: modalStore.getIsOpen(),
+        component: modalStore.getComponent(),
+        props: modalStore.getProps(),
+        failure: modalStore.getFailure()
+      }
     };
 });
 

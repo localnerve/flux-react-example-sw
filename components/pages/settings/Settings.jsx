@@ -13,6 +13,8 @@ var cx = require('classnames');
 
 var Settings = React.createClass({
   propTypes: {
+    failure: React.PropTypes.bool.isRequired,
+    spinner: React.PropTypes.bool.isRequired,
     name: React.PropTypes.string,
     heading: React.PropTypes.string,
     settingsNotSupported: React.PropTypes.string,
@@ -28,17 +30,42 @@ var Settings = React.createClass({
     subscription: React.PropTypes.object
   },
   contextTypes: {
-    executeAction: React.PropTypes.func.isRequired
+    executeAction: React.PropTypes.func.isRequired,
+    getStore: React.PropTypes.func.isRequired
+  },
+
+  render: function () {
+    if (this.props.failure) {
+      return this.renderFailure();
+    }
+
+    if (this.props.spinner || !('hasServiceWorker' in this.props)) {
+      return React.createElement(Spinner);
+    }
+
+    return this.renderSettings();
   },
 
   /**
-   * Main Render
+   * Render a modal dialog failure outcome.
+   * In this case, there is no prop that is reliable.
+   * 500 content is preloaded by the server, so it is reliable and appropriate.
    */
-  render: function () {
-    if (this.props.spinner || !('hasServiceWorker' in this.props)) {
-      return React.createElement(Spinner);
+  renderFailure: function () {
+    var contentStore = this.context.getStore('ContentStore');
+    return contentStore.get('500').content;
+  },
+
+  /**
+   * Render a message that indicates lack of support.
+   */
+  renderNotSupported: function (hasSettings) {
+    if (!hasSettings) {
+      return (
+        <h4>{this.props.settingsNotSupported}</h4>
+      );
     } else {
-      return this.renderSettings();
+      return null;
     }
   },
 
@@ -60,16 +87,6 @@ var Settings = React.createClass({
         {demoControls}
       </div>
     );
-  },
-
-  renderNotSupported: function (hasSettings) {
-    if (!hasSettings) {
-      return (
-        <h4>{this.props.settingsNotSupported}</h4>
-      );
-    } else {
-      return null;
-    }
   },
 
   renderSettingsControls: function () {

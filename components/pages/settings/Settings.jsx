@@ -14,7 +14,7 @@ var cx = require('classnames');
 var Settings = React.createClass({
   propTypes: {
     failure: React.PropTypes.bool.isRequired,
-    spinner: React.PropTypes.bool.isRequired,
+    spinner: React.PropTypes.bool,
     name: React.PropTypes.string,
     heading: React.PropTypes.string,
     settingsNotSupported: React.PropTypes.string,

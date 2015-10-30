@@ -5,10 +5,12 @@
 'use strict';
 
 var React = require('react');
+var debug = require('debug')('Settings');
 var connectToStores = require('fluxible-addons-react/connectToStores');
 var modalAction = require('../../../actions/modal').closeModal;
 var settingsAction = require('../../../actions/settings');
 var Spinner = require('../Spinner.jsx');
+var ContentPage = require('../ContentPage.jsx');
 var cx = require('classnames');
 
 var Settings = React.createClass({
@@ -35,15 +37,34 @@ var Settings = React.createClass({
   },
 
   render: function () {
-    if (this.props.failure) {
-      return this.renderFailure();
-    }
-
-    if (this.props.spinner || !('hasServiceWorker' in this.props)) {
+    if (!this.props.failure &&
+        this.props.spinner || !('hasServiceWorker' in this.props)) {
       return React.createElement(Spinner);
     }
 
-    return this.renderSettings();
+    return this.renderSettings(this.props.failure);
+  },
+
+  /**
+   * Render the settings dialog contents.
+   *
+   * @param {Boolean} failure - Modal dialog failure outcome.
+   */
+  renderSettings: function (failure) {
+    var failureElement = failure ? this.renderFailure() : null,
+        hasSettings = !failure && this.props.hasServiceWorker && this.props.hasPushMessaging,
+        notSupported = this.renderNotSupported(hasSettings),
+        settingsControls = failure ? null : this.renderControls();
+
+    return (
+      <div className="settings">
+        <span className="close" onClick={this.closeModal}></span>
+        <h2>{this.props.heading || 'Error'}</h2>
+        {failureElement}
+        {notSupported}
+        {settingsControls}
+      </div>
+    );
   },
 
   /**
@@ -53,25 +74,9 @@ var Settings = React.createClass({
    */
   renderFailure: function () {
     var contentStore = this.context.getStore('ContentStore');
-    return contentStore.get('500').content;
-  },
-
-  /**
-   * Render the settings dialog contents.
-   */
-  renderSettings: function () {
-    var hasSettings = this.props.hasServiceWorker && this.props.hasPushMessaging,
-        notSupported = this.renderNotSupported(hasSettings),
-        settingsControls = this.renderControls();
-
-    return (
-      <div className="settings">
-        <span className="close" onClick={this.closeModal}></span>
-        <h2>{this.props.heading}</h2>
-        {notSupported}
-        {settingsControls}
-      </div>
-    );
+    return React.createElement(ContentPage, {
+      content: contentStore.get('500').content
+    });
   },
 
   /**
@@ -213,7 +218,9 @@ var Settings = React.createClass({
    * TODO:
    * Send a push notification to the current subscription id.
    */
-  pushDemo: function () {
+  pushDemo: function (event) {
+    debug('demo push notification handler');
+    event.currentTarget.blur();
   },
 
   /**

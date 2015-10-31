@@ -1,6 +1,8 @@
 /***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ *
+ * Store for service settings.
  */
 'use strict';
 var createStore = require('fluxible/addons').createStore;
@@ -22,7 +24,8 @@ var SettingsStore = createStore({
     this.hasNotifications = false;
     this.pushBlocked = false;
     this.syncBlocked = false;
-    this.subscription = null;
+    this.pushSubscription = null;
+    this.pushTopics = null;
   },
 
   /**
@@ -33,8 +36,10 @@ var SettingsStore = createStore({
    * @param {Boolean} [payload.hasPushMessaging] -
    * @param {Boolean} [payload.hasPermissions] -
    * @param {Boolean} [payload.hasNotifications] -
-   * @param {Boolean} [payload.blocked] -
-   * @param {Object} [payload.subscription] -
+   * @param {Boolean} [payload.pushBlocked] -
+   * @param {Boolean} [payload.syncBlocked] -
+   * @param {Object} [payload.pushSubscription] -
+   * @param {Array} [payload.pushTopics] -
    */
   updateSettingsState: function (payload) {
     this.hasServiceWorker =
@@ -49,8 +54,10 @@ var SettingsStore = createStore({
       ('pushBlocked' in payload) ? payload.pushBlocked : this.pushBlocked;
     this.syncBlocked =
       ('syncBlocked' in payload) ? payload.syncBlocked : this.syncBlocked;
-    this.subscription =
-      ('subscription' in payload) ? payload.subscription : this.subscription;
+    this.pushSubscription =
+      ('pushSubscription' in payload) ? payload.pushSubscription : this.pushSubscription;
+    this.pushTopics =
+      ('pushTopics' in payload) ? payload.pushTopics : this.pushTopics;
     this.emitChange();
   },
 
@@ -97,10 +104,17 @@ var SettingsStore = createStore({
   },
 
   /**
-   * @returns {Object} the subscription object.
+   * @returns {Object} the push subscription object.
    */
-  getSubscription: function () {
-    return this.subscription;
+  getPushSubscription: function () {
+    return this.pushSubscription;
+  },
+
+  /**
+   * @returns {Array} the push notification topics.
+   */
+  getPushTopics: function () {
+    return this.pushTopics;
   },
 
   /**
@@ -114,7 +128,8 @@ var SettingsStore = createStore({
       hasNotifications: this.hasNotifications,
       pushBlocked: this.pushBlocked,
       syncBlocked: this.syncBlocked,
-      subscription: this.subscription
+      pushSubscription: this.pushSubscription,
+      pushTopics: this.pushTopics
     };
   },
 
@@ -130,7 +145,8 @@ var SettingsStore = createStore({
     this.hasNotifications = state.hasNotifications;
     this.pushBlocked = state.pushBlocked;
     this.syncBlocked = state.syncBlocked;
-    this.subscription = state.subscription;
+    this.pushSubscription = state.pushSubscription;
+    this.pushTopics = state.pushTopics;
   }
 });
 

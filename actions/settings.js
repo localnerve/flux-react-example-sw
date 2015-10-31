@@ -7,6 +7,8 @@
 /* global window, Promise */
 'use strict';
 var debug = require('debug')('Example:SettingsAction');
+var getSubscriptionId = require('../utils').getSubscriptionId;
+var getTopics = require('./push').getTopics;
 
 /**
  * Get the background sync permissions.
@@ -22,24 +24,24 @@ function syncPermission (state) {
  * @returns {Promise} A promise that resolves when subscription has been updated
  * in state.
  */
-function getSubscription (state) {
+function getPushSubscription (state) {
   if (state.hasPushMessaging) {
     return window.navigator.serviceWorker.ready.then(function (registration) {
       return registration.pushManager.getSubscription()
       .then(function (subscription) {
-        state.subscription = subscription;
+        state.pushSubscription = subscription;
       })
       .catch(function (error) {
         debug('error getting push subscription', error);
-        state.subscription = null;
+        state.pushSubscription = null;
       });
     })
     .catch(function (error) {
       debug('error getting service worker registration', error);
-      state.subscription = null;
+      state.pushSubscription = null;
     });
   }
-  state.subscription = null;
+  state.pushSubscription = null;
   return Promise.resolve();
 }
 
@@ -105,12 +107,18 @@ function settingsState (context, payload, done) {
     (state.hasPermissions ? pushPermission(state, context)
       : notificationPermission(state))
     .then(function () {
-      // This is what it should do:
-      // return getSubscription(state);
-      // Fakery:
-      return getSubscription(state).then(function () {
-        state.subscription = payload.subscription;
-      });
+      return getPushSubscription(state);
+    })
+    .then(function () {
+      if (state.pushSubscription) {
+        var settingsStore = context.getStore('SettingsStore'),
+            pushTopics = settingsStore.getPushTopics();
+        if (!pushTopics) {
+          return context.executeAction(getTopics, {
+            subscriptionId: getSubscriptionId(state.pushSubscription)
+          });
+        }
+      }
     })
     .then(function () {
       return syncPermission(state);

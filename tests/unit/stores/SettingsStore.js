@@ -28,7 +28,8 @@ describe('settings store', function () {
     hasNotifications: true,
     pushBlocked: true,
     syncBlocked: true,
-    subscription: true
+    pushSubscription: true,
+    pushTopics: true
   };
 
   beforeEach(function () {
@@ -43,7 +44,8 @@ describe('settings store', function () {
     expect(storeInstance.hasNotifications).to.equal(false);
     expect(storeInstance.pushBlocked).to.equal(false);
     expect(storeInstance.syncBlocked).to.equal(false);
-    expect(storeInstance.subscription).to.be.null;
+    expect(storeInstance.pushSubscription).to.be.null;
+    expect(storeInstance.pushTopics).to.be.null;
   });
 
   describe('update', function () {

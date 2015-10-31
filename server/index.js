@@ -86,6 +86,8 @@ var fetchrPlugin = fluxibleApp.getPlugin('FetchrPlugin');
 fetchrPlugin.registerService(require(baseDir + '/services/routes'));
 fetchrPlugin.registerService(require(baseDir + '/services/page'));
 fetchrPlugin.registerService(require(baseDir + '/services/contact'));
+fetchrPlugin.registerService(require(baseDir + '/services/subscription'));
+fetchrPlugin.registerService(require(baseDir + '/services/push'));
 app.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
 
 // Every other request gets the app bootstrap

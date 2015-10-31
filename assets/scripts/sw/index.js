@@ -29,6 +29,9 @@ var assets = require('./assets');
 // Setup our activate handling
 require('./activate');
 
+// Setup push notification handling
+require('./push');
+
 // Setup non-project static asset precaching (cdn requests)
 assets.setupAssetRequests();
 

@@ -122,6 +122,7 @@
     "superagent": "^1.2.0",
     "sw-toolbox": "^3.0.1",
     "swipe-js-iso": "^2.0.1",
-    "treo": "^0.5.0"
+    "treo": "^0.5.0",
+    "web-push": "0.0.11"
   }
 }

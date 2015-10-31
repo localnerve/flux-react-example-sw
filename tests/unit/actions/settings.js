@@ -38,7 +38,8 @@ describe('settings action', function () {
       hasNotifications: settingsStore.getHasNotifications(),
       pushBlocked: settingsStore.getPushBlocked(),
       syncBlocked: settingsStore.getSyncBlocked(),
-      subscription: settingsStore.getSubscription()
+      pushSubscription: settingsStore.getPushSubscription(),
+      pushTopics: settingsStore.getPushTopics()
     };
   }
 
@@ -56,7 +57,8 @@ describe('settings action', function () {
       expect(fields.hasNotifications).to.equal(false);
       expect(fields.pushBlocked).to.equal(false);
       expect(fields.syncBlocked).to.equal(false);
-      expect(fields.subscription).to.be.null;
+      expect(fields.pushSubscription).to.be.null;
+      expect(fields.pushTopics).to.be.null;
 
       done();
     });
@@ -85,7 +87,8 @@ describe('settings action', function () {
         expect(fields.hasNotifications).to.equal(false);
         expect(fields.pushBlocked).to.equal(true);
         expect(fields.syncBlocked).to.equal(true);
-        expect(fields.subscription).to.be.null;
+        expect(fields.pushSubscription).to.be.null;
+        expect(fields.pushTopics).to.be.null;
 
         done();
       });

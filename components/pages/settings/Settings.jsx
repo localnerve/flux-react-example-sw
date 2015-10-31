@@ -7,11 +7,16 @@
 var React = require('react');
 var debug = require('debug')('Settings');
 var connectToStores = require('fluxible-addons-react/connectToStores');
+var cx = require('classnames');
+
 var modalAction = require('../../../actions/modal').closeModal;
-var settingsAction = require('../../../actions/settings');
+var subscribeAction = require('../../../actions/push').subscribe;
+var unsubscribeAction = require('../../../actions/push').unsubscribe;
+var sendAction = require('../../../actions/push').demoSend;
+
 var Spinner = require('../Spinner.jsx');
 var ContentPage = require('../ContentPage.jsx');
-var cx = require('classnames');
+var PushTopics = require('./PushTopics.jsx');
 
 var Settings = React.createClass({
   propTypes: {
@@ -29,7 +34,8 @@ var Settings = React.createClass({
     hasNotifications: React.PropTypes.bool,
     pushBlocked: React.PropTypes.bool,
     syncBlocked: React.PropTypes.bool,
-    subscription: React.PropTypes.object
+    pushSubscription: React.PropTypes.object,
+    pushTopics: React.PropTypes.array
   },
   contextTypes: {
     executeAction: React.PropTypes.func.isRequired,
@@ -70,7 +76,8 @@ var Settings = React.createClass({
   /**
    * Render a modal dialog failure outcome.
    * In this case, there is no prop that is reliable.
-   * 500 content is preloaded by the server, so it is reliable and appropriate.
+   * 500 content is appropriate here. It is preloaded by the server,
+   * so it is reliable.
    */
   renderFailure: function () {
     var contentStore = this.context.getStore('ContentStore');
@@ -98,7 +105,7 @@ var Settings = React.createClass({
       !this.props.hasPushMessaging ||
       this.props.pushBlocked;
 
-    var hasSubscription = !!this.props.subscription;
+    var hasSubscription = !!this.props.pushSubscription;
 
     var pushNotice;
     if (!this.props.hasServiceWorker) {
@@ -109,7 +116,6 @@ var Settings = React.createClass({
       pushNotice = this.props.pushNotifications.notificationsBlocked;
     }
 
-    var pushTopics = this.renderPushTopics(pushDisabled, hasSubscription);
     var pushDemo = this.renderPushDemo(pushDisabled, hasSubscription);
 
     return (
@@ -131,7 +137,11 @@ var Settings = React.createClass({
           })}>
             <small>{pushNotice}</small>
           </div>
-          {pushTopics}
+          <PushTopics
+            failure={this.props.failure}
+            topics={this.props.pushTopics || this.props.pushNotifications.topics}
+            disabled={pushDisabled || !hasSubscription}
+            subscription={this.props.pushSubscription} />
           {pushDemo}
         </div>
         <div className="control-section">
@@ -147,33 +157,6 @@ var Settings = React.createClass({
           </div>
         </div>
       </div>
-    );
-  },
-
-  /**
-   * TODO: check subscription to get value of 'checked' for each topic.
-   */
-  renderPushTopics: function (pushDisabled, hasSubscription) {
-    var topics = this.props.pushNotifications.topics.map(function (topic) {
-      return (
-        <li key={topic.tag}>
-          <div className="topic-box">
-            <input type="checkbox" id={topic.tag} name={topic.tag}
-              checked={true} disabled={pushDisabled || !hasSubscription}
-              onChange={this.topicChange} />
-            <label htmlFor={topic.tag}></label>
-          </div>
-          <div className="topic-label">
-            <span>{topic.label}</span>
-          </div>
-        </li>
-      );
-    }, this);
-
-    return (
-      <ul className="push-topics">
-        {topics}
-      </ul>
     );
   },
 
@@ -197,21 +180,11 @@ var Settings = React.createClass({
   },
 
   /**
-   * TODO:
    * Subscribe/Unsubscribe all.
    */
   subscriptionChange: function (event) {
-    // a bit of fakery for now:
-    this.context.executeAction(settingsAction, {
-      subscription: event.target.checked
-    });
-  },
-
-  /**
-   * TODO:
-   * Subscribe/Unsubscribe topic.
-   */
-  topicChange: function (event) {
+    var action = event.target.checked ? subscribeAction : unsubscribeAction;
+    this.context.executeAction(action);
   },
 
   /**
@@ -220,7 +193,12 @@ var Settings = React.createClass({
    */
   pushDemo: function (event) {
     debug('demo push notification handler');
+
     event.currentTarget.blur();
+
+    this.context.executeAction(sendAction, {
+      subscription: this.props.pushSubscription
+    });
   },
 
   /**
@@ -241,7 +219,8 @@ Settings = connectToStores(Settings, ['SettingsStore'], function (context) {
     hasNotifications: settingsStore.getHasNotifications(),
     pushBlocked: settingsStore.getPushBlocked(),
     syncBlocked: settingsStore.getSyncBlocked(),
-    subscription: settingsStore.getSubscription()
+    pushSubscription: settingsStore.getPushSubscription(),
+    pushTopics: settingsStore.getPushTopics()
   };
 });
 

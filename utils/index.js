@@ -8,6 +8,7 @@ var FluxibleRouteTransformer = require('./FluxibleRouteTransformer');
 var buildImageUrl = require('./imageServiceUrls');
 var codes = require('./codes');
 var messages = require('./messages');
+var push = require('./push');
 
 /**
  * Factory to create a FluxibleRouteTransformer object.
@@ -24,5 +25,6 @@ module.exports = {
   createFluxibleRouteTransformer: createFluxibleRouteTransformer,
   buildImageUrl: buildImageUrl,
   conformErrorStatus: codes.conformErrorStatus,
-  workerSendMessage: messages.workerSendMessage
+  workerSendMessage: messages.workerSendMessage,
+  getSubscriptionId: push.getSubscriptionId
 };

@@ -12,10 +12,13 @@ var modalAction = require('../../../actions/modal').closeModal;
 var subscribeAction = require('../../../actions/push').subscribe;
 var unsubscribeAction = require('../../../actions/push').unsubscribe;
 var sendAction = require('../../../actions/push').demoSend;
+var updateTopicsAction = require('../../../actions/push').updateTopics;
+
+var getSubscriptionId = require('../../../utils').getSubscriptionId;
 
 var Spinner = require('../Spinner.jsx');
 var ContentPage = require('../ContentPage.jsx');
-var PushTopics = require('./PushTopics.jsx');
+var Topics = require('./Topics.jsx');
 var Switch = require('./Switch.jsx');
 
 var Settings = React.createClass({
@@ -48,19 +51,16 @@ var Settings = React.createClass({
       return React.createElement(Spinner);
     }
 
-    return this.renderSettings(this.props.failure);
+    return this.renderSettings();
   },
 
   /**
    * Render the settings dialog contents.
-   *
-   * @param {Boolean} failure - Modal dialog failure outcome.
    */
-  renderSettings: function (failure) {
-    var failureElement = failure ? this.renderFailure() : null,
-        hasSettings = !failure && this.props.hasServiceWorker && this.props.hasPushMessaging,
-        notSupported = !hasSettings ? this.renderNotSupported() : null,
-        settingsControls = failure ? null : this.renderControls();
+  renderSettings: function () {
+    var failureElement =this.renderFailure(),
+        notSupported = this.renderNotSupported(),
+        settingsControls = this.renderControls();
 
     return (
       <div className="settings">
@@ -81,68 +81,83 @@ var Settings = React.createClass({
    */
   renderFailure: function () {
     var contentStore = this.context.getStore('ContentStore');
-    return React.createElement(ContentPage, {
-      content: contentStore.get('500').content
-    });
+
+    if (this.props.failure) {
+      return React.createElement(ContentPage, {
+        content: contentStore.get('500').content
+      });
+    }
+
+    return null;
   },
 
   /**
    * Render a message that indicates lack of support.
    */
-  renderNotSupported: function (hasSettings) {
-    return (
-      <h4>{this.props.settingsNotSupported}</h4>
-    );
+  renderNotSupported: function () {
+    var hasSettings = !this.props.failure &&
+      this.props.hasServiceWorker && this.props.hasPushMessaging;
+
+    if (!hasSettings) {
+      return (
+        <h4>{this.props.settingsNotSupported}</h4>
+      );
+    }
+
+    return null;
   },
 
   /**
    * Render the settings controls.
    */
   renderControls: function () {
-    var pushDisabled =
-      !this.props.hasServiceWorker ||
-      !this.props.hasPushMessaging ||
-      this.props.pushBlocked;
+    if (!this.props.failure) {
+      var pushDisabled =
+        !this.props.hasServiceWorker ||
+        !this.props.hasPushMessaging ||
+        this.props.pushBlocked;
 
-    var hasSubscription = !!this.props.pushSubscription;
+      var hasSubscription = !!this.props.pushSubscription;
 
-    var pushNotice;
-    if (!this.props.hasServiceWorker) {
-      pushNotice = this.props.pushNotifications.notificationsNotSupported;
-    } else if (!this.props.hasPushMessaging) {
-      pushNotice = this.props.pushNotifications.pushMessagingNotSupported;
-    } else if (this.props.pushBlocked) {
-      pushNotice = this.props.pushNotifications.notificationsBlocked;
+      var pushNotice;
+      if (!this.props.hasServiceWorker) {
+        pushNotice = this.props.pushNotifications.notificationsNotSupported;
+      } else if (!this.props.hasPushMessaging) {
+        pushNotice = this.props.pushNotifications.pushMessagingNotSupported;
+      } else if (this.props.pushBlocked) {
+        pushNotice = this.props.pushNotifications.notificationsBlocked;
+      }
+
+      var pushDemo = this.renderPushDemo(pushDisabled, hasSubscription);
+
+      return (
+        <div>
+          <div className="control-section">
+            <Switch inputId="push-enable"
+              disabled={pushDisabled}
+              checked={hasSubscription}
+              onChange={this.subscriptionChange}
+              label={this.props.pushNotifications.enable}
+              notice={pushNotice} />
+            <Topics
+              topics={this.props.pushTopics || this.props.pushNotifications.topics}
+              disabled={pushDisabled || !hasSubscription}
+              onChange={this.topicChange} />
+            {pushDemo}
+          </div>
+          <div className="control-section">
+            <Switch inputId="background-sync-enable"
+              disabled={true}
+              checked={false}
+              onChange={function () {}}
+              label={this.props.backgroundSync.enable}
+              notice='Background Sync not implemented yet &#x2639;' />
+          </div>
+        </div>
+      );
     }
 
-    var pushDemo = this.renderPushDemo(pushDisabled, hasSubscription);
-
-    return (
-      <div>
-        <div className="control-section">
-          <Switch inputId="push-enable"
-            disabled={pushDisabled}
-            checked={hasSubscription}
-            onChange={this.subscriptionChange}
-            label={this.props.pushNotifications.enable}
-            notice={pushNotice} />
-          <PushTopics
-            failure={this.props.failure}
-            topics={this.props.pushTopics || this.props.pushNotifications.topics}
-            disabled={pushDisabled || !hasSubscription}
-            subscription={this.props.pushSubscription} />
-          {pushDemo}
-        </div>
-        <div className="control-section">
-          <Switch inputId="background-sync-enable"
-            disabled={true}
-            checked={false}
-            onChange={function () {}}
-            label={this.props.backgroundSync.enable}
-            notice='Background Sync not implemented yet &#x2639;' />
-        </div>
-      </div>
-    );
+    return null;
   },
 
   /**
@@ -168,8 +183,28 @@ var Settings = React.createClass({
    * Subscribe/Unsubscribe all.
    */
   subscriptionChange: function (event) {
+    debug('update subscription', event);
+
     var action = event.target.checked ? subscribeAction : unsubscribeAction;
     this.context.executeAction(action);
+  },
+
+  /**
+   * Subscribe/Unsubscribe from a push topic.
+   *
+   * @param {Object} event - The synthetic checkbox event.
+   */
+  topicChange: function (event) {
+    debug('update topic ', event.target.name, event.target.checked);
+
+    this.context.executeAction(updateTopicsAction, {
+      subscriptionId: getSubscriptionId(this.props.pushSubscription),
+      endpoint: this.props.pushSubscription.endpoint,
+      topics: [{
+        tag: event.target.name,
+        subscribed: event.target.checked
+      }]
+    });
   },
 
   /**

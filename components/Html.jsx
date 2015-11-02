@@ -34,6 +34,11 @@ var Html = React.createClass({
           <meta httpEquiv="x-dns-prefetch-control" content="on" />
           <link rel="dns-prefetch" href="//fonts.gstatic.com" />
           <link rel="dns-prefetch" href={this.props.imageServiceHost} />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="application-name" content="Flux React Example SW" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+          <meta name="apple-mobile-web-app-title" content="Flux React Example SW" />
           <link rel="apple-touch-icon" sizes="57x57" href={this.props.images + '/apple-touch-icon-57x57.png'} />
           <link rel="apple-touch-icon" sizes="60x60" href={this.props.images + '/apple-touch-icon-60x60.png'} />
           <link rel="apple-touch-icon" sizes="72x72" href={this.props.images + '/apple-touch-icon-72x72.png'} />

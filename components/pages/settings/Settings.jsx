@@ -38,7 +38,10 @@ var Settings = React.createClass({
     pushBlocked: React.PropTypes.bool,
     syncBlocked: React.PropTypes.bool,
     pushSubscription: React.PropTypes.object,
-    pushTopics: React.PropTypes.array
+    pushSubscriptionError: React.PropTypes.object,
+    pushTopics: React.PropTypes.array,
+    pushTopicsError: React.PropTypes.object,
+    transition: React.PropTypes.object
   },
   contextTypes: {
     executeAction: React.PropTypes.func.isRequired,
@@ -47,7 +50,8 @@ var Settings = React.createClass({
 
   render: function () {
     if (!this.props.failure &&
-        this.props.spinner || !('hasServiceWorker' in this.props)) {
+        this.props.spinner ||
+        Object.keys(this.props.transition).length > 0) {
       return React.createElement(Spinner);
     }
 
@@ -126,6 +130,10 @@ var Settings = React.createClass({
         pushNotice = this.props.pushNotifications.pushMessagingNotSupported;
       } else if (this.props.pushBlocked) {
         pushNotice = this.props.pushNotifications.notificationsBlocked;
+      } else if (this.props.pushSubscriptionError) {
+        pushNotice = this.props.pushSubscriptionError.toString();
+      } else if (this.props.pushTopicsError) {
+        pushNotice = this.props.pushTopicsError.toString();
       }
 
       var pushDemo = this.renderPushDemo(pushDisabled, hasSubscription);
@@ -239,7 +247,10 @@ Settings = connectToStores(Settings, ['SettingsStore'], function (context) {
     pushBlocked: settingsStore.getPushBlocked(),
     syncBlocked: settingsStore.getSyncBlocked(),
     pushSubscription: settingsStore.getPushSubscription(),
-    pushTopics: settingsStore.getPushTopics()
+    pushSubscriptionError: settingsStore.getPushSubscriptionError(),
+    pushTopics: settingsStore.getPushTopics(),
+    pushTopicsError: settingsStore.getPushTopicsError(),
+    transition: settingsStore.getTransition()
   };
 });
 

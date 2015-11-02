@@ -49,6 +49,10 @@ function subscribe (context, payload, done) {
     .then(function (subscription) {
       var subscriptionId = getSubscriptionId(subscription);
 
+      context.dispatch('SETTINGS_TRANSITION', {
+        pushSubscription: true
+      });
+
       // Subscribe to topics
       context.service.create('subscription', {
         subscriptionId: subscriptionId,
@@ -56,17 +60,14 @@ function subscribe (context, payload, done) {
       }, {}, {}, function (err, data) {
         debug('completed push notification subscribe', err, data);
 
-        if (err) {
-          return done(err);
-        }
-
         // Update settings
         context.dispatch('SETTINGS_STATE', {
-          pushTopics: data,
-          pushSubscription: subscription
+          pushTopics: err ? null : data,
+          pushSubscription: subscription,
+          pushSubscriptionError: err
         });
 
-        return done();
+        return done(err);
       });
     }).catch(function (error) {
       // TODO: finish
@@ -120,26 +121,33 @@ function unsubscribe (context, payload, done) {
 
       subscription.unsubscribe().then(function (successful) {
         debug('unsubscribed from browser', successful);
+
+        if (successful) {
+          context.dispatch('SETTINGS_TRANSITION', {
+            pushSubscription: true
+          });
+
+          context.service.delete('subscription', {
+            subscriptionId: subscriptionId
+          }, {}, function (err) {
+            debug('completed push notification unsubscribe', err);
+
+            context.dispatch('SETTINGS_STATE', {
+              pushTopics: null,
+              pushSubscription: null,
+              pushSubscriptionError: err
+            });
+
+            return done(err);
+          });
+        }
       }).catch(function (error) {
         debug('failed to unsubscribe from browser', error);
       });
-
-      context.service.delete('subscription', {
-        subscriptionId: subscriptionId
-      }, {}, function (err) {
-        debug('completed push notification unsubscribe', err);
-
-        if (err) {
-          return done(err);
-        }
-
-        context.dispatch('SETTINGS_STATE', {
-          pushTopics: null,
-          pushSubscription: null
-        });
-
-        return done();
-      });
+    })
+    .catch(function (error) {
+      debug('unsubscribe failed: ', error);
+      done(error);
     });
   });
 }
@@ -154,18 +162,24 @@ function unsubscribe (context, payload, done) {
 function getTopics (context, payload, done) {
   debug('reading push notification topics', payload);
 
+  context.dispatch('SETTINGS_TRANSITION', {
+    pushTopics: true
+  });
+
   context.service.read('subscription', payload, {}, function (err, data) {
     debug('completed push notification topics read', err, data);
 
-    if (err) {
-      return done(err);
+    var state = {
+      pushTopicsError: err
+    };
+
+    if (!err) {
+      state.pushTopics = data;
     }
 
-    context.dispatch('SETTINGS_STATE', {
-      pushTopics: data
-    });
+    context.dispatch('SETTINGS_STATE', state);
 
-    return done();
+    return done(err);
   });
 }
 
@@ -179,6 +193,10 @@ function getTopics (context, payload, done) {
 function updateTopics (context, payload, done) {
   debug('updating push notification topics', payload);
 
+  context.dispatch('SETTINGS_TRANSITION', {
+    pushTopics: true
+  });
+
   context.service.update('subscription', {
     subscriptionId: payload.subscriptionId,
     endpoint: payload.endpoint
@@ -187,15 +205,17 @@ function updateTopics (context, payload, done) {
   }, {}, function (err, data) {
     debug('completed push notification topic update', err, data);
 
-    if (err) {
-      return done(err);
+    var state = {
+      pushTopicsError: err
+    };
+
+    if (!err) {
+      state.pushTopics = data;
     }
 
-    context.dispatch('SETTINGS_STATE', {
-      pushTopics: data
-    });
+    context.dispatch('SETTINGS_STATE', state);
 
-    return done();
+    return done(err);
   });
 }
 

@@ -11,7 +11,8 @@ var SettingsStore = createStore({
   storeName: 'SettingsStore',
 
   handlers: {
-    'SETTINGS_STATE': 'updateSettingsState'
+    'SETTINGS_STATE': 'updateSettingsState',
+    'SETTINGS_TRANSITION': 'updateTransition'
   },
 
   /**
@@ -25,13 +26,16 @@ var SettingsStore = createStore({
     this.pushBlocked = false;
     this.syncBlocked = false;
     this.pushSubscription = null;
+    this.pushSubscriptionError = null;
     this.pushTopics = null;
+    this.pushTopicsError = null;
+    this.transition = {};
   },
 
   /**
    * SETTINGS_STATE handler.
    *
-   * @param {Object} payload - The PUSH_NOTIFICATION_STATE action payload.
+   * @param {Object} payload - The SETTINGS_STATE action payload.
    * @param {Boolean} [payload.hasServiceWorker] -
    * @param {Boolean} [payload.hasPushMessaging] -
    * @param {Boolean} [payload.hasPermissions] -
@@ -39,7 +43,9 @@ var SettingsStore = createStore({
    * @param {Boolean} [payload.pushBlocked] -
    * @param {Boolean} [payload.syncBlocked] -
    * @param {Object} [payload.pushSubscription] -
+   * @param {Object} [payload.pushSubscriptionError] -
    * @param {Array} [payload.pushTopics] -
+   * @param {Object} [payload.pushTopicsError] -
    */
   updateSettingsState: function (payload) {
     this.hasServiceWorker =
@@ -58,7 +64,37 @@ var SettingsStore = createStore({
       ('pushSubscription' in payload) ? payload.pushSubscription : this.pushSubscription;
     this.pushTopics =
       ('pushTopics' in payload) ? payload.pushTopics : this.pushTopics;
+
+    // end all transition states
+    this.transition = {};
+
+    this.pushSubscriptionError = payload.pushSubscriptionError || null;
+    this.pushTopicsError = payload.pushTopicsError || null;
+
     this.emitChange();
+  },
+
+  /**
+   * SETTINGS_TRANSITION handler.
+   *
+   * @param {Object} payload - The SETTINGS_TRANSITION action payload.
+   * @param {Boolean} [payload.pushSubscription] - True when a transition is occurring on pushSubscription.
+   * @param {Boolean} [payload.pushTopics] - True when a transition is occurring on pushTopics.
+   */
+  updateTransition: function (payload) {
+    var updatePushSubscription = ('pushSubscription' in payload),
+        updatePushTopics = ('pushTopics' in payload);
+
+    this.transition = {
+      pushSubscription:
+        updatePushSubscription ? payload.pushSubscription : this.transition.pushSubscription,
+      pushTopics:
+        updatePushTopics ? payload.pushTopics : this.transition.pushTopics
+    };
+
+    if (updatePushSubscription || updatePushTopics) {
+      this.emitChange();
+    }
   },
 
   /**
@@ -111,10 +147,31 @@ var SettingsStore = createStore({
   },
 
   /**
+   * @returns {Object} a push subscription error.
+   */
+  getPushSubscriptionError: function () {
+    return this.pushSubscriptionError;
+  },
+
+  /**
    * @returns {Array} the push notification topics.
    */
   getPushTopics: function () {
     return this.pushTopics;
+  },
+
+  /**
+   * @returns {Object} a push notification topics error.
+   */
+  getPushTopicsError: function () {
+    return this.pushTopicsError;
+  },
+
+  /**
+   * @returns {Object} the transition object.
+   */
+  getTransition: function () {
+    return this.transition;
   },
 
   /**
@@ -129,7 +186,10 @@ var SettingsStore = createStore({
       pushBlocked: this.pushBlocked,
       syncBlocked: this.syncBlocked,
       pushSubscription: this.pushSubscription,
-      pushTopics: this.pushTopics
+      pushSubscriptionError: this.pushSubscriptionError,
+      pushTopics: this.pushTopics,
+      pushTopicsError: this.pushTopicsError,
+      transition: this.transition
     };
   },
 
@@ -146,7 +206,10 @@ var SettingsStore = createStore({
     this.pushBlocked = state.pushBlocked;
     this.syncBlocked = state.syncBlocked;
     this.pushSubscription = state.pushSubscription;
+    this.pushSubscriptionError = state.pushSubscriptionError;
     this.pushTopics = state.pushTopics;
+    this.pushTopicsError = state.pushTopicsError;
+    this.transition = state.transition;
   }
 });
 

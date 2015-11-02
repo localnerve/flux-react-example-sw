@@ -29,8 +29,21 @@ describe('settings store', function () {
     pushBlocked: true,
     syncBlocked: true,
     pushSubscription: true,
-    pushTopics: true
+    pushSubscriptionError: true,
+    pushTopics: true,
+    pushTopicsError: true,
+    transition: {}
   };
+
+  function testPayloadTrue (state) {
+    Object.keys(state).forEach(function (key) {
+      if (key === 'transition') {
+        expect(state[key]).to.be.an('object').that.is.empty;
+      } else {
+        expect(state[key]).to.equal(true);
+      }
+    });
+  }
 
   beforeEach(function () {
     storeInstance = new SettingsStore();
@@ -45,7 +58,10 @@ describe('settings store', function () {
     expect(storeInstance.pushBlocked).to.equal(false);
     expect(storeInstance.syncBlocked).to.equal(false);
     expect(storeInstance.pushSubscription).to.be.null;
+    expect(storeInstance.pushSubscriptionError).to.be.null;
     expect(storeInstance.pushTopics).to.be.null;
+    expect(storeInstance.pushTopicsError).to.be.null;
+    expect(storeInstance.transition).to.be.an('object').that.is.empty;
   });
 
   describe('update', function () {
@@ -53,9 +69,7 @@ describe('settings store', function () {
       storeInstance.updateSettingsState(payloadTrue);
       var state = storeInstance.dehydrate();
 
-      Object.keys(state).forEach(function (key) {
-        expect(state[key]).to.equal(true);
-      });
+      testPayloadTrue(state);
     });
 
     it('should update one item', function () {
@@ -71,9 +85,7 @@ describe('settings store', function () {
     storeInstance.updateSettingsState(payloadTrue);
     var state = storeInstance.dehydrate();
 
-    Object.keys(state).forEach(function (key) {
-      expect(state[key]).to.equal(true);
-    });
+    testPayloadTrue(state);
   });
 
   it('should rehydrate', function () {
@@ -81,8 +93,6 @@ describe('settings store', function () {
 
     storeInstance.rehydrate(state);
 
-    Object.keys(state).forEach(function (key) {
-      expect(state[key]).to.equal(true);
-    });
+    testPayloadTrue(state);
   });
 });

@@ -7,7 +7,6 @@
 var React = require('react');
 var debug = require('debug')('Settings');
 var connectToStores = require('fluxible-addons-react/connectToStores');
-var cx = require('classnames');
 
 var modalAction = require('../../../actions/modal').closeModal;
 var subscribeAction = require('../../../actions/push').subscribe;
@@ -17,6 +16,7 @@ var sendAction = require('../../../actions/push').demoSend;
 var Spinner = require('../Spinner.jsx');
 var ContentPage = require('../ContentPage.jsx');
 var PushTopics = require('./PushTopics.jsx');
+var Switch = require('./Switch.jsx');
 
 var Settings = React.createClass({
   propTypes: {
@@ -59,7 +59,7 @@ var Settings = React.createClass({
   renderSettings: function (failure) {
     var failureElement = failure ? this.renderFailure() : null,
         hasSettings = !failure && this.props.hasServiceWorker && this.props.hasPushMessaging,
-        notSupported = this.renderNotSupported(hasSettings),
+        notSupported = !hasSettings ? this.renderNotSupported() : null,
         settingsControls = failure ? null : this.renderControls();
 
     return (
@@ -90,15 +90,14 @@ var Settings = React.createClass({
    * Render a message that indicates lack of support.
    */
   renderNotSupported: function (hasSettings) {
-    if (!hasSettings) {
-      return (
-        <h4>{this.props.settingsNotSupported}</h4>
-      );
-    } else {
-      return null;
-    }
+    return (
+      <h4>{this.props.settingsNotSupported}</h4>
+    );
   },
 
+  /**
+   * Render the settings controls.
+   */
   renderControls: function () {
     var pushDisabled =
       !this.props.hasServiceWorker ||
@@ -121,22 +120,12 @@ var Settings = React.createClass({
     return (
       <div>
         <div className="control-section">
-          <div className="switch">
-            <input type="checkbox" id="push-enable"
-              disabled={pushDisabled}
-              checked={hasSubscription}
-              onChange={this.subscriptionChange} />
-            <label htmlFor="push-enable"></label>
-          </div>
-          <div className="switch-label">
-            <span>{this.props.pushNotifications.enable}</span>
-          </div>
-          <div className={cx({
-              hide: !pushNotice,
-              notice: true
-          })}>
-            <small>{pushNotice}</small>
-          </div>
+          <Switch inputId="push-enable"
+            disabled={pushDisabled}
+            checked={hasSubscription}
+            onChange={this.subscriptionChange}
+            label={this.props.pushNotifications.enable}
+            notice={pushNotice} />
           <PushTopics
             failure={this.props.failure}
             topics={this.props.pushTopics || this.props.pushNotifications.topics}
@@ -145,16 +134,12 @@ var Settings = React.createClass({
           {pushDemo}
         </div>
         <div className="control-section">
-          <div className="switch">
-            <input type="checkbox" id="background-sync-enable" disabled />
-            <label htmlFor="background-sync-enable"></label>
-          </div>
-          <div className="switch-label">
-            <span>{this.props.backgroundSync.enable}</span>
-          </div>
-          <div className="notice">
-            <small>Background Sync not implemented yet &#x2639;</small>
-          </div>
+          <Switch inputId="background-sync-enable"
+            disabled={true}
+            checked={false}
+            onChange={function () {}}
+            label={this.props.backgroundSync.enable}
+            notice='Background Sync not implemented yet &#x2639;' />
         </div>
       </div>
     );
@@ -188,7 +173,6 @@ var Settings = React.createClass({
   },
 
   /**
-   * TODO:
    * Send a push notification to the current subscription id.
    */
   pushDemo: function (event) {

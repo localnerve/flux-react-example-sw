@@ -3,6 +3,7 @@
 //
 
 @import "topics";
+@import "switch";
 
 .settings {
   min-height: rem-calc(350);
@@ -16,21 +17,6 @@
 
   .control-section {
     margin-top: 1rem;
-
-    .switch {
-      @include switch;
-      @include switch-layout(rem-calc(60), rem-calc(38));
-      vertical-align: middle;
-    }
-    .switch-label {
-      display: inline-block;
-      padding-left: 0.5rem;
-    }
-
-    .notice {
-      margin: 0.4rem;
-      text-align: left;
-    }
 
     .push-demo {
       button {

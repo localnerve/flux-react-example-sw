@@ -197,12 +197,13 @@ function updateTopics (context, payload, done) {
     pushTopics: true
   });
 
-  context.service.update('subscription', {
-    subscriptionId: payload.subscriptionId,
-    endpoint: payload.endpoint
-  }, {
+  // move the topics to the POST body
+  var body = {
     topics: payload.topics
-  }, {}, function (err, data) {
+  };
+  delete payload.topics;
+
+  context.service.update('subscription', payload, body, {}, function (err, data) {
     debug('completed push notification topic update', err, data);
 
     var state = {

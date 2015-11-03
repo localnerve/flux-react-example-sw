@@ -69,6 +69,8 @@ function pushPermission (state, context) {
       };
       context.dispatch('SETTINGS_STATE', update);
     };
+  }).catch(function (error) {
+    debug('permission query error', error);
   });
 }
 
@@ -80,7 +82,7 @@ function pushPermission (state, context) {
  */
 function notificationPermission (state) {
   state.pushBlocked =
-    state.hasNotifications ? window.Notifications.permission === 'denied'
+    state.hasNotifications ? window.Notification.permission === 'denied'
       : true; // No push possible without permissions.
 
   return Promise.resolve();

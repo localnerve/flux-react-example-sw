@@ -35,11 +35,9 @@ function getPushSubscription (state) {
         debug('error getting push subscription', error);
         state.pushSubscription = null;
       });
-    })
-    .catch(function (error) {
-      debug('error getting service worker registration', error);
-      state.pushSubscription = null;
     });
+    // No need to handle reject, because this will only execute in a secure context.
+    // https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#navigator-service-worker-ready
   }
   state.pushSubscription = null;
   return Promise.resolve();

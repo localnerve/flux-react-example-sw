@@ -4,11 +4,12 @@
  *
  * TODO: finish...
  */
-/* global window */
+/* global process, window */
 'use strict';
 
 var debug = require('debug')('Example:PushAction');
 var getSubscriptionId = require('../utils').getSubscriptionId;
+var __DEV__ = process.env.NODE_ENV !== 'production';
 
 /**
  * The send push action.
@@ -38,40 +39,49 @@ function demoSend (context, payload, done) {
  * Subscribe to push notifications.
  *
  * @param {Object} context - The fluxible action context.
- * @param {Object} payload - ignored.
+ * @param {Object} payload - ignored, except for testing.
  * @param {Function} done - The callback to execute on action completion.
  */
 function subscribe (context, payload, done) {
   debug('subscribing to push notifications');
 
+  context.dispatch('SETTINGS_TRANSITION', {
+    pushSubscription: true
+  });
+
+  /**
+   * complete subscribe.
+   */
+  function complete (error, subscription, topics) {
+    debug('subscribe complete', error, subscription, topics);
+
+    context.dispatch('SETTINGS_STATE', {
+      pushTopics: error ? null : topics,
+      pushSubscription: subscription,
+      pushSubscriptionError: error
+    });
+
+    return done(error);
+  }
+
   window.navigator.serviceWorker.ready.then(function (registration) {
     registration.pushManager.subscribe({ userVisibleOnly: true })
     .then(function (subscription) {
-      var subscriptionId = getSubscriptionId(subscription);
+      debug('browser subscribed', subscription);
 
-      context.dispatch('SETTINGS_TRANSITION', {
-        pushSubscription: true
-      });
-
-      // Subscribe to topics
-      context.service.create('subscription', {
-        subscriptionId: subscriptionId,
+      var params = {
+        subscriptionId: getSubscriptionId(subscription),
         endpoint: subscription.endpoint
-      }, {}, {}, function (err, data) {
-        debug('completed push notification subscribe', err, data);
+      };
 
-        // Update settings
-        context.dispatch('SETTINGS_STATE', {
-          pushTopics: err ? null : data,
-          pushSubscription: subscription,
-          pushSubscriptionError: err
-        });
+      if (__DEV__) {
+        params.emulateError = payload && payload.emulateError;
+      }
 
-        return done(err);
+      context.service.create('subscription', params, {}, {}, function (err, data) {
+        complete(err, subscription, data);
       });
     }).catch(function (error) {
-      // TODO: finish
-
       var settingsStore = context.getStore('SettingsStore'),
           hasPermissions = settingsStore.getHasPermissions();
 
@@ -81,16 +91,25 @@ function subscribe (context, payload, done) {
           userVisibleOnly: true
         }).then(function (permissionState) {
           debug('subscribe error', error, ' push permissions state ', permissionState);
+          if (permissionState === 'prompt') {
+            error = new Error('Must accept the permission prompt');
+          } else if (permissionState === 'denied') {
+            error = new Error('User blocked notifications');
+          }
         }).catch(function (error2) {
           debug('subscribe error', error, ' permissions error ', error2);
         }).then(function () {
-          done(error);
+          complete(error, null, null);
         });
       } else {
         debug('subscribe error', error);
         debug('hasNotifications', settingsStore.getHasNotifications());
-        debug('subscribe error', error, ' Notification permission ', window.Notification.permission);
-        done(error);
+
+        if (settingsStore.getHasNotifications()) {
+          debug('subscribe error', error, ' Notification permission ', window.Notification.permission);
+        }
+
+        complete(error, null, null);
       }
     });
   });
@@ -100,54 +119,74 @@ function subscribe (context, payload, done) {
  * Unsubscribe from push notifications.
  *
  * @param {Object} context - The fluxible action context.
- * @param {Object} payload - ignored.
+ * @param {Object} payload - ignored, except for testing.
  * @param {Function} done - The callback to execute on action completion.
  */
 function unsubscribe (context, payload, done) {
   debug('unsubscribing from push notifications', payload);
 
+  context.dispatch('SETTINGS_TRANSITION', {
+    pushSubscription: true
+  });
+
+  /**
+   * complete unsubscribe
+   */
+  function complete (error) {
+    debug('unsubscribe complete', error);
+
+    var params = {
+      pushSubscriptionError: error
+    };
+
+    if (!error) {
+      params.pushSubscription = null;
+      params.pushTopics = null;
+    }
+
+    context.dispatch('SETTINGS_STATE', params);
+    return done(error);
+  }
+
   window.navigator.serviceWorker.ready.then(function (registration) {
     registration.pushManager.getSubscription().then(function (pushSubscription) {
-      var settingsStore = context.getStore('SettingsStore'),
-          subscription = pushSubscription || settingsStore.getPushSubscription();
+      debug('got push subscription', pushSubscription);
 
-      debug('unsubscribe', subscription);
+      var subscription = pushSubscription ||
+        context.getStore('SettingsStore').getPushSubscription();
+
+      debug('subscription to unsubscribe', subscription);
 
       if (!subscription) {
-        return done(new Error('unsubscribe failed: Could not find subscription'));
+        return complete(new Error('Subscription not found'));
       }
 
-      var subscriptionId = getSubscriptionId(subscription);
-
       subscription.unsubscribe().then(function (successful) {
-        debug('unsubscribed from browser', successful);
+        debug('unsubscribed from browser, success: ', successful);
 
-        if (successful) {
-          context.dispatch('SETTINGS_TRANSITION', {
-            pushSubscription: true
-          });
-
-          context.service.delete('subscription', {
-            subscriptionId: subscriptionId
-          }, {}, function (err) {
-            debug('completed push notification unsubscribe', err);
-
-            context.dispatch('SETTINGS_STATE', {
-              pushTopics: null,
-              pushSubscription: null,
-              pushSubscriptionError: err
-            });
-
-            return done(err);
-          });
+        if (!successful) {
+          return complete(new Error('Unsubscribe unsuccessful'));
         }
+
+        var params = {
+          subscriptionId: getSubscriptionId(subscription)
+        };
+
+        if (__DEV__) {
+          params.emulateError = payload && payload.emulateError;
+        }
+
+        context.service.delete('subscription', params, {}, function (err) {
+          complete(err);
+        });
       }).catch(function (error) {
-        debug('failed to unsubscribe from browser', error);
+        error.message = 'Unsubscribe failed: ' + error.message;
+        complete(error);
       });
     })
     .catch(function (error) {
-      debug('unsubscribe failed: ', error);
-      done(error);
+      error.message = 'getSubscription failed: ' + error.message;
+      complete(error);
     });
   });
 }

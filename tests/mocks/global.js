@@ -8,7 +8,18 @@
 'use strict';
 
 /**
- * Setup the global permissions text fixture.
+ * Setup the global Notification test fixture.
+ */
+function setupNotification (options) {
+  options = options || {};
+
+  global.window.Notification = {
+    permission: options.permission || 'denied'
+  };
+}
+
+/**
+ * Setup the global permissions test fixture.
  *
  * @param {Object} options - Permissions setup options.
  * @param {String} [options.state] - The state to resolve to.
@@ -80,5 +91,6 @@ function setupPushManager (options) {
 
 module.exports = {
   setupPushManager: setupPushManager,
-  setupPermissions: setupPermissions
+  setupPermissions: setupPermissions,
+  setupNotification: setupNotification
 };

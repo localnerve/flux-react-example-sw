@@ -10,6 +10,7 @@ var expect = require('chai').expect;
 var testDom = require('../../utils/testdom');
 var setupPushManager = require('../../mocks/global').setupPushManager;
 var setupPermissions = require('../../mocks/global').setupPermissions;
+var setupNotification = require('../../mocks/global').setupNotification;
 var getSettingsFields = require('../../utils/settings').getSettingsFields;
 var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
@@ -124,7 +125,8 @@ describe('push action', function () {
         });
       });
 
-      it('should handle subscription reject', function (done) {
+      // I'm not sure this case makes sense.
+      it('should handle subscription reject without permissions or notifications', function (done) {
         setupPushManager({
           rejectSubcribe: true
         });
@@ -139,12 +141,57 @@ describe('push action', function () {
         });
       });
 
-      it('should handle subscription reject with permissions', function (done) {
+      it('should handle subscription reject with notification, denied', function (done) {
+        setupPushManager({
+          rejectSubcribe: true
+        });
+        setupNotification({
+          permission: 'denied'
+        });
+        context.getStore(SettingsStore).updateSettingsState({
+          hasNotifications: true
+        });
+
+        context.executeAction(pushAction.subscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(err).to.be.an('Error');
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(fields.pushSubscription).to.be.null;
+          expect(fields.pushTopics).to.be.null;
+          done();
+        });
+      });
+
+      it('should handle subscription reject with permissions, prompt', function (done) {
         setupPushManager({
           rejectSubcribe: true
         });
         setupPermissions({
           state: 'prompt'
+        });
+        context.getStore(SettingsStore).updateSettingsState({
+          hasPermissions: true
+        });
+
+        context.executeAction(pushAction.subscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(err).to.be.an('Error');
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(fields.pushSubscription).to.be.null;
+          expect(fields.pushTopics).to.be.null;
+          done();
+        });
+      });
+
+      it('should handle subscription reject with permissions, denied', function (done) {
+        setupPushManager({
+          rejectSubcribe: true
+        });
+        setupPermissions({
+          state: 'denied'
+        });
+        context.getStore(SettingsStore).updateSettingsState({
+          hasPermissions: true
         });
 
         context.executeAction(pushAction.subscribe, {}, function (err) {
@@ -164,6 +211,9 @@ describe('push action', function () {
         setupPermissions({
           rejectQuery: true
         });
+        context.getStore(SettingsStore).updateSettingsState({
+          hasPermissions: true
+        });
 
         context.executeAction(pushAction.subscribe, {}, function (err) {
           var fields = getSettingsFields(context, SettingsStore);
@@ -174,7 +224,6 @@ describe('push action', function () {
           done();
         });
       });
-      // TODO: more 4 cov
     });
 
     describe('unsubscribe', function () {

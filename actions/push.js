@@ -91,9 +91,9 @@ function subscribe (context, payload, done) {
           userVisibleOnly: true
         }).then(function (permissionState) {
           debug('subscribe error', error, ' push permissions state ', permissionState);
-          if (permissionState === 'prompt') {
+          if (permissionState.state === 'prompt') {
             error = new Error('Must accept the permission prompt');
-          } else if (permissionState === 'denied') {
+          } else if (permissionState.state === 'denied') {
             error = new Error('User blocked notifications');
           }
         }).catch(function (error2) {

@@ -7,6 +7,10 @@
 
 var expect = require('chai').expect;
 
+var testDom = require('../../utils/testdom');
+var setupPushManager = require('../../mocks/global').setupPushManager;
+var setupPermissions = require('../../mocks/global').setupPermissions;
+var getSettingsFields = require('../../utils/settings').getSettingsFields;
 var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var MockService = require('fluxible-plugin-fetchr/utils/MockServiceManager');
 var SettingsStore = require('../../../stores/SettingsStore');
@@ -15,12 +19,6 @@ var pushAction = require('../../../actions/push');
 
 describe('push action', function () {
   var context;
-
-  before(function () {
-  });
-
-  after(function () {
-  });
 
   beforeEach(function () {
     context = createMockActionContext({
@@ -33,79 +31,225 @@ describe('push action', function () {
     });
   });
 
-  function getSettingsFields () {
-    var settingsStore = context.getStore(SettingsStore);
-    return {
-      hasServiceWorker: settingsStore.getHasServiceWorker(),
-      hasPushMessaging: settingsStore.getHasPushMessaging(),
-      hasPermissions: settingsStore.getHasPermissions(),
-      hasNotifications: settingsStore.getHasNotifications(),
-      pushBlocked: settingsStore.getPushBlocked(),
-      syncBlocked: settingsStore.getSyncBlocked(),
-      pushSubscription: settingsStore.getPushSubscription(),
-      pushSubscriptionError: settingsStore.getPushSubscriptionError(),
-      pushTopics: settingsStore.getPushTopics(),
-      pushTopicsError: settingsStore.getPushTopicsError(),
-      transition: settingsStore.getTransition()
-    };
-  }
+  describe('topics', function () {
+    it('should get topics', function (done) {
+      context.executeAction(pushAction.getTopics, {}, function (err) {
+        if (err) {
+          return done(err);
+        }
 
-  it('should get topics', function (done) {
-    context.executeAction(pushAction.getTopics, {}, function (err) {
-      if (err) {
-        return done(err);
-      }
+        var fields = getSettingsFields(context, SettingsStore);
+        expect(fields.pushTopicsError).to.be.null;
+        expect(subscription.topics).to.eql(fields.pushTopics);
+        done();
+      });
+    });
 
-      var fields = getSettingsFields();
-      expect(fields.pushTopicsError).to.be.null;
-      expect(subscription.topics).to.eql(fields.pushTopics);
-      done();
+    it('should get topics with error', function (done) {
+      context.executeAction(pushAction.getTopics, {
+        emulateError: true
+      }, function (err) {
+        var fields = getSettingsFields(context, SettingsStore);
+        expect(err).to.be.an('Error');
+        expect(fields.pushTopicsError).to.not.be.null;
+        done();
+      });
+    });
+
+    it('should update topics', function (done) {
+      var updates = subscription.updateTopic;
+      context.executeAction(pushAction.updateTopics, {
+        topics: updates
+      }, function (err) {
+        if (err) {
+          return done(err);
+        }
+
+        var fields = getSettingsFields(context, SettingsStore);
+        expect(fields.pushTopics).to.eql(updates);
+        expect(fields.pushTopicsError).to.be.null;
+        done();
+      });
+    });
+
+    it('should update topics with error', function (done) {
+      context.executeAction(pushAction.updateTopics, {
+        emulateError: true
+      }, function (err) {
+        var fields = getSettingsFields(context, SettingsStore);
+        expect(err).to.be.an('Error');
+        expect(fields.pushTopicsError).to.not.be.null;
+        done();
+      });
     });
   });
 
-  it('should get topics with error', function (done) {
-    context.executeAction(pushAction.getTopics, {
-      emulateError: true
-    }, function (err) {
-      var fields = getSettingsFields();
-      expect(err).to.be.an('Error');
-      expect(fields.pushTopicsError).to.not.be.null;
-      done();
+  describe('un/subscribe', function () {
+    before(function () {
+      testDom.start();
     });
-  });
 
-  it('should update topics', function (done) {
-    var updates = subscription.updateTopic;
-    context.executeAction(pushAction.updateTopics, {
-      topics: updates
-    }, function (err) {
-      if (err) {
-        return done(err);
-      }
-
-      var fields = getSettingsFields();
-
-      expect(fields.pushTopics).to.eql(updates);
-      expect(fields.pushTopicsError).to.be.null;
-
-      done();
+    after(function () {
+      testDom.stop();
     });
-  });
 
-  it('should update topics with error', function (done) {
-    context.executeAction(pushAction.updateTopics, {
-      emulateError: true
-    }, function (err) {
-      var fields = getSettingsFields();
-      expect(err).to.be.an('Error');
-      expect(fields.pushTopicsError).to.not.be.null;
-      done();
+    describe('subscribe', function () {
+      it('should create a subscription', function (done) {
+        var sub = setupPushManager();
+
+        context.executeAction(pushAction.subscribe, {}, function (err) {
+          if (err) {
+            return done(err);
+          }
+
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(fields.pushSubscriptionError).to.be.null;
+          expect(fields.pushSubscription).to.eql(sub);
+          expect(fields.pushTopics).to.eql(subscription.topics);
+          done();
+        });
+      });
+
+      it('should handle subscription service error', function (done) {
+        setupPushManager();
+
+        context.executeAction(pushAction.subscribe, {
+          emulateError: true
+        }, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(err).to.be.an('Error');
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(fields.pushTopics).to.be.null;
+          done();
+        });
+      });
+
+      it('should handle subscription reject', function (done) {
+        setupPushManager({
+          rejectSubcribe: true
+        });
+
+        context.executeAction(pushAction.subscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(err).to.be.an('Error');
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(fields.pushSubscription).to.be.null;
+          expect(fields.pushTopics).to.be.null;
+          done();
+        });
+      });
+
+      it('should handle subscription reject with permissions', function (done) {
+        setupPushManager({
+          rejectSubcribe: true
+        });
+        setupPermissions({
+          state: 'prompt'
+        });
+
+        context.executeAction(pushAction.subscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(err).to.be.an('Error');
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(fields.pushSubscription).to.be.null;
+          expect(fields.pushTopics).to.be.null;
+          done();
+        });
+      });
+
+      it('should handle subscription reject with permission reject', function (done) {
+        setupPushManager({
+          rejectSubcribe: true
+        });
+        setupPermissions({
+          rejectQuery: true
+        });
+
+        context.executeAction(pushAction.subscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(err).to.be.an('Error');
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(fields.pushSubscription).to.be.null;
+          expect(fields.pushTopics).to.be.null;
+          done();
+        });
+      });
+      // TODO: more 4 cov
     });
-  });
 
-  it.skip('should create a subscription', function () {
-  });
+    describe('unsubscribe', function () {
+      it('should unsubcribe a subscription', function (done) {
+        setupPushManager({
+          succeedUnsub: true
+        });
 
-  it.skip('should delete a subscription', function () {
+        context.executeAction(pushAction.unsubscribe, {}, function (err) {
+          if (err) {
+            return done(err);
+          }
+
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(fields.pushSubscription).to.be.null;
+          expect(fields.pushTopics).to.be.null;
+          expect(fields.pushSubscriptionError).to.be.null;
+          done();
+        });
+      });
+
+      it('should handle an unsubscribe failure', function (done) {
+        setupPushManager({
+          succeedUnsub: false
+        });
+
+        context.executeAction(pushAction.unsubscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(err).to.be.an('Error');
+          done();
+        });
+      });
+
+      it('should handle an service error', function (done) {
+        setupPushManager({
+          succeedUnsub: true
+        });
+
+        context.executeAction(pushAction.unsubscribe, {
+          emulateError: true
+        }, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(err).to.be.an('Error');
+          done();
+        });
+      });
+
+      it('should handle an unsubscribe reject', function (done) {
+        setupPushManager({
+          succeedUnsub: true,
+          rejectUnsub: true
+        });
+
+        context.executeAction(pushAction.unsubscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(err).to.be.an('Error');
+          done();
+        });
+      });
+
+      it('should handle getSubscription reject', function (done) {
+        setupPushManager({
+          rejectGetSub: true
+        });
+
+        context.executeAction(pushAction.unsubscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(err).to.be.an('Error');
+          done();
+        });
+      });
+    });
   });
 });

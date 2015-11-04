@@ -2,12 +2,15 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global Promise, describe, it, before, after, beforeEach */
+/* global describe, it, before, after, beforeEach */
 'use strict';
 
 var expect = require('chai').expect;
 
 var testDom = require('../../utils/testdom');
+var setupPermissions = require('../../mocks/global').setupPermissions;
+var setupPushManager = require('../../mocks/global').setupPushManager;
+var getSettingsFields = require('../../utils/settings').getSettingsFields;
 var createMockActionContext = require('fluxible/utils').createMockActionContext;
 var SettingsStore = require('../../../stores/SettingsStore');
 var settingsAction = require('../../../actions/settings');
@@ -29,30 +32,13 @@ describe('settings action', function () {
     });
   });
 
-  function getSettingsFields () {
-    var settingsStore = context.getStore(SettingsStore);
-    return {
-      hasServiceWorker: settingsStore.getHasServiceWorker(),
-      hasPushMessaging: settingsStore.getHasPushMessaging(),
-      hasPermissions: settingsStore.getHasPermissions(),
-      hasNotifications: settingsStore.getHasNotifications(),
-      pushBlocked: settingsStore.getPushBlocked(),
-      syncBlocked: settingsStore.getSyncBlocked(),
-      pushSubscription: settingsStore.getPushSubscription(),
-      pushSubscriptionError: settingsStore.getPushSubscriptionError(),
-      pushTopics: settingsStore.getPushTopics(),
-      pushTopicsError: settingsStore.getPushTopicsError(),
-      transition: settingsStore.getTransition()
-    };
-  }
-
   it('baseline jsdom environment settings', function (done) {
     context.executeAction(settingsAction, params, function (err) {
       if (err) {
         return done(err);
       }
 
-      var fields = getSettingsFields();
+      var fields = getSettingsFields(context, SettingsStore);
 
       expect(fields.hasServiceWorker).to.equal(false);
       expect(fields.hasPushMessaging).to.equal(false);
@@ -85,7 +71,7 @@ describe('settings action', function () {
           return done(err);
         }
 
-        var fields = getSettingsFields();
+        var fields = getSettingsFields(context, SettingsStore);
 
         expect(fields.hasServiceWorker).to.equal(true);
         expect(fields.hasPushMessaging).to.equal(false);
@@ -105,8 +91,6 @@ describe('settings action', function () {
   });
 
   describe('permissions', function () {
-    var permissionState = {};
-
     before(function () {
       global.navigator.serviceWorker = {};
     });
@@ -116,37 +100,16 @@ describe('settings action', function () {
       delete global.navigator.serviceWorker;
     });
 
-    function resolvePermissionState (state) {
-      return {
-        query: function () {
-          return new Promise(function (resolve) {
-            permissionState.state = state;
-            resolve(permissionState);
-          });
-        }
-      };
-    }
-
-    function rejectPermissionState () {
-      return {
-        query: function () {
-          return new Promise(function (resolve, reject) {
-            reject(new Error('mock'));
-          });
-        }
-      };
-    }
-
     describe('resolve', function () {
       it('should properly reflect granted', function (done) {
-        global.navigator.permissions = resolvePermissionState('granted');
+        setupPermissions({ state: 'granted' });
 
         context.executeAction(settingsAction, params, function (err) {
           if (err) {
             return done(err);
           }
 
-          var fields = getSettingsFields();
+          var fields = getSettingsFields(context, SettingsStore);
           expect(fields.hasPermissions).to.equal(true);
           expect(fields.pushBlocked).to.equal(false);
           done();
@@ -154,14 +117,14 @@ describe('settings action', function () {
       });
 
       it('should properly reflect denied', function (done) {
-        global.navigator.permissions = resolvePermissionState('denied');
+        setupPermissions( { state: 'denied' });
 
         context.executeAction(settingsAction, params, function (err) {
           if (err) {
             return done(err);
           }
 
-          var fields = getSettingsFields();
+          var fields = getSettingsFields(context, SettingsStore);
           expect(fields.hasPermissions).to.equal(true);
           expect(fields.pushBlocked).to.equal(true);
           done();
@@ -169,14 +132,14 @@ describe('settings action', function () {
       });
 
       it('should handle onchange', function (done) {
-        global.navigator.permissions = resolvePermissionState('granted');
+        var permissionState = setupPermissions({ state: 'granted' });
 
         context.executeAction(settingsAction, params, function (err) {
           if (err) {
             return done(err);
           }
 
-          var fields = getSettingsFields();
+          var fields = getSettingsFields(context, SettingsStore);
           expect(fields.hasPermissions).to.equal(true);
           expect(fields.pushBlocked).to.equal(false);
 
@@ -184,7 +147,7 @@ describe('settings action', function () {
           permissionState.state = 'denied';
           permissionState.onchange();
 
-          fields = getSettingsFields();
+          fields = getSettingsFields(context, SettingsStore);
           expect(fields.pushBlocked).to.equal(true);
 
           done();
@@ -197,14 +160,14 @@ describe('settings action', function () {
         var settingsStore = context.getStore(SettingsStore),
             pushBlocked = settingsStore.getPushBlocked();
 
-        global.navigator.permissions = rejectPermissionState();
+        setupPermissions({ rejectQuery: true });
 
         context.executeAction(settingsAction, params, function (err) {
           if (err) {
             return done(err);
           }
 
-          var fields = getSettingsFields();
+          var fields = getSettingsFields(context, SettingsStore);
 
           expect(fields.hasPermissions).to.equal(true);
 
@@ -236,7 +199,7 @@ describe('settings action', function () {
           return done(err);
         }
 
-        var fields = getSettingsFields();
+        var fields = getSettingsFields(context, SettingsStore);
 
         expect(fields.hasNotifications).to.equal(true);
         expect(fields.pushBlocked).to.equal(false);
@@ -254,7 +217,7 @@ describe('settings action', function () {
           return done(err);
         }
 
-        var fields = getSettingsFields();
+        var fields = getSettingsFields(context, SettingsStore);
 
         expect(fields.hasNotifications).to.equal(true);
         expect(fields.pushBlocked).to.equal(true);
@@ -264,8 +227,6 @@ describe('settings action', function () {
   });
 
   describe('push manager', function () {
-    var subscription = { foo: 'bar' };
-
     before(function () {
       global.navigator.serviceWorker = {};
       global.window.PushManager = {};
@@ -284,76 +245,32 @@ describe('settings action', function () {
       });
     });
 
-    function resolveReady (value) {
-      global.navigator.serviceWorker.ready = Promise.resolve(value);
-    }
-
-    function rejectReady (value) {
-      global.navigator.serviceWorker.ready = Promise.reject(value);
-    }
-
-    function resolveSubscription (value) {
-      resolveReady({
-        pushManager: {
-          getSubscription: function () {
-            return Promise.resolve(value);
-          }
-        }
-      });
-    }
-
-    function rejectSubscription (value) {
-      resolveReady({
-        pushManager: {
-          getSubscription: function () {
-            return Promise.reject(value);
-          }
-        }
-      });
-    }
-
-    it('should resolve the push subscription', function (done) {
-      // setup subscription delivery
-      resolveSubscription(subscription);
+    it('should push subscription resolve', function (done) {
+      var subscription = setupPushManager();
 
       context.executeAction(settingsAction, params, function (err) {
         if (err) {
           return done(err);
         }
 
-        var fields = getSettingsFields();
+        var fields = getSettingsFields(context, SettingsStore);
 
         expect(fields.pushSubscription).to.eql(subscription);
         done();
       });
     });
 
-    it('should reject the push subscription', function (done) {
-      // setup subscription rejection
-      rejectSubscription(new Error('mock'));
-
-      context.executeAction(settingsAction, params, function (err) {
-        if (err) {
-          return done(err);
-        }
-
-        var fields = getSettingsFields();
-
-        expect(fields.pushSubscription).to.be.null;
-        done();
+    it('should handle push subscription reject', function (done) {
+      setupPushManager({
+        rejectGetSub: true
       });
-    });
-
-    it('should properly reflect ready rejection', function (done) {
-      // setup ready rejection
-      rejectReady(new Error('mock'));
 
       context.executeAction(settingsAction, params, function (err) {
         if (err) {
           return done(err);
         }
 
-        var fields = getSettingsFields();
+        var fields = getSettingsFields(context, SettingsStore);
 
         expect(fields.pushSubscription).to.be.null;
         done();

@@ -20,33 +20,33 @@ var updateTopic = [{
   subscribe: true
 }];
 
+function mockError (params) {
+  var err;
+  if (params.emulateError) {
+    err = new Error('mock service error');
+  }
+  return err;
+}
+
 module.exports = {
   updateTopic: updateTopic,
   topics: allTopics,
   read: function read (params, config, callback) {
-    var err;
-    if (params.emulateError) {
-      err = new Error('mock');
-    }
+    var err = mockError(params);
     callback(err, allTopics);
   },
   create: function create (params, body, config, callback) {
-    console.log('subscription:create', params, body);
+    var err = mockError(params);
+    callback(err, allTopics);
   },
   update: function update (params, body, config, callback) {
-    console.log('subscription:update', params, body);
-    var err;
-    if (params.emulateError) {
-      err = new Error('mock');
-    }
+    var err = mockError(params);
     // just send update back
     callback(err, body.topics);
   },
-  delete: function (params, config, callback) {
-    var err;
-    if (params.emulateError) {
-      err = new Error('mock');
-    }
+  // This is 'del' because of fluxible-plugin-fetchr/utils/MockServiceManager
+  del: function (params, config, callback) {
+    var err = mockError(params);
     callback(err);
   }
 };

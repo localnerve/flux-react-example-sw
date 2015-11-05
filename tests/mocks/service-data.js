@@ -3,6 +3,7 @@
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
  * TODO: change to use fixture (to be created) with content responses.
+ *   Really needed for settings.json and contact.json.
  */
 'use strict';
 
@@ -55,7 +56,17 @@ module.exports = {
       case 'settings':
         result = callback(null, {
           models: models,
-          content: '<h2>Settings</h2>'
+          content: {
+            pushNotifications: {
+              topics: [{
+                label: 'Alerts',
+                tag: 'push-alerts-tag'
+              }, {
+                label: 'Upcoming Events',
+                tag: 'push-upcoming-events-tag'
+              }]
+            }
+          }
         });
       break;
 

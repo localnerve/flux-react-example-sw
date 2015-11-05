@@ -10,6 +10,7 @@ var mockery = require('mockery');
 var debug = require('debug')('Test:Mocks');
 var serviceData = require('../mocks/service-data');
 var serviceMail = require('../mocks/service-mail');
+var serviceSubscription = require('../mocks/service-subs');
 var superAgent = require('../mocks/superagent');
 var amqplib = require('../mocks/amqplib');
 var cache = require('../mocks/cache');
@@ -51,6 +52,19 @@ function mockServiceDataEnd () {
   }]);
 }
 
+function mockSubsBegin () {
+  mockModuleBegin([{
+    pattern: '../data',
+    module: serviceData
+  }]);
+}
+
+function mockSubsEnd () {
+  mockModuleEnd([{
+    pattern: '../data'
+  }]);
+}
+
 function mockServiceMailBegin () {
   mockModuleBegin([{
     pattern: './mail',
@@ -61,6 +75,19 @@ function mockServiceMailBegin () {
 function mockServiceMailEnd () {
   mockModuleEnd([{
     pattern: './mail'
+  }]);
+}
+
+function mockServiceSubscriptionBegin () {
+  mockModuleBegin([{
+    pattern: './subs',
+    module: serviceSubscription
+  }]);
+}
+
+function mockServiceSubscriptionEnd () {
+  mockModuleEnd([{
+    pattern: './subs'
   }]);
 }
 
@@ -172,5 +199,13 @@ module.exports = {
   interface: {
     begin: mockInterfaceBegin,
     end: mockInterfaceEnd
+  },
+  serviceSubscription: {
+    begin: mockServiceSubscriptionBegin,
+    end: mockServiceSubscriptionEnd
+  },
+  subs: {
+    begin: mockSubsBegin,
+    end: mockSubsEnd
   }
 };

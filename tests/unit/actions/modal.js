@@ -70,7 +70,7 @@ describe('modal action', function () {
             content = contentStore.getCurrentPageContent(),
             models = contentStore.getCurrentPageModels();
 
-        expect(content).to.exist.and.be.a('string');
+        expect(content).to.exist.and.be.an('object');
         // this is models from fixture
         expect(models).to.eql(modelsResponse);
 

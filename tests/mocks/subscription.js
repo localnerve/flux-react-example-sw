@@ -28,6 +28,11 @@ function mockError (params) {
   return err;
 }
 
+function unsubscribe (params, config, callback) {
+  var err = mockError(params);
+  callback(err);
+}
+
 module.exports = {
   updateTopic: updateTopic,
   topics: allTopics,
@@ -45,8 +50,6 @@ module.exports = {
     callback(err, body.topics);
   },
   // This is 'del' because of fluxible-plugin-fetchr/utils/MockServiceManager
-  del: function (params, config, callback) {
-    var err = mockError(params);
-    callback(err);
-  }
+  del: unsubscribe,
+  delete: unsubscribe
 };

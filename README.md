@@ -7,15 +7,33 @@
 
 > A WIP learning playground for service worker
 
-This repository is downstream from [flux-react-example](https://github.com/localnerve/flux-react-example) and adds a **service worker** to test progressive app offline and push capabilities based on that architecture.
+This repository expands on [flux-react-example](https://github.com/localnerve/flux-react-example) and adds a **service worker** to test progressive app offline and push capabilities based on that architecture.
 
 ## Service Worker Info
+The worker and registration source is located at [assets/scripts/sw](/assets/scripts/sw) and [assets/scripts/service-worker-registration.js](/assets/scripts/service-worker-registration.js)
+
+### Offline and Performance Enhancements
 * This implementation leverages Google projects `sw-precache` and `sw-toolbox` for precaching static and dynamic assets, and the general ease of setting up fetch handling on routes/origins.
-* The worker and registration source is located at `assets/scripts/sw` and `assets/scripts/service-worker-registration.js`
-* The application's Flux Stores are sent to the service worker using the 'init' command and referenced from IndexedDB.
-* The best way to demo capabilities and have a look around at things is
-  1. Using the 'perf' build. This is just like the 'prod' build, but doesn't Uglify. `npm run perf` will build and start the server at `localhost:3000`.
-  2. Use a 'New Chrome Incognito Window' with devtools open and navigate to `localhost:3000` to play with and inspect source, network, and resources.
+* The application's Flux Stores are sent to the service worker using the [init](/assets/scripts/sw/init/README.md) command and referenced from IndexedDB.
+
+### Push Notifications
+* This implementation relies on GCM to deliver push notifications.
+* Chrome only (so far).
+* Currently, push notifications are subscribed and demonstrated using the settings control panel (cog in upper right).
+
+### Demonstration
+There is currently no hosted app. So, the best way to demo capabilities and have a look around at things is `git clone` and `npm install`.
+
+#### Build Environment Prerequisites
+1. Globally (nvm ok) installed Node. Node >= 4.1.2 required.
+  a. Globally installed grunt-cli `npm install -g grunt-cli`
+2. Globally (rvm/chruby ok) installed Compass >= 1.0.1 `gem install compass`
+
+#### How to Run a Demo
+1. Satisfy the Build Environment Prerequisites
+2. Run the server using the 'perf' build by running `npm run perf`. This is just like the 'prod' build, but provides source maps and doesn't Uglify so the source is browsable in module form. The 'perf' build will build and start the server at `localhost:3000`.
+3. If you are only interested in offline/perf capabilities, use a 'New Chrome Incognito Window' with devtools open and navigate to `localhost:3000` to play with and inspect source, network, and resources.
+4. To demo push notifications, you cannot run Incognito. Also, you need to [setup a GCM project](https://developers.google.com/web/updates/2015/03/push-notifications-on-the-open-web#make-a-project-on-the-google-developer-console) and set the API key in the server environment variable `PUSH_API_KEY`.
 
 ------------------------------
 ## Flux-React-Example Info

@@ -26,14 +26,15 @@ There is currently no hosted app. So, the best way to demo capabilities and have
 
 #### Build Environment Prerequisites
 1. Globally (nvm ok) installed Node. Node >= 4.1.2 required.
-  a. Globally installed grunt-cli `npm install -g grunt-cli`
+  * Globally installed grunt-cli `npm install -g grunt-cli`
 2. Globally (rvm/chruby ok) installed Compass >= 1.0.1 `gem install compass`
 
 #### How to Run a Demo
-1. Satisfy the Build Environment Prerequisites
-2. Run the server using the 'perf' build by running `npm run perf`. This is just like the 'prod' build, but provides source maps and doesn't Uglify so the source is browsable in module form. The 'perf' build will build and start the server at `localhost:3000`.
-3. If you are only interested in offline/perf capabilities, use a 'New Chrome Incognito Window' with devtools open and navigate to `localhost:3000` to play with and inspect source, network, and resources.
-4. To demo push notifications, you cannot run Incognito. Also, you need to [setup a GCM project](https://developers.google.com/web/updates/2015/03/push-notifications-on-the-open-web#make-a-project-on-the-google-developer-console) and set the API key in the server environment variable `PUSH_API_KEY`.
+1. Clone this repo and run `npm install`.
+2. Satisfy the Build Environment Prerequisites.
+3. Run the server using the 'perf' build by running `npm run perf`. This is just like the 'prod' build, but provides source maps and doesn't Uglify so the source is browsable in module form. The 'perf' build will build and start the server at `localhost:3000`.
+4. If you are only interested in offline/perf capabilities, use a 'New Chrome Incognito Window' with devtools open and navigate to `localhost:3000` to play with and inspect source, network, and resources.
+5. To demo push notifications, you cannot run Incognito. Also, you need to [setup a GCM project](https://developers.google.com/web/updates/2015/03/push-notifications-on-the-open-web#make-a-project-on-the-google-developer-console) and set the API key in the server environment variable `PUSH_API_KEY`.
 
 ------------------------------
 ## Flux-React-Example Info

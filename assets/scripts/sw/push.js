@@ -9,21 +9,29 @@
 
 var debug = require('./utils/debug')('push');
 var toolbox = require('sw-toolbox');
+var requests = require('./utils/requests');
+var pushUtil = require('../../../utils/push');
 
-// FIXME: Get correct payload url.
-// send the subscriptionId and event.timestamp as a parameter too.
-var payloadUrl = '/_api/push';
+var pushUrl = '/_api/push';
 
 /**
- * Handle push messages.
- * Retrieves the message payload and shows the notification.
+ * Retrieve the push data payload from the pushUrl endpoint, and show the
+ * notification.
+ *
+ * @param {Number} timestamp - epoch time of the message event.
+ * @returns {Promise} Allows event to complete when fulfilled.
  */
-self.addEventListener('push', function (event) {
-  debug(toolbox.options, 'Received a push message', event);
+function getPayloadAndShowNotification (timestamp) {
+  return self.registration.pushManager.getSubscription()
+  .then(function (subscription) {
+    var payloadUrl = requests.addOrReplaceUrlSearchParameter(
+      pushUrl, 'subscriptionId', pushUtil.getSubscriptionId(subscription)
+    );
+    payloadUrl = requests.addOrReplaceUrlSearchParameter(
+      payloadUrl, 'timestamp', timestamp
+    );
 
-  event.waitUntil(
-
-    fetch(payloadUrl).then(function (response) {
+    return fetch(payloadUrl).then(function (response) {
       debug(toolbox.options, 'Received push payload response', response);
 
       if (response.status !== 200) {
@@ -53,7 +61,19 @@ self.addEventListener('push', function (event) {
         icon: '/public/images/android-chrome-192x192.png',
         tag: 'notification-error'
       });
-    })
+    });
+  });
+}
+
+/**
+ * Handle push messages.
+ * Retrieves the message payload and shows the notification.
+ */
+self.addEventListener('push', function (event) {
+  debug(toolbox.options, 'Received a push message', event);
+
+  event.waitUntil(
+    getPayloadAndShowNotification(event.timeStamp || Date.now())
   );
 });
 

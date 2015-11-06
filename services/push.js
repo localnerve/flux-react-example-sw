@@ -14,15 +14,21 @@ module.exports = {
 
   /**
    * Push one or more messages to subscribers.
-   * For now, this just pushes a single, canned message to a single subscriber.
+   * Maybe. But for now, this just pushes a notification to a single subscriber
+   * for demo purposes.
    *
-   * If topics were given, and this was protected, this could be used to send
-   * messages to the entire subscriber base.
+   * For example, if topics were given, and this was protected, this could be
+   * used to send messages to the entire subscriber base.
+   *
+   * It is more likely that this will never be used as a notification trigger.
+   * It would be more convenient (and secure) to have a worker monitoring the
+   * actual message sources, queue the payloads by topic and trigger the
+   * notifications to the registered subscribers by topic.
    *
    * @param {Object} req - Not used.
    * @param {String} resource - Not used.
    * @param {Object} params - subscriptionId, endpoint.
-   * @param {Object} body - Not used.
+   * @param {Object} body - Not used, topics?.
    * @param {Object} config - Not used.
    * @param {Function} callback - The callback to execute on completion.
    */
@@ -40,6 +46,10 @@ module.exports = {
    * Supply the payload for a push message.
    * For now, this just supplies a single, canned payload for demo purpose.
    *
+   * In a real app, this would lookup the message in the subscribed topic queues,
+   * and return the one that matches closest to the timestamp.
+   * Its a *bummer* we cannot send the data or even a topic in the first place.
+   *
    * @param {Object} req - Not used.
    * @param {String} resource - Not used.
    * @param {Object} params - subscriptionId, timestamp.
@@ -52,8 +62,7 @@ module.exports = {
       message: 'Try out the contact page!',
       icon: '/public/images/android-chrome-192x192.png',
       tag: 'contactor-push-notification-payload',
-      // get the external application origin from config?
-      url: 'http://localhost:3000/contact'
+      url: '/contact'
     });
   }
 

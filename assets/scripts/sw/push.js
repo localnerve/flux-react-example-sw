@@ -4,7 +4,7 @@
  *
  * Install push message handler.
  */
-/* global self, fetch */
+/* global self, fetch, clients */
 'use strict';
 
 var debug = require('./utils/debug')('push');
@@ -30,7 +30,7 @@ self.addEventListener('push', function (event) {
         throw new Error('Push payload response error, status' + response.status);
       }
 
-      response.json().then(function (data) {
+      return response.json().then(function (data) {
         debug(toolbox.options, 'Received push payload data', data);
 
         var title = data.title;
@@ -43,7 +43,7 @@ self.addEventListener('push', function (event) {
           }
         };
 
-        self.registration.showNotification(title, options);
+        return self.registration.showNotification(title, options);
       });
     }).catch(function (error) {
       debug(toolbox.options, 'Failed to get push payload', error);
@@ -63,7 +63,10 @@ self.addEventListener('push', function (event) {
 self.addEventListener('notificationclick', function (event) {
   debug(toolbox.options, 'Received a notification click', event);
 
-  // TODO:
-  // navigate to the page:
-  //   event.notification.data.url
+  var url = event.notification.data.url;
+
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(url)
+  );
 });

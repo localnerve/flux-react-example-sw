@@ -47,8 +47,14 @@ module.exports = {
    * For now, this just supplies a single, canned payload for demo purpose.
    *
    * In a real app, this would lookup the message in the subscribed topic queues,
-   * and return the one that matches closest to the timestamp.
+   * and return the one that matches closest to the timestamp (yuck).
    * Its a *bummer* we cannot send the data or even a topic in the first place.
+   *
+   * Timestamp is not good enough. About the best you can do is infer after a
+   * timeperiod an order of which message goes with which payload request, and
+   * even that is no guarantee.
+   * Since there is no sure way to match a request with the intended message,
+   * suspending #33.
    *
    * @param {Object} req - Not used.
    * @param {String} resource - Not used.

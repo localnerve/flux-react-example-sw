@@ -1,6 +1,14 @@
 /***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ *
+ * subscription model:
+ * - {String} subscriptionId
+ * - {String} endpoint
+ * - {Array} topics
+ *   - {Boolean} subscribed
+ *   - {String} tag
+ *   - {String} label
  */
 'use strict';
 
@@ -88,6 +96,7 @@ function read (subscriptionId, callback) {
 
 /**
  * Update push notification topics subscribed to.
+ * TODO: Update subscriptionId for subscription synchronization support.
  *
  * @param {String} subscriptionId - The subscription ID of a user.
  * @param {Array} [updateTopics] - The topics to update subscription of.

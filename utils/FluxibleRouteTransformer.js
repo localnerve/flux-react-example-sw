@@ -26,7 +26,7 @@ function FluxibleRouteTransformer (actions) {
  */
 FluxibleRouteTransformer.prototype.jsonToFluxible = function jsonToFluxible (jsonRoutes) {
   debug('Transforming json to fluxible routes');
-  debug('Instance', require('util').inspect(this));
+  // debug('Instance', require('util').inspect(this));
 
   var fluxibleRoutes = {};
 

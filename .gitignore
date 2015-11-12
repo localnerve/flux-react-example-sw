@@ -10,3 +10,4 @@ npm-debug.log
 /assets/scripts/sw/data.js
 *sublime*
 .DS_Store
+/webpack-stats*

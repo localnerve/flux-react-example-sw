@@ -14,8 +14,9 @@ var merge = require('lodash/object/merge');
  * Generate the webpack assets config
  *
  * @param {Object} self - A reference to the current webpack execution context
+ * @param {String} [statsJson] - A path to a file to collect the build stats.
  */
-function webpackStatsPlugin (self) {
+function webpackStatsPlugin (self, statsJson) {
   self.plugin('done', function (stats) {
     var fs = require('fs');
 
@@ -29,7 +30,7 @@ function webpackStatsPlugin (self) {
     Object.keys(assets).forEach(function (key) {
       var value = assets[key];
 
-      // if regex matched, use [name] for key
+      // If regex matched, use [name] for key
       var matches = key.match(self.options.custom.CHUNK_REGEX);
       if (matches) {
         key = matches[1];
@@ -37,7 +38,7 @@ function webpackStatsPlugin (self) {
       output.assets[key] = value;
     });
 
-    // if file exists, merge output
+    // If assetsJsonFile exists, merge output
     if (fs.existsSync(assetsJsonFile)) {
       var previousOutput = JSON.parse(
         fs.readFileSync(assetsJsonFile, { encoding: 'utf8' })
@@ -46,6 +47,10 @@ function webpackStatsPlugin (self) {
     }
 
     fs.writeFileSync(assetsJsonFile, JSON.stringify(output, null, 4));
+
+    if (statsJson) {
+      fs.writeFileSync(statsJson, JSON.stringify(data));
+    }
   });
 }
 
@@ -272,7 +277,7 @@ function mainConfig (type) {
       new webpack.NormalModuleReplacementPlugin(/^react\-?$/, require.resolve('react')),
       createUglifyPlugin(),
       function () {
-        return webpackStatsPlugin(this);
+        return webpackStatsPlugin(this, 'webpack-stats-main.json');
       }
     ];
   }

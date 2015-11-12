@@ -11,6 +11,7 @@ var ModalStore = createStore({
   handlers: {
     'MODAL_START': 'modalStart',
     'RECEIVE_PAGE_CONTENT': 'updateProps',
+    'MODAL_COMPONENT': 'updateComponent',
     'MODAL_FAILURE': 'modalFailure',
     'MODAL_STOP': 'modalStop'
   },
@@ -20,7 +21,8 @@ var ModalStore = createStore({
    */
   initialize: function () {
     this.isOpen = false;
-    this.component = '';
+    this.currentComponent = '';
+    this.components = {};
     this.failure = false;
     this.props = null;
   },
@@ -31,14 +33,16 @@ var ModalStore = createStore({
    *
    * @param {Object} payload - The MODAL_START action payload.
    * @param {Object} [payload.props] - The props for the UI component.
-   * @param {String} payload.component- The UI component.
+   * @param {String} payload.component- The UI component resource name.
    */
   modalStart: function (payload) {
-    this.props = payload.props;
-    this.component = payload.component;
-    this.isOpen = true;
-    this.failure = false;
-    this.emitChange();
+    if (!this.isOpen) {
+      this.props = payload.props;
+      this.currentComponent = payload.component;
+      this.isOpen = true;
+      this.failure = false;
+      this.emitChange();
+    }
   },
 
   /**
@@ -54,12 +58,29 @@ var ModalStore = createStore({
   },
 
   /**
+   * MODAL_COMPONENT handler.
+   * Updates the component for the given resource.
+   *
+   * @param {Object} payload - The MODAL_COMPONENT action payload.
+   * @param {String} payload.resource - The component resource to update.
+   * @param {Object} payload.component - The new component.
+   */
+  updateComponent: function (payload) {
+    if (!payload || !payload.hasOwnProperty('resource')) {
+      return;
+    }
+
+    this.components[payload.resource] = payload.component;
+    this.emitChange();
+  },
+
+  /**
    * MODAL_STOP handler.
    * Stop a modal dialog.
    */
   modalStop: function () {
     this.isOpen = false;
-    this.component = '';
+    this.currentComponent = '';
     this.props = null;
     this.failure = false;
     this.emitChange();
@@ -67,6 +88,9 @@ var ModalStore = createStore({
 
   /**
    * MODAL_FAILURE handler.
+   *
+   * @param {Object} payload - the MODAL_FAILURE payload.
+   * This is the current component props, typically just an Error object.
    */
   modalFailure: function (payload) {
     this.props = payload;
@@ -75,10 +99,10 @@ var ModalStore = createStore({
   },
 
   /**
-   * @returns {String} The name of the modal UI component.
+   * @returns {Object} The current modal UI component.
    */
   getComponent: function () {
-    return this.component;
+    return this.components[this.currentComponent];
   },
 
   /**
@@ -107,7 +131,8 @@ var ModalStore = createStore({
    */
   dehydrate: function () {
     return {
-      component: this.component,
+      currentComponent: this.currentComponent,
+      components: this.components,
       props: this.props,
       isOpen: this.isOpen,
       failure: this.failure
@@ -120,7 +145,8 @@ var ModalStore = createStore({
    * @param {Object} state - The new ModalStore state.
    */
   rehydrate: function (state) {
-    this.component = state.component;
+    this.currentComponent = state.currentComponent;
+    this.components = state.components;
     this.props = state.props;
     this.isOpen = state.isOpen;
     this.failure = state.failure;

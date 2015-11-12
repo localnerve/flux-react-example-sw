@@ -7,26 +7,39 @@
 
 var debug = require('debug')('Example:ModalAction');
 var createFluxibleRouteTransformer = require('../utils').createFluxibleRouteTransformer;
+var splits = require('../utils/splits');
 
 /**
  * Execute an optional custom action that may be defined for the dialog.
  *
  * @param {Object} context - The fluxible action context.
  * @param {Object} payload - The MODAL action payload.
+ * @param {Object} [payload.action] - A custom action for the modal.
+ * @param {String} [payload.split] - A code split handler.
  * @returns {Promise} A promise result.
  */
 function executeCustomAction (context, payload) {
   if (payload.action) {
-    var transformer = createFluxibleRouteTransformer({
-      actions: require('./interface')
-    }).jsonToFluxible;
+    debug('executing custom action ', payload.action);
 
-    // Make the action executable
-    payload = transformer({
-      payload: payload
-    }).payload;
+    // If the payload also indicates a code split, resolve that first.
+    var codeResolver = payload.split ? splits[payload.split]
+      : function () {
+        return Promise.resolve();
+      };
 
-    return context.executeAction(payload.action);
+    return codeResolver(context, payload, updateComponent).then(function () {
+      var transformer = createFluxibleRouteTransformer({
+        actions: require('./interface')
+      }).jsonToFluxible;
+
+      // Make the action executable
+      payload = transformer({
+        payload: payload
+      }).payload;
+
+      return context.executeAction(payload.action);
+    });
   }
 
   return Promise.resolve();
@@ -94,13 +107,32 @@ function openModal (context, payload, done) {
 
 /**
  * Close the modal dialog.
+ *
+ * @param {Object} context - The fluxible action context.
+ * @param {Object} payload - Ignored.
+ * @param {Function} done - The callback to execute on completion.
  */
 function closeModal (context, payload, done) {
   context.dispatch('MODAL_STOP');
   done();
 }
 
+/**
+ * Update the modal UI component.
+ *
+ * @param {Object} context - The fluxible action context.
+ * @param {Object} payload - The MODAL_COMPONENT action payload.
+ * @param {String} payload.resource - The name of the component resource.
+ * @param {Object} payload.component - The UI component reference.
+ * @param {Function} done - The callback to execute on completion.
+ */
+function updateComponent (context, payload, done) {
+  context.dispatch('MODAL_COMPONENT', payload);
+  done();
+}
+
 module.exports = {
   openModal: openModal,
-  closeModal: closeModal
+  closeModal: closeModal,
+  updateComponent: updateComponent
 };

@@ -8,7 +8,7 @@
 'use strict';
 
 var debug = require('debug')('Example:PushAction');
-var getSubscriptionId = require('../utils').getSubscriptionId;
+var getSubscriptionId = require('../utils/push').getSubscriptionId;
 var __DEV__ = process.env.NODE_ENV !== 'production';
 
 /**

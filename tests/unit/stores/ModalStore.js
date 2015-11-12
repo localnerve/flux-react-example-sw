@@ -9,13 +9,16 @@ var expect = require('chai').expect;
 var ModalStore = require('../../../stores/ModalStore');
 
 describe('modal store', function () {
-  var storeInstance;
-  var payload = {
-    props: {
-      content: 'hello'
-    },
-    component: 'Settings'
-  };
+  var storeInstance,
+      payload = {
+        props: {
+          content: 'hello'
+        },
+        component: 'Settings'
+      },
+      dummyObject = {
+        name: 'dummy'
+      };
 
   beforeEach(function () {
     storeInstance = new ModalStore();
@@ -24,7 +27,8 @@ describe('modal store', function () {
   it('should instantiate correctly', function () {
     expect(storeInstance).to.be.an('object');
     expect(storeInstance.isOpen).to.equal(false);
-    expect(storeInstance.component).to.equal('');
+    expect(storeInstance.currentComponent).to.equal('');
+    expect(storeInstance.components).to.be.an('object').that.is.empty;
     expect(storeInstance.failure).to.equal(false);
     expect(storeInstance.props).to.equal(null);
   });
@@ -32,7 +36,7 @@ describe('modal store', function () {
   describe('start', function () {
     it('should update component', function () {
       storeInstance.modalStart(payload);
-      expect(storeInstance.getComponent()).to.equal(payload.component);
+      expect(storeInstance.currentComponent).to.equal(payload.component);
     });
 
     it('should update props', function () {
@@ -49,6 +53,18 @@ describe('modal store', function () {
       storeInstance.modalStart(payload);
       expect(storeInstance.getFailure()).to.equal(false);
     });
+
+    it('should not update if already open', function () {
+      var invalidComponent = 'invalid';
+
+      storeInstance.modalStart(payload);
+      expect(storeInstance.getIsOpen()).to.equal(true);
+
+      storeInstance.modalStart({
+        component: invalidComponent
+      });
+      expect(storeInstance.currentComponent).to.equal(payload.component);
+    });
   });
 
   describe('stop', function () {
@@ -61,13 +77,38 @@ describe('modal store', function () {
     });
   });
 
+  describe('update', function () {
+    it('should update the component', function () {
+      storeInstance.modalStart(payload);
+      storeInstance.updateComponent({
+        resource: payload.component,
+        component: dummyObject
+      });
+      expect(storeInstance.getComponent()).to.eql(dummyObject);
+    });
+
+    it('should update the props', function () {
+      storeInstance.modalStart(payload);
+      storeInstance.updateProps({
+        data: dummyObject
+      });
+      expect(storeInstance.getProps()).to.eql(dummyObject);
+    });
+  });
+
   it('should dehydrate', function () {
     storeInstance.modalStart(payload);
+    storeInstance.updateComponent({
+      resource: payload.component,
+      component: dummyObject
+    });
 
     var state = storeInstance.dehydrate();
 
     expect(state.isOpen).to.equal(true);
-    expect(state.component).to.equal(payload.component);
+    expect(state.currentComponent).to.equal(payload.component);
+    expect(state.components).to.not.be.empty;
+    expect(state.components[payload.component]).to.eql(dummyObject);
     expect(state.props).to.eql(payload.props);
     expect(state.failure).to.equal(false);
   });
@@ -76,14 +117,17 @@ describe('modal store', function () {
     var state = {
       isOpen: false,
       failure: true,
-      component: payload.component,
+      components: {},
+      currentComponent: payload.component,
       props: payload.props
     };
+    state.components[payload.component] = dummyObject;
 
     storeInstance.rehydrate(state);
 
     expect(storeInstance.getIsOpen()).to.equal(false);
-    expect(storeInstance.getComponent()).to.equal(payload.component);
+    expect(storeInstance.currentComponent).to.equal(payload.component);
+    expect(storeInstance.getComponent()).to.eql(dummyObject);
     expect(storeInstance.getProps()).to.eql(payload.props);
     expect(storeInstance.getFailure()).to.equal(true);
   });

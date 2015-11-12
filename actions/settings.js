@@ -6,8 +6,9 @@
  */
 /* global window, Promise */
 'use strict';
+
 var debug = require('debug')('Example:SettingsAction');
-var getSubscriptionId = require('../utils').getSubscriptionId;
+var getSubscriptionId = require('../utils/push').getSubscriptionId;
 var getTopics = require('./push').getTopics;
 
 /**

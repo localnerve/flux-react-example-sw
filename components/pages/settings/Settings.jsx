@@ -14,7 +14,7 @@ var unsubscribeAction = require('../../../actions/push').unsubscribe;
 var sendAction = require('../../../actions/push').demoSend;
 var updateTopicsAction = require('../../../actions/push').updateTopics;
 
-var getSubscriptionId = require('../../../utils').getSubscriptionId;
+var getSubscriptionId = require('../../../utils/push').getSubscriptionId;
 
 var Spinner = require('../Spinner.jsx');
 var ContentPage = require('../ContentPage.jsx');

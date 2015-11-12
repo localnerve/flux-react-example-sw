@@ -9,15 +9,6 @@ var merge = require('lodash/object/merge');
 var conformErrorStatus = require('../../utils').conformErrorStatus;
 
 /***
- * Add additional modal types here.
- * Each modal type receives props: content, models
- */
-var modalTypes = {
-  Settings: require('./settings')
-};
-
-
-/***
  * Component to class map
  */
 var pageTypes = {
@@ -130,10 +121,11 @@ function createModalElement (component, props, failure) {
 
     props = merge(getProps(props.content, props.models), { failure: failure });
 
-    return React.createElement(modalTypes[component], props);
+    return React.createElement(component, props);
   }
   return null;
 }
+
 
 module.exports = {
   createElements: createElements,

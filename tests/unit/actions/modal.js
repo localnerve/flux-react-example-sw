@@ -52,7 +52,7 @@ describe('modal action', function () {
             isOpen = modalStore.getIsOpen();
 
         expect(isOpen).to.be.a('boolean').and.equal(true);
-        expect(component).to.equal(params.component);
+        expect(component).to.be.undefined;
         // this is content, models from service-data
         expect(props).to.be.an('object').with.property('content');
 
@@ -92,6 +92,14 @@ describe('modal action', function () {
         expect(isOpen).to.equal(false);
         done();
       });
+    });
+  });
+
+  describe('update', function () {
+    it.skip('should update props', function () {
+    });
+
+    it.skip('should update component', function () {
     });
   });
 });

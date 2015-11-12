@@ -10,6 +10,7 @@
 
 var debug = require('debug')('Example:Splits');
 var actionsInterface = require('../actions/interface');
+var __DEV__ = process.env.NODE_ENV !== 'production';
 
 /***
  * Add new static split handlers here.
@@ -43,13 +44,13 @@ if (typeof require.ensure !== 'function') {
  * @param {Object} payload.action - The settings action definition.
  * @param {String} payload.action.name - The settings action name.
  * @param {String} payload.component - The settings component name.
- * @param {Function} action - The action to execute after load,
+ * @param {Function} updateAction - The action to execute after load,
  * actions/modal.updateComponent.
  * @returns {Promise} A promise that resolves when the code is downloaded and
  * injected.
  */
-function injectSplitSettings (context, payload, action) {
-  debug('injectSplitSettings ', payload);
+function injectSplitSettings (context, payload, updateAction) {
+  debug('injectSplitSettings payload', payload);
 
   return new Promise(function (resolve, reject) {
     try {
@@ -65,12 +66,19 @@ function injectSplitSettings (context, payload, action) {
         // Inject this action into the actions interface for backend availability.
         actionsInterface[payload.action.name] = settings.action;
 
-        // Settings is a modal component, so give it to the modal store.
-        context.executeAction(action, {
+        var updatePayload = {
           resource: payload.component,
           component: settings.component
-        }, function (err) {
+        };
+
+        if (__DEV__) {
+          updatePayload.emulateError = payload.emulateError;
+        }
+
+        // Settings is a modal component, so give it to the modal store.
+        context.executeAction(updateAction, updatePayload, function (err) {
           if (err) {
+            debug('updateAction failed', err);
             return reject(err);
           }
           resolve();

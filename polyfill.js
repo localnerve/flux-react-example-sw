@@ -7,3 +7,12 @@
 'use strict';
 
 require('es6-promise').polyfill();
+
+if (!Object.assign) {
+  Object.defineProperty(Object, 'assign', {
+    enumerable: false,
+    configurable: true,
+    writable: true,
+    value: require('object-assign')
+  });
+}

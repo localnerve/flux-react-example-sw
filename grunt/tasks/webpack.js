@@ -15,8 +15,8 @@ var merge = require('lodash/object/merge');
  *
  * @param {Object} self - A reference to the current webpack execution context
  */
-function webpackStatsPlugin(self) {
-  self.plugin('done', function(stats) {
+function webpackStatsPlugin (self) {
+  self.plugin('done', function (stats) {
     var fs = require('fs');
 
     var assetsJsonFile = self.options.custom.assetsJson;
@@ -49,6 +49,237 @@ function webpackStatsPlugin(self) {
   });
 }
 
+/**
+ * Create the webpack uglifyJSPlugin with its options.
+ */
+function createUglifyPlugin () {
+  return new webpack.optimize.UglifyJsPlugin({
+    compress: {
+      warnings: false
+    },
+    output: {
+      comments: false
+    }
+  });
+}
+
+/**
+ * Create the inline/header build config.
+ *
+ * @param {Boolean} prod - True for production.
+ * @returns {Object} A webpack configuration for the inline/header bundle.
+ */
+function headerConfig (prod) {
+  var config = {
+    entry: './<%= project.src.headerScript %>',
+    output: {
+      path: '<%= project.dist.scripts %>',
+      filename: 'header.js'
+    },
+    stats: {
+      colors: true
+    }
+  };
+
+  if (prod) {
+    config.plugins = [
+      new webpack.DefinePlugin({
+        'process.env': {
+          NODE_ENV: JSON.stringify('production')
+        }
+      }),
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.OccurenceOrderPlugin(),
+      createUglifyPlugin()
+    ];
+  }
+
+  return config;
+}
+
+/**
+ * Create the swReg build config.
+ *
+ * @param {String} type - 'dev', 'prod', or 'perf'.
+ * @returns {Object} A webpack configuration for the swReg bundle.
+ */
+function swRegConfig (type) {
+  var devtoolModuleFilenameTemplate = 'webpack:///sw-reg/[resource-path]';
+
+  var config = {
+    entry: {
+      swReg: './<%= project.src.serviceWorker.registration %>'
+    },
+    output: {
+      path: '<%= project.dist.scripts %>',
+      publicPath: '<%= project.web.scripts %>'
+    },
+    plugins: [
+      function () {
+        return webpackStatsPlugin(this);
+      }
+    ]
+  };
+
+  if (type === 'prod' || type === 'perf') {
+    config.output.filename = '[name].[chunkhash].min.js';
+  }
+  else {
+    // dev only
+    config.output.filename = '[name].js';
+  }
+
+  if (type === 'dev' || type === 'perf') {
+    config.output.devtoolModuleFilenameTemplate = devtoolModuleFilenameTemplate;
+    config.devtool = 'source-map';
+  } else {
+    // prod only
+    config.plugins = [
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.OccurenceOrderPlugin(),
+      createUglifyPlugin()
+    ].concat(config.plugins);
+  }
+
+  return config;
+}
+
+/**
+ * Create service worker build config.
+ *
+ * @param {String} type - 'dev', 'prod', or 'perf'.
+ * @returns {Object} A webpack configuration for the service worker bundle.
+ */
+function swConfig (type) {
+  var devtoolModuleFilenameTemplate = 'webpack:///sw/[resource-path]';
+
+  var config = {
+    entry: {
+      sw: './<%= project.src.serviceWorker.entry %>'
+    },
+    output: {
+      path: '<%= project.dist.scripts %>',
+      publicPath: '<%= project.web.scripts %>'
+    },
+    target: 'webworker',
+    plugins: [
+      function () {
+        return webpackStatsPlugin(this);
+      }
+    ]
+  };
+
+  if (type === 'prod' || type === 'perf') {
+    config.output.filename = '[name].[chunkhash].min.js';
+  } else {
+    // dev only
+    config.output.filename = '[name].js';
+  }
+
+  if (type === 'dev' || type === 'perf') {
+    config.devtool = 'source-map';
+    config.output.devtoolModuleFilenameTemplate = devtoolModuleFilenameTemplate;
+  } else {
+    // prod only
+    config.plugins = [
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.OccurenceOrderPlugin(),
+      createUglifyPlugin()
+    ].concat(config.plugins);
+  }
+
+  return config;
+}
+
+/**
+ * Create the main build config.
+ *
+ * @param {String} type - 'dev', 'prod', or 'perf'.
+ * @returns {Object} A webpack configuration for the main bundle.
+ */
+function mainConfig (type) {
+  var devtoolModuleFilenameTemplate = 'webpack:///main/[resource-path]';
+
+  var config = {
+    resolve: {
+      extensions: ['', '.js', '.jsx']
+    },
+    entry: './client.js',
+    output: {
+      path: '<%= project.dist.scripts %>',
+      publicPath: '<%= project.web.scripts %>/'
+    },
+    module: {
+      loaders: [
+        { test: /\.jsx$/, loader: 'jsx-loader' }
+      ]
+    },
+    node: {
+      setImmediate: false
+    },
+    stats: {
+      colors: true
+    }
+  };
+
+  if (type === 'prod' || type === 'perf') {
+    config.output.filename = '[name].[chunkhash].min.js';
+    config.output.chunkFilename = '[name].[chunkhash].min.js';
+    config.progress = false;
+  } else {
+    // dev only
+    config.output.filename = '[name].js';
+    config.output.chunkFilename = '[name].js';
+    config.keepalive = true;
+    config.watch = true;
+  }
+
+  if (type === 'dev' || type === 'perf') {
+    var definitions = type === 'dev' ? {
+      DEBUG: true
+    } : {
+      'process.env': {
+        NODE_ENV: JSON.stringify('production')
+      }
+    };
+    config.output.devtoolModuleFilenameTemplate = devtoolModuleFilenameTemplate;
+    config.devtool = 'source-map';
+    config.plugins = [
+      new webpack.DefinePlugin(definitions),
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.OccurenceOrderPlugin(),
+      new webpack.NormalModuleReplacementPlugin(/lodash.assign/, require.resolve('object-assign')),
+      new webpack.NormalModuleReplacementPlugin(/object-assign/, require.resolve('object-assign')),
+      new webpack.NormalModuleReplacementPlugin(/ReactDOMServer/, require.resolve('../../utils/react/reactDOMServer')),
+      new webpack.NormalModuleReplacementPlugin(/^react\-?$/, require.resolve('react')),
+      function () {
+        return webpackStatsPlugin(this);
+      }
+    ];
+  } else {
+    // prod only
+    config.plugins = [
+      new webpack.DefinePlugin({
+        'process.env': {
+          NODE_ENV: JSON.stringify('production')
+        }
+      }),
+      new webpack.optimize.DedupePlugin(),
+      new webpack.optimize.OccurenceOrderPlugin(),
+      new webpack.NormalModuleReplacementPlugin(/lodash.assign/, require.resolve('object-assign')),
+      new webpack.NormalModuleReplacementPlugin(/object-assign/, require.resolve('object-assign')),
+      new webpack.NormalModuleReplacementPlugin(/ReactDOMServer/, require.resolve('../../utils/react/reactDOMServer')),
+      new webpack.NormalModuleReplacementPlugin(/^react\-?$/, require.resolve('react')),
+      createUglifyPlugin(),
+      function () {
+        return webpackStatsPlugin(this);
+      }
+    ];
+  }
+
+  return config;
+}
+
 module.exports = function (grunt) {
   grunt.config('webpack', {
     options: {
@@ -57,284 +288,17 @@ module.exports = function (grunt) {
         CHUNK_REGEX: /^([A-Za-z0-9_\-]+)\..*/
       }
     },
-    headerDev: {
-      entry: './<%= project.src.headerScript %>',
-      output: {
-        path: '<%= project.dist.scripts %>',
-        filename: 'header.js'
-      },
-      module: {},
-      stats: {
-        colors: true
-      }
-    },
-    headerProd: {
-      entry: './<%= project.src.headerScript %>',
-      output: {
-        path: '<%= project.dist.scripts %>',
-        filename: 'header.js'
-      },
-      module: {},
-      plugins: [
-        new webpack.DefinePlugin({
-          'process.env': {
-            NODE_ENV: JSON.stringify('production')
-          }
-        }),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.optimize.UglifyJsPlugin({
-          compress: {
-            warnings: false
-          },
-          output: {
-            comments: false
-          }
-        })
-      ]
-    },
-    'swReg-dev': {
-      entry: {
-        swReg: './<%= project.src.serviceWorker.registration %>'
-      },
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].js',
-        devtoolModuleFilenameTemplate: 'webpack:///sw-reg/[resource-path]'
-      },
-      plugins: [
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ],
-      devtool: 'source-map'
-    },
-    'swReg-prod': {
-      entry: {
-        swReg: './<%= project.src.serviceWorker.registration %>'
-      },
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].[chunkhash].min.js'
-      },
-      plugins: [
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.optimize.UglifyJsPlugin({
-          compress: {
-            warnings: false
-          },
-          output: {
-            comments: false
-          }
-        }),
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ]
-    },
-    'swReg-perf': {
-      entry: {
-        swReg: './<%= project.src.serviceWorker.registration %>'
-      },
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].[chunkhash].min.js',
-        devtoolModuleFilenameTemplate: 'webpack:///sw-reg/[resource-path]'
-      },
-      plugins: [
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ],
-      devtool: 'source-map',
-      progress: false
-    },
-    'sw-dev': {
-      entry: {
-        sw: './<%= project.src.serviceWorker.entry %>'
-      },
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].js',
-        devtoolModuleFilenameTemplate: 'webpack:///sw/[resource-path]'
-      },
-      target: 'webworker',
-      plugins: [
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ],
-      devtool: 'source-map'
-    },
-    'sw-prod': {
-      entry: {
-        sw: './<%= project.src.serviceWorker.entry %>'
-      },
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].[chunkhash].min.js'
-      },
-      target: 'webworker',
-      plugins: [
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.optimize.UglifyJsPlugin({
-          compress: {
-            warnings: false
-          },
-          output: {
-            comments: false
-          }
-        }),
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ]
-    },
-    'sw-perf': {
-      entry: {
-        sw: './<%= project.src.serviceWorker.entry %>'
-      },
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].[chunkhash].min.js',
-        devtoolModuleFilenameTemplate: 'webpack:///sw/[resource-path]'
-      },
-      target: 'webworker',
-      plugins: [
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ],
-      devtool: 'source-map'
-    },
-    dev: {
-      resolve: {
-        extensions: ['', '.js', '.jsx']
-      },
-      entry: './client.js',
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].js',
-        chunkFilename: '[name].js',
-        devtoolModuleFilenameTemplate: 'webpack:///main/[resource-path]'
-      },
-      module: {
-        loaders: [
-          { test: /\.jsx$/, loader: 'jsx-loader' }
-        ]
-      },
-      node: {
-        setImmediate: false
-      },
-      plugins: [
-        new webpack.DefinePlugin({
-          DEBUG: true
-        }),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.NormalModuleReplacementPlugin(/ReactDOMServer/, require.resolve('../../utils/react/reactDOMServer')),
-        new webpack.NormalModuleReplacementPlugin(/^react\-?$/, require.resolve('react')),
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ],
-      stats: {
-        colors: true
-      },
-      devtool: 'source-map',
-      watch: true,
-      keepalive: true
-    },
-    prod: {
-      resolve: {
-        extensions: ['', '.js', '.jsx']
-      },
-      entry: './client.js',
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].[chunkhash].min.js',
-        chunkFilename: '[name].[chunkhash].min.js'
-      },
-      module: {
-        loaders: [
-          { test: /\.jsx$/, loader: 'jsx-loader' }
-        ]
-      },
-      node: {
-        setImmediate: false
-      },
-      plugins: [
-        new webpack.DefinePlugin({
-          'process.env': {
-            NODE_ENV: JSON.stringify('production')
-          }
-        }),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.NormalModuleReplacementPlugin(/ReactDOMServer/, require.resolve('../../utils/react/reactDOMServer')),
-        new webpack.NormalModuleReplacementPlugin(/^react\-?$/, require.resolve('react')),
-        new webpack.optimize.UglifyJsPlugin({
-          compress: {
-            warnings: false
-          },
-          output: {
-            comments: false
-          }
-        }),
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ],
-      // removes verbosity from builds
-      progress: false
-    },
-    perf: {
-      resolve: {
-        extensions: ['', '.js', '.jsx']
-      },
-      entry: './client.js',
-      output: {
-        path: '<%= project.dist.scripts %>',
-        publicPath: '<%= project.web.scripts %>',
-        filename: '[name].[chunkhash].min.js',
-        chunkFilename: '[name].[chunkhash].min.js',
-        devtoolModuleFilenameTemplate: 'webpack:///main/[resource-path]'
-      },
-      module: {
-        loaders: [
-          { test: /\.jsx$/, loader: 'jsx-loader' }
-        ]
-      },
-      node: {
-        setImmediate: false
-      },
-      plugins: [
-        new webpack.DefinePlugin({
-          'process.env': {
-            NODE_ENV: JSON.stringify('production')
-          }
-        }),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.OccurenceOrderPlugin(),
-        new webpack.NormalModuleReplacementPlugin(/ReactDOMServer/, require.resolve('../../utils/react/reactDOMServer')),
-        new webpack.NormalModuleReplacementPlugin(/^react\-?$/, require.resolve('react')),
-        function () {
-          return webpackStatsPlugin(this);
-        }
-      ],
-      devtool: 'source-map',
-      progress: false
-    }
+    headerDev: headerConfig(false),
+    headerProd: headerConfig(true),
+    'swReg-dev': swRegConfig('dev'),
+    'swReg-prod': swRegConfig('prod'),
+    'swReg-perf': swRegConfig('perf'),
+    'sw-dev': swConfig('dev'),
+    'sw-prod': swConfig('prod'),
+    'sw-perf': swConfig('perf'),
+    dev: mainConfig('dev'),
+    prod: mainConfig('prod'),
+    perf: mainConfig('perf')
   });
 
   grunt.loadNpmTasks('grunt-webpack');

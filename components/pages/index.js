@@ -7,6 +7,7 @@
 var React = require('react');
 var merge = require('lodash/object/merge');
 var conformErrorStatus = require('../../utils').conformErrorStatus;
+var Spinner = require('./Spinner.jsx');
 
 /***
  * Component to class map
@@ -123,7 +124,7 @@ function createModalElement (component, props, failure) {
 
     return React.createElement(component, props);
   }
-  return null;
+  return React.createElement(Spinner);
 }
 
 

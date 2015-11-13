@@ -14,6 +14,7 @@ var ModalStore = require('../../../stores/ModalStore');
 var ContentStore = require('../../../stores/ContentStore');
 var modalStartAction = require('../../../actions/modal').openModal;
 var modalStopAction = require('../../../actions/modal').closeModal;
+var modalUpdateAction = require('../../../actions/modal').updateComponent;
 var serviceData = require('../../mocks/service-data');
 var mockActionInterface = require('../../mocks').interface;
 
@@ -96,10 +97,32 @@ describe('modal action', function () {
   });
 
   describe('update', function () {
-    it.skip('should update props', function () {
+    beforeEach(function () {
+      params = {
+        resource: 'key',
+        component: {
+          test: 'hello'
+        }
+      };
     });
 
-    it.skip('should update component', function () {
+    it('should update component', function (done) {
+      context.executeAction(modalUpdateAction, params, function (err) {
+        if (err) {
+          return done(err);
+        }
+
+        var component, modalStore = context.getStore(ModalStore);
+
+        modalStore.modalStart({
+          component: params.resource
+        });
+
+        component = modalStore.getComponent();
+
+        expect(component).to.eql(params.component);
+        done();
+      });
     });
   });
 });

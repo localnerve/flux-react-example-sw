@@ -51,6 +51,7 @@
    coloring: false,
    extras: false,
    forms: false,
+   global: $include-foundation-global,
    grid: false,
    iconic: false,
    label: false,
@@ -620,4 +621,64 @@ $switch-background-active: $app-primary-bgcolor;
 //   title: 'title',
 // );
 
-@import "foundation";
+// - - - - - - - - - - - - - - -
+// FOUNDATION FOR APPS IMPORTS
+//
+// LAST. Import the vendor code (localnerve)
+//   This app uses foundation-apps as a sass lib only.
+//
+// We are importing only exactly what is required by the app here.
+// A little more to pay attention to this way, but large size reductions
+// in cruft that is unused.
+// Since no release has occurred since May 2015,
+// this requires more attention anyways, possibly a fork at this point.
+// TODO: Evaluate moving forward with fork at YE 2015.
+// - - - - - - - - - - - - - - -
+// @import "foundation";
+
+// Used to just import entire vendor pkg via "foundation". Works, but has some
+// unused cruft. We use as a sass lib, so now, use scalpel:
+
+$foundation-version: '1.1.0';
+
+// Libraries
+//@import
+//  "vendor/normalize";
+
+// Helpers
+@import
+//  "helpers/functions",
+  "helpers/mixins",
+  "helpers/breakpoints",
+  "helpers/images";
+
+// Global styles
+@import
+  "global";
+
+// Components
+@import
+//    "components/iconic",
+//    "components/action-sheet",
+//    "components/block-list",
+    "components/button",
+//    "components/button-group",
+//    "components/card",
+    "components/extras",
+//    "components/forms",
+    "components/grid",
+//    "components/title-bar",
+//    "components/label",
+//    "components/list",
+//  	"components/menu-bar",
+//  	"components/modal",
+//    "components/motion",
+//    "components/notification",
+//    "components/off-canvas",
+//    "components/popup",
+    "components/switch",
+//    "components/tabs",
+//    "components/accordion",
+    "components/typography"//,
+//    "components/utilities";
+;

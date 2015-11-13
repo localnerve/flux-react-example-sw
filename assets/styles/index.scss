@@ -5,23 +5,15 @@
 
 @charset "UTF-8";
 
-$app-alert-bgcolor: #E53935;
-$app-primary-bgcolor: #43A047;
-$app-accent-light-bgcolor: #FFAB00;
-$app-accent-dark-bgcolor: #1B5E20;
-$app-accent-dark-shadow: rgba($app-accent-dark-bgcolor, 0.7);
-$app-primary-light-color: rgba(255, 255, 255, 0.87);
-$app-primary-dark-color: rgba(0, 0, 0, 0.87);
-
-$app-max-zindex: 2;
+$include-foundation-global: true;
 
 @import
+  "vars",
+  "vendor/normalize",
   "vendor",
   "icon-fonts",
   "fonts",
   "react-spinner";
-
-$height-constrained-phone: "only screen and (orientation: portrait) and (max-height: 480px)";
 
 @mixin vertical-block($align: center, $size: expand) {
   @include grid-block($size, vertical, false, $align);

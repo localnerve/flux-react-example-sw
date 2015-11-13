@@ -6,7 +6,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var mocks = require('../../../utils/mocks');
+var mocks = require('../../../mocks');
 
 describe('mail/queue', function () {
   var queue, amqplib,
@@ -65,7 +65,7 @@ describe('mail/queue', function () {
         expect(err).to.be.an.instanceof(Error);
         expect(err.message).to.equal(errorType);
         done();
-      });    
+      });
     });
 
     it('should work with no errors', function (done) {
@@ -82,7 +82,7 @@ describe('mail/queue', function () {
 
     it('should ack messages', function (done) {
       amqplib.setErrors({});
-      
+
       amqplib.setConsumerMessage(fields);
 
       amqplib.setConsumerAck(function (msg) {
@@ -105,7 +105,7 @@ describe('mail/queue', function () {
 
       amqplib.setConsumerMessage(payload);
 
-      amqplib.setConsumerAck(function (msg) {        
+      amqplib.setConsumerAck(function (msg) {
         done(new Error('Ack should not have been called'));
       });
       amqplib.setConsumerNack(function (msg) {

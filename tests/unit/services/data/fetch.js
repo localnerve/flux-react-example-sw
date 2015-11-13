@@ -6,7 +6,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var mocks = require('../../../utils/mocks');
+var mocks = require('../../../mocks');
 
 var config = require('../../../../configs').create().data;
 
@@ -83,7 +83,7 @@ describe('data/fetch', function () {
           // And they should be the default response
           expect(res[0]).to.equal(cache.get());
         }
-        
+
         done();
       });
     });

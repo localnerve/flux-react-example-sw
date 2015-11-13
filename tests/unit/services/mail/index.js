@@ -6,7 +6,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var mocks = require('../../../utils/mocks');
+var mocks = require('../../../mocks');
 
 describe('mail/index', function () {
   var mail;

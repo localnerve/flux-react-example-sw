@@ -8,16 +8,17 @@
 
 var mockery = require('mockery');
 var debug = require('debug')('Test:Mocks');
-var serviceData = require('../mocks/service-data');
-var serviceMail = require('../mocks/service-mail');
-var serviceSubscription = require('../mocks/service-subs');
-var superAgent = require('../mocks/superagent');
-var amqplib = require('../mocks/amqplib');
-var cache = require('../mocks/cache');
-var fetch = require('../mocks/fetch');
-var queue = require('../mocks/queue');
-var mailer = require('../mocks/mailer');
-var actionInterface = require('../mocks/actionInterface');
+var serviceData = require('./service-data');
+var serviceMail = require('./service-mail');
+var serviceSubscription = require('./service-subs');
+var superAgent = require('./superagent');
+var amqplib = require('./amqplib');
+var cache = require('./cache');
+var fetch = require('./fetch');
+var queue = require('./queue');
+var mailer = require('./mailer');
+var remarkable = require('./remarkable');
+var actionInterface = require('./actionInterface');
 
 function mockModuleBegin (mocks) {
   mocks.forEach(function (mock) {
@@ -171,6 +172,19 @@ function mockInterfaceEnd () {
   }]);
 }
 
+function mockRemarkableBegin () {
+  mockModuleBegin([{
+    pattern: 'remarkable',
+    module: remarkable
+  }]);
+}
+
+function mockRemarkableEnd () {
+  mockModuleEnd([{
+    pattern: 'remarkable'
+  }]);
+}
+
 module.exports = {
   serviceData: {
     begin: mockServiceDataBegin,
@@ -207,5 +221,9 @@ module.exports = {
   subs: {
     begin: mockSubsBegin,
     end: mockSubsEnd
+  },
+  remarkable: {
+    begin: mockRemarkableBegin,
+    end: mockRemarkableEnd
   }
 };

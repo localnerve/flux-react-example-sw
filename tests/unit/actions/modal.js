@@ -15,7 +15,7 @@ var ContentStore = require('../../../stores/ContentStore');
 var modalStartAction = require('../../../actions/modal').openModal;
 var modalStopAction = require('../../../actions/modal').closeModal;
 var serviceData = require('../../mocks/service-data');
-var mockActionInterface = require('../../utils/mocks').interface;
+var mockActionInterface = require('../../mocks').interface;
 
 describe('modal action', function () {
   var context, params;

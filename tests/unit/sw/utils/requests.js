@@ -2,11 +2,14 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global describe, it */
+/* global Promise, before, after, describe, it */
 'use strict';
 
 var expect = require('chai').expect;
 
+var testDom = require('../../../utils/testdom');
+var requestAPI = require('../../../mocks/request');
+var blobAPI = require('../../../mocks/blob');
 var requestLib = require('../../../../assets/scripts/sw/utils/requests');
 
 describe('sw', function () {
@@ -108,10 +111,66 @@ describe('sw', function () {
       });
     });
 
-    describe.skip('dehydrateRequest', function () {
+    describe('dehydrateRequest', function (done) {
+      it('should return expected object', function () {
+        var bodyType = 'json', body = 'hello', request = {
+          method: 'GET',
+          url: 'http://123.456',
+          bodyType: bodyType,
+          body: body
+        }, expected = JSON.parse(JSON.stringify(request));
+
+        request[bodyType] = function () {
+          return Promise.resolve(body);
+        };
+
+        requestLib.dehydrateRequest(request, bodyType).then(function (actual) {
+          expect(actual).to.eql(expected);
+          done();
+        }).catch(function (error) {
+          done(error);
+        });
+      });
     });
 
-    describe.skip('rehydrateRequest', function () {
+    describe('rehydrateRequest', function () {
+      before(function () {
+        testDom.start();
+        global.Request = requestAPI;
+        global.Blob = blobAPI;
+      });
+
+      after(function () {
+        testDom.stop();
+        delete global.Blob;
+        delete global.Request;
+      });
+
+      it('should create a Request from state', function () {
+        var state = {
+          url: 'http://123.456',
+          method: 'GET',
+          bodyType: 'json',
+          body: {
+            context: {
+              '_csrf': 'A1B2C3D3'
+            }
+          }
+        },
+        apiInfo = {
+          xhrContext: {
+            '_csrf': 'A1B2C3D4'
+          }
+        };
+
+        var result = requestLib.rehydrateRequest(state, apiInfo);
+
+        expect(result.method).to.equal(state.method);
+        expect(result.url).to.contain(state.url);
+        expect(result.url).to.contain(apiInfo.xhrContext._csrf);
+        expect(result.body).to.be.an('object');
+        expect(result.credentials).to.equal('include');
+      });
     });
   });
 });

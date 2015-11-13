@@ -13,6 +13,12 @@ describe('imageServiceUrls', function () {
   describe('buildImageUrl', function () {
     var url;
 
+    it('should fail for non-supported service', function () {
+      expect(function () {
+        buildImageUrl('http://notsupported.net', {});
+      }).to.throw(Error);
+    });
+
     describe('lorempixel', function () {
       var serviceUrl = 'http://lorempixel.com',
           width = 10,
@@ -194,6 +200,50 @@ describe('imageServiceUrls', function () {
           path.replace(/^\/|\/$/g, '').replace('/', '\/') + '\/' +
           name.replace('.', '\.') + '$'
         ));
+      });
+    });
+
+    describe('cloudinary', function () {
+      var cloudName = 'cloud',
+          width = 100,
+          height = 200,
+          imageName = 'image',
+          cropMode = 'mymode',
+          serviceUrl = 'http://res.cloudinary.com';
+
+      it('should build a request, no cropMode', function () {
+        url = buildImageUrl(serviceUrl, {
+          serviceOptions: {
+            cloudName: cloudName
+          },
+          width: width,
+          height: height,
+          name: imageName
+        });
+
+        expect(url).to.contain(width);
+        expect(url).to.contain(height);
+        expect(url).to.contain(imageName);
+        expect(url).to.contain(cloudName);
+        expect(url).to.contain('c_fill');
+      });
+
+      it('should build a request, with cropMode', function () {
+        url = buildImageUrl(serviceUrl, {
+          serviceOptions: {
+            cloudName: cloudName,
+            cropMode: cropMode
+          },
+          width: width,
+          height: height,
+          name: imageName
+        });
+
+        expect(url).to.contain(width);
+        expect(url).to.contain(height);
+        expect(url).to.contain(imageName);
+        expect(url).to.contain(cloudName);
+        expect(url).to.contain(cropMode);
       });
     });
   });

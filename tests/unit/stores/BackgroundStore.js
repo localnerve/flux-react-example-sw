@@ -7,13 +7,12 @@
 
 var expect = require('chai').expect;
 var BackgroundStore = require('../../../stores/BackgroundStore');
-var Immutable = require('immutable');
 
 describe('Background store', function () {
   var onChange, storeInstance;
-  var route = Immutable.fromJS({
+  var route = {
     background: '2'
-  });
+  };
   var initPayload = {
     backgrounds: {
       serviceUrl: 'http://lorempixel.com',
@@ -69,7 +68,7 @@ describe('Background store', function () {
         expect(state.width).to.equal(dim.width);
         expect(state.height).to.equal(dim.height);
         expect(state.top).to.equal(dim.top);
-        expect(state.currentBackground).to.contain(route.get('background'));
+        expect(state.currentBackground).to.contain(route.background);
         expect(state.imageServiceUrl).to.equal(initPayload.backgrounds.serviceUrl);
         expect(state.imageServiceOptions).to.eql(initPayload.backgrounds.serviceOptions);
         expect(Object.keys(state.backgroundUrls).length).to.equal(2);
@@ -94,7 +93,7 @@ describe('Background store', function () {
         width: dim.width,
         height: dim.height,
         top: dim.top,
-        currentBackground: route.get('background'),
+        currentBackground: route.background,
         imageServiceUrl: initPayload.backgrounds.serviceUrl,
         imageServiceOptions: initPayload.backgrounds.serviceOptions,
         backgroundUrls: { '1': notCurrentUrl, '2': currentUrl }
@@ -165,7 +164,7 @@ describe('Background store', function () {
         var backgroundUrl = storeInstance.getCurrentBackgroundUrl();
         expect(backgroundUrl).to.contain(initPayload.backgrounds.serviceUrl);
         expect(backgroundUrl).to.contain(dimension);
-        expect(backgroundUrl).to.contain(route.get('background'));
+        expect(backgroundUrl).to.contain(route.background);
 
         // also check non-current, should be the remainder of not route.get('background')
         var nonCurrent = storeInstance.getNotCurrentBackgroundUrls();

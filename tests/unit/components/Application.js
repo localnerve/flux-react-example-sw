@@ -8,7 +8,6 @@
 require('node-jsx').install({ extension: '.jsx' });
 
 var expect = require('chai').expect;
-var Immutable = require('immutable');
 var objectAssign = require('lodash/object/assign');
 var testDom = require('../../utils/testdom');
 var jsonToFluxible = require('../../../utils').createFluxibleRouteTransformer({
@@ -127,7 +126,7 @@ describe('application component', function () {
 
       routeStore._handleReceiveRoutes(fluxibleRoutes);
       routeStore._handleNavigateStart(routes.home);
-      routeStore._handleNavigateSuccess(Immutable.fromJS(routes.home));
+      routeStore._handleNavigateSuccess(routes.home);
       appStore.updatePageTitle({ title: 'test' });
       contentStore.receivePageContent(homePage);
 

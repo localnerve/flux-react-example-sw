@@ -87,10 +87,10 @@ var BackgroundStore = createStore({
    * NAVIGATE_SUCCESS action handler.
    * Updates the current background name.
    *
-   * @param {Object} route - An immutable route object.
+   * @param {Object} route - An route object.
    */
   updateBackground: function (route) {
-    this.currentBackground = route.get('background');
+    this.currentBackground = route.background;
     this.emitChange();
   },
 

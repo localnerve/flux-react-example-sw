@@ -78,14 +78,29 @@ describe('configs', function () {
             assets: {
               main: [
                 'main.js'
+              ],
+              sw: [
+                'sw.js'
+              ],
+              swReg: [
+                'swReg.js'
               ]
             }
           });
 
-      function testAssetsMainScript () {
+      function testAssetScript (script) {
+        expect(script).to.be.a('string').that.is.not.empty;
+        expect(script).to.contain(config.settings.web.scripts);
+        expect(script).to.match(/\.js$/);
+      }
+
+      function testAssetScripts () {
         var main = config.settings.web.assets.mainScript();
-        expect(main).to.be.a('string').that.is.not.empty;
-        expect(main).to.contain(config.settings.web.scripts);
+        var swReg = config.settings.web.assets.swRegScript();
+        var sw = config.settings.web.assets.swMainScript();
+        testAssetScript(main);
+        testAssetScript(swReg);
+        testAssetScript(sw);
         done();
       }
 
@@ -95,11 +110,11 @@ describe('configs', function () {
           if (err) {
             return done(err);
           }
-          testAssetsMainScript();
+          testAssetScripts();
         });
       } else {
         console.log('assets json pre-existed');
-        testAssetsMainScript();
+        testAssetScripts();
       }
     });
   });

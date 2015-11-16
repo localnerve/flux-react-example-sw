@@ -20,6 +20,10 @@ function prependPathToObject (fromObj, prePath) {
     var fromValue = fromObj[key];
     if (typeof fromValue === 'string') {
       obj[key] = path.join(prePath, fromValue);
+    } else if (Object.prototype.toString.call(fromValue) === '[object Array]') {
+      obj[key] = fromValue.map(function (val) {
+        return path.join(prePath, val);
+      });
     } else if (typeof fromValue === 'object') {
       obj[key] = prependPathToObject(fromValue, prePath);
     } else {

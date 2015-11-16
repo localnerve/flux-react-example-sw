@@ -14,7 +14,7 @@ module.exports = function (grunt) {
       options: {
         spawn: false
       },
-      files: '<%= project.dist.css %>',
+      files: '<%= project.dist.styles %>/*.css',
       tasks: ['autoprefixer']
     }
   });

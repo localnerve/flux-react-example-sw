@@ -69,6 +69,7 @@ function renderApp (req, res, context, app, props) {
   props.trackingSnippet = config.analytics.snippet;
   props.browserConfig = settings.web.browserConfig;
   props.appManifest = settings.web.appManifest;
+  props.otherStyles = settings.web.css.other;
   props.swRegistrationScript = settings.web.assets.swRegScript();
   props.swMainScript = settings.web.serviceWorker.main;
 
@@ -174,14 +175,14 @@ function bootstrap (app) {
       );
     })
     .then(function () {
-      debug('Reading the header styles from ' + settings.dist.css);
-      return nodeCall(fs.readFile, settings.dist.css, {
+      debug('Reading the inline styles from ' + settings.dist.css.inline);
+      return nodeCall(fs.readFile, settings.dist.css.inline, {
         encoding: 'utf8'
       });
     })
-    .then(function (headerStyles) {
+    .then(function (inlineStyles) {
       debug('Reading the header scripts from ' + settings.dist.headerScript);
-      renderProps.headerStyles = headerStyles;
+      renderProps.headerStyles = inlineStyles;
       return nodeCall(fs.readFile, settings.dist.headerScript, {
         encoding: 'utf8'
       });

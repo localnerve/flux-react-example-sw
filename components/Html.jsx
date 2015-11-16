@@ -20,11 +20,17 @@ var Html = React.createClass({
     state: React.PropTypes.string.isRequired,
     mainScript: React.PropTypes.string.isRequired,
     appManifest: React.PropTypes.string.isRequired,
+    otherStyles: React.PropTypes.array.isRequired,
     browserConfig: React.PropTypes.string.isRequired,
     swRegistrationScript: React.PropTypes.string.isRequired,
     swMainScript: React.PropTypes.string.isRequired
   },
   render: function () {
+    var asyncStyleImports = this.props.otherStyles.map(function (otherStyle) {
+      // return <link rel="import" type="text/css" href={otherStyle} async />;
+      return <link rel="stylesheet" type="text/css" href={otherStyle} lazyload />;
+    });
+
     return (
       <html>
         <head>
@@ -68,6 +74,7 @@ var Html = React.createClass({
           </section>
           <script dangerouslySetInnerHTML={{__html: this.props.state}}></script>
           <script src={this.props.mainScript}></script>
+          {asyncStyleImports}
         </body>
       </html>
     );

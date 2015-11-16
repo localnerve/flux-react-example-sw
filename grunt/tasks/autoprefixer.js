@@ -13,7 +13,12 @@ module.exports = function (grunt) {
       browsers: ['last 2 versions', '> 2% in US']
     },
     all: {
-      src: '<%= project.dist.css %>'
+      files: [{
+        expand: true,
+        cwd: '<%= project.dist.styles %>',
+        src: '*.css',
+        dest: '<%= project.dist.styles %>'
+      }]
     }
   });
 

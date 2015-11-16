@@ -11,8 +11,10 @@ module.exports = function (grunt) {
   grunt.config('cssmin', {
     prod: {
       files: [{
-        src: '<%= project.dist.css %>',
-        dest: '<%= project.dist.css %>'
+        expand: true,
+        cwd: '<%= project.dist.styles %>',
+        src: '*.css',
+        dest: '<%= project.dist.styles %>'
       }]
     }
   });

@@ -26,7 +26,10 @@ module.exports = function (grunt) {
         '<%= project.dist.fonts %>/**.*',
         // in this project, photos are only served via image service
         '<%= project.dist.images %>/**.!(jpg|jpeg)',
-        '<%= project.dist.scripts %>/!(header|inline).*'
+        // precache all scripts except those that are inlined
+        '<%= project.dist.scripts %>/!(header|inline).*',
+        // precache all styles except those that are inlined
+        '<%= project.dist.styles %>/!(index|inline).*'
       ],
       verbose: true,
 

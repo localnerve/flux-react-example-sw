@@ -41,7 +41,12 @@ var commonFiles = {
 var outputDirs = {
 };
 var outputFiles = {
-  css: path.join(commonDirs.styles, 'index.css')
+  css: {
+    inline: path.join(commonDirs.styles, 'index.css'),
+    other: [
+      path.join(commonDirs.styles, 'settings.css')
+    ]
+  }
 };
 
 /***

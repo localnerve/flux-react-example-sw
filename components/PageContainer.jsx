@@ -6,12 +6,14 @@
 
 var React = require('react');
 var sizeReporter = require('./sizeReporter');
+var Notification = require('./Notification.jsx');
 
 var PageContainer = React.createClass({
   render: function () {
     return (
       <div className="page">
         {this.props.children}
+        <Notification />
       </div>
     );
   }

@@ -1,0 +1,25 @@
+//
+// Notification styles
+//
+.notification {
+  @include notification;
+  display: flex;
+  position: absolute;
+
+  @include notification-layout(middle, bottom);
+  @include notification-style($app-accent-light-bgcolor, $app-primary-dark-color);
+
+  opacity: 0;
+  transition: opacity 0.4s ease;
+
+  &.is-active {
+    // display: 'flex' already defined
+    opacity: 1;
+  }
+
+  @include close-button;
+}
+
+.notification-content {
+  flex: 1;
+}

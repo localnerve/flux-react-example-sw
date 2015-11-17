@@ -8,12 +8,7 @@
 .settings {
   min-height: rem-calc(350);
 
-  .close {
-    @extend %close-button;
-    &::after {
-      content: '✖'
-    }
-  }
+  @include close-button;
 
   .control-section {
     margin-top: 1rem;

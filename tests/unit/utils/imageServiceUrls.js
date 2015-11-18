@@ -7,7 +7,7 @@
 
 var expect = require('chai').expect;
 
-var buildImageUrl = require('../../../utils').buildImageUrl;
+var buildImageUrl = require('../../../utils/imageServiceUrls');
 
 describe('imageServiceUrls', function () {
   describe('buildImageUrl', function () {

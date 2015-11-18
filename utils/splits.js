@@ -33,7 +33,7 @@ if (typeof require.ensure !== 'function') {
 }
 
 /**
- * Download the settings code and inject it into the main program.
+ * Download the Fluxible component 'Settings' and inject it into the main program.
  * Settings are available only in an on-demand dialog, so it doesn't
  * need to be in the main bundle.
  *
@@ -56,8 +56,14 @@ function injectSplitSettings (context, payload, updateAction) {
     try {
       require.ensure([
         '../actions/settings',
-        '../components/pages/settings'
+        '../components/pages/settings',
+        '../stores/SettingsStore'
       ], function (require) {
+        // Load and register store first
+        var SettingsStore = require('../stores/SettingsStore');
+        var app = require('../app');
+        app.registerStore(SettingsStore);
+
         var settings = {
           action: require('../actions/settings'),
           component: require('../components/pages/settings')

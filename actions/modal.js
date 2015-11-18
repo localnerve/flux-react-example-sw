@@ -7,7 +7,6 @@
 
 var debug = require('debug')('Example:ModalAction');
 var createFluxibleRouteTransformer = require('../utils').createFluxibleRouteTransformer;
-var splits = require('../utils/splits');
 
 /**
  * Execute an optional custom action that may be defined for the dialog.
@@ -19,6 +18,8 @@ var splits = require('../utils/splits');
  * @returns {Promise} A promise result.
  */
 function executeCustomAction (context, payload) {
+  var splits = require('../utils/splits');
+
   if (payload.action) {
     debug('executing custom action ', payload.action);
 

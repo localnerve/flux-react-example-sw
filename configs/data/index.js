@@ -109,16 +109,12 @@ function makeConfig (nconf) {
       /**
        * @see FRED_MEDIATYPE
        */
-      mediaType: function () {
-        return FRED_MEDIATYPE();
-      },
+      mediaType: FRED_MEDIATYPE,
 
       /**
        * @see FRED_CONTENTENCODING
        */
-      contentEncoding: function () {
-        return FRED_CONTENTENCODING();
-      },
+      contentEncoding: FRED_CONTENTENCODING,
 
       /**
        * @see addBranch

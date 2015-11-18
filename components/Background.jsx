@@ -9,8 +9,7 @@ var React = require('react');
 
 var Background = React.createClass({
   contextTypes: {
-    getStore: React.PropTypes.func.isRequired,
-    executeAction: React.PropTypes.func.isRequired
+    getStore: React.PropTypes.func.isRequired
   },
 
   propTypes: {

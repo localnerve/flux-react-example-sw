@@ -107,18 +107,20 @@ if ('serviceWorker' in window.navigator &&
       installingWorker.onstatechange = function () {
         switch (installingWorker.state) {
           case 'installed':
+            var msgPayload = {
+              command: 'notify',
+              show: true,
+              time: 3000
+            };
+
             if (serviceWorkerContainer.controller) {
               // At this point, the old content will have been purged and the fresh content will
               // have been added to the cache.
               // It's the perfect time to display a "New content is available; please refresh."
               // message in the page's interface.
               console.log('[sw-reg] New or updated content is available.');
-              window.postMessage({
-                command: 'notify',
-                show: true,
-                time: 5000,
-                message: 'New content is available. Please refresh.'
-              }, window.location.origin);
+              msgPayload.message = 'New content is available. Please refresh.';
+              window.postMessage(msgPayload, window.location.origin);
             } else {
               // At this point, everything has been precached, but the service worker is not
               // controlling the page. The service worker will not take control until the next
@@ -126,12 +128,8 @@ if ('serviceWorker' in window.navigator &&
               // It's the perfect time to display a "Content is cached for offline use." message.
               console.log('[sw-reg] Content is cached, and will be available for offline use the ' +
                           'next time the page is loaded.');
-              window.postMessage({
-                command: 'notify',
-                show: true,
-                time: 5000,
-                message: 'Content is cached for offline use.'
-              }, window.location.origin);
+              msgPayload.message = 'Content is cached for offline use.';
+              window.postMessage(msgPayload, window.location.origin);
             }
           break;
 

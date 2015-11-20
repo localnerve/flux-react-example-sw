@@ -14,7 +14,7 @@ var BackgroundStore = require('../../../stores/BackgroundStore');
 describe('init action', function () {
   var context, params = {
     backgrounds: {
-      serviceUrl: 'http://lorempixel.com',
+      serviceUrl: 'https://lorempixel.com',
       backgrounds: ['1', '2']
     }
   };

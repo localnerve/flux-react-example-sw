@@ -12,13 +12,16 @@
 
 /**
  * Get the IMAGE_SERVICE_URL configuration value.
- * Defaults to FIRESIZE_URL or lorempixel if FIRESIZE_URL is not defined.
- * Note: To use Cloudinary set IMAGE_SERVICE_URL to 'http://res.cloudinary.com'
+ * Defaults to lorempixel if IMAGE_SERVICE_URL is not defined.
+ * Lorempixel does not maintain an SSL certificate properly.
+ * image service must be SSL for use with this app (except development).
+ * Note: To use Cloudinary, set IMAGE_SERVICE_URL to 'https://res.cloudinary.com'
+ *  AND set CLOUD_NAME appropriately.
  *
  * @returns {String} The IMAGE_SERVICE_URL configuration value.
  */
 function IMAGE_SERVICE_URL () {
-  return process.env.IMAGE_SERVICE_URL || process.env.FIRESIZE_URL || 'http://lorempixel.com';
+  return process.env.IMAGE_SERVICE_URL || 'http://lorempixel.com';
 }
 
 /**

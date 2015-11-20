@@ -142,7 +142,7 @@ describe('configs', function () {
         expect(config.images.service.url()).to.be.a('string').that.is.not.empty;
       });
 
-      it('should return FIRESIZE_URL if defined', function () {
+      it.skip('should return FIRESIZE_URL if defined', function () {
         process.env.FIRESIZE_URL = url;
         expect(config.images.service.url()).to.equal(url);
       });

@@ -14,8 +14,8 @@ var requestLib = require('../../../../assets/scripts/sw/utils/requests');
 
 describe('sw', function () {
   describe('requests', function () {
-    var absoluteUrlNoSearch = 'http://example.org/route',
-        absoluteUrlSearch = 'http://example.org/route?name=value',
+    var absoluteUrlNoSearch = 'https://example.org/route',
+        absoluteUrlSearch = 'https://example.org/route?name=value',
         relativeUrlNoSearch = '/test',
         relativeUrlSearch = '/test?name=value',
         newName = 'newName',
@@ -115,7 +115,7 @@ describe('sw', function () {
       it('should return expected object', function () {
         var bodyType = 'json', body = 'hello', request = {
           method: 'GET',
-          url: 'http://123.456',
+          url: 'https://123.456',
           bodyType: bodyType,
           body: body
         }, expected = JSON.parse(JSON.stringify(request));
@@ -148,7 +148,7 @@ describe('sw', function () {
 
       it('should create a Request from state', function () {
         var state = {
-          url: 'http://123.456',
+          url: 'https://123.456',
           method: 'GET',
           bodyType: 'json',
           body: {

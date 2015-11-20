@@ -15,12 +15,12 @@ describe('imageServiceUrls', function () {
 
     it('should fail for non-supported service', function () {
       expect(function () {
-        buildImageUrl('http://notsupported.net', {});
+        buildImageUrl('https://notsupported.net', {});
       }).to.throw(Error);
     });
 
     describe('lorempixel', function () {
-      var serviceUrl = 'http://lorempixel.com',
+      var serviceUrl = 'https://lorempixel.com',
           width = 10,
           height = 20;
 
@@ -94,8 +94,8 @@ describe('imageServiceUrls', function () {
       });
     });
 
-    describe('firesize', function () {
-      var serviceUrl = 'http://1233321.firesize.com',
+    describe.skip('firesize', function () {
+      var serviceUrl = 'https://1233321.firesize.com',
           width = 30,
           height = 40;
 
@@ -209,7 +209,8 @@ describe('imageServiceUrls', function () {
           height = 200,
           imageName = 'image',
           cropMode = 'mymode',
-          serviceUrl = 'http://res.cloudinary.com';
+          serviceUrl = 'https://res.cloudinary.com',
+          matches;
 
       it('should build a request, no cropMode', function () {
         url = buildImageUrl(serviceUrl, {
@@ -221,10 +222,21 @@ describe('imageServiceUrls', function () {
           name: imageName
         });
 
-        expect(url).to.contain(width);
-        expect(url).to.contain(height);
+        // should start with the serviceUrl
+        expect(url).to.match(new RegExp('^' + serviceUrl));
+
+        // should be one occurrence of width in the request
+        matches = url.match(new RegExp('([^\\d]'+width+'[^\\d])', 'g'));
+        expect(matches || []).to.have.length(1);
+
+        // should be one occurrence of height in the request
+        matches = url.match(new RegExp('([^\\d]'+height+'[^\\d])', 'g'));
+        expect(matches || []).to.have.length(1);
+
         expect(url).to.contain(imageName);
         expect(url).to.contain(cloudName);
+
+        // should default to c_fill
         expect(url).to.contain('c_fill');
       });
 
@@ -239,8 +251,17 @@ describe('imageServiceUrls', function () {
           name: imageName
         });
 
-        expect(url).to.contain(width);
-        expect(url).to.contain(height);
+        // should start with the serviceUrl
+        expect(url).to.match(new RegExp('^' + serviceUrl));
+
+        // should be one occurrence of width in the request
+        matches = url.match(new RegExp('([^\\d]'+width+'[^\\d])', 'g'));
+        expect(matches || []).to.have.length(1);
+
+        // should be one occurrence of height in the request
+        matches = url.match(new RegExp('([^\\d]'+height+'[^\\d])', 'g'));
+        expect(matches || []).to.have.length(1);
+
         expect(url).to.contain(imageName);
         expect(url).to.contain(cloudName);
         expect(url).to.contain(cropMode);

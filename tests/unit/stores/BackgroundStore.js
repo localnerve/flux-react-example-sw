@@ -15,7 +15,7 @@ describe('Background store', function () {
   };
   var initPayload = {
     backgrounds: {
-      serviceUrl: 'http://lorempixel.com',
+      serviceUrl: 'https://lorempixel.com',
       serviceOptions: {
         host: 'amazonaws.amazon.com',
         ssl: true,

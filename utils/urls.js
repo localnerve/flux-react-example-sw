@@ -33,7 +33,7 @@ function getLastPathSegment (url) {
 
 /**
  * The significant hostname is the last hostname token before the TLD.
- *   http://subdom.significant-hostname.com/someotherstuff
+ *   https://subdom.significant-hostname.com/someotherstuff
  *
  * @param {String} url - The url from which to pull the significant hostname.
  * @returns The second to last hostname token between dots for a given url.

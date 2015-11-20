@@ -39,8 +39,8 @@ function addOrReplaceUrlSearchParameter(url, name, value) {
  * strip search!
  *
  * Removes the search/query portion from a URL.
- * E.g. stripSearchParameters("http://example.com/index.html?a=b&c=d")
- *     ➔ "http://example.com/index.html"
+ * E.g. stripSearchParameters("https://example.com/index.html?a=b&c=d")
+ *     ➔ "https://example.com/index.html"
  *
  * @param {String} url - the url of a request.
  * @return {String} A url with the entire query string removed.

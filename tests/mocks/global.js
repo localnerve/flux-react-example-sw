@@ -58,7 +58,7 @@ function setupPushManager (options) {
   options = options || {};
 
   var subscription = {
-    endpoint: 'http://service.dom/push/123456789',
+    endpoint: 'https://service.dom/push/123456789',
     unsubscribe: function () {
       if (options.rejectUnsub) {
         return Promise.reject(new Error('mock unsub'));

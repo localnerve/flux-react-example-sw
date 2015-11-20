@@ -17,7 +17,7 @@ describe('push', function () {
   describe('getSubscriptionId', function () {
     var subId = '1234',
         subId2 = '5678',
-        endpoint = 'http://endpoint/'+subId2;
+        endpoint = 'https://endpoint/'+subId2;
 
     it('should return null if falsy subscription supplied', function () {
       expect(push.getSubscriptionId()).to.be.null;

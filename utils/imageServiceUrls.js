@@ -67,6 +67,9 @@ function buildLoremPixelRequest (options) {
  * @param {String} [options.serviceOptions.origin.path] - Path to images on the asset host.
  * @returns {String} A firesize request.
  */
+/*
+ * Service defunct, but this code contains some useful ideas.
+ *
 function buildFireSizeRequest (options) {
   var gravity = options.serviceOptions.gravity || 'g_center';
   var origin = options.serviceOptions.origin || {
@@ -87,6 +90,7 @@ function buildFireSizeRequest (options) {
     (options.serviceOptions.origin ? '/' + options.name : '')
   );
 }
+*/
 
 /**
  * Build a cloudinary request.
@@ -116,7 +120,7 @@ function buildCloudinaryRequest (options) {
  */
 var supportedServices = {
   lorempixel: buildLoremPixelRequest,
-  firesize: buildFireSizeRequest,
+  // firesize: buildFireSizeRequest,
   cloudinary: buildCloudinaryRequest
 };
 

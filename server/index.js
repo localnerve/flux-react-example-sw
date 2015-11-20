@@ -34,7 +34,6 @@ var data = require(baseDir + '/services/data');
 var settings = config.settings;
 var protocol = require(settings.web.ssl ? 'https' : 'http');
 
-var swRule = new RegExp('^(' + settings.web.serviceWorker.main + ')$', 'i');
 var rewriteRules = [
   // rewrite root image requests to settings.web.images
   '^/([^\\/]+\\.(?:png|jpg|jpeg|webp|ico|svg|gif)(?:\\?.*)?$) ' +
@@ -57,7 +56,10 @@ app.use(errorHandler.maintenance());
 app.use(rewrite(rewriteRules));
 // Service worker rewrites delayed so assets.json not required on app start.
 app.use(function (req, res, next) {
-  var reSourceMap;
+  var reSourceMap, swRule = new RegExp(
+    '^(/' + settings.web.assets.swMainScript(true) + ')$', 'i'
+  );
+
   if (swRule.test(req.url)) {
     req.url = req.url.replace(swRule, settings.web.assets.swMainScript());
   } else {

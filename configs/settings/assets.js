@@ -66,12 +66,13 @@ function assetsConfig (baseDir) {
      * Loads assets json if not done, gets the service-worker script asset name,
      * and joins it to the base directory.
      *
+     * @param {Boolean} nameOnly - If true, only return the asset name, not whole asset path.
      * @returns {String} The service-worker script asset file path.
      */
-    swMainScript: function () {
+    swMainScript: function (nameOnly) {
       this.load();
       var sw = Array.isArray(this.assets.sw) ? this.assets.sw[0] : this.assets.sw;
-      return path.join(this.baseDir, sw);
+      return nameOnly ? sw : path.join(this.baseDir, sw);
     },
 
     /**

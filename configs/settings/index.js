@@ -119,11 +119,7 @@ function makeConfig (nconf) {
       baseDir: publicbase,
       assetAge: 0,
       assetHost: 'localhost',
-      ssl: false,
-      serviceWorker: {
-        // Set to root to allow service worker full app control
-        main: '/service-worker.js'
-      }
+      ssl: false
     },
 
     // unmovable project directories
@@ -157,6 +153,8 @@ function makeConfig (nconf) {
       prependPathToObject(outputFiles, config.baseDir)
     );
   });
+
+  // A little extra web-only config for determining built assets
   config.web.assets = assets.assetsConfig(config.web.scripts);
 
   return config;

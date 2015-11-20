@@ -9,3 +9,20 @@ before_script:
 - npm install -g grunt-cli
 after_success:
 - cat reports/coverage/lcov.info | ./node_modules/.bin/coveralls
+before_deploy:
+- npm run build
+- rm -rf node_modules/
+deploy:
+  provider: heroku
+  api_key:
+    secure: DfC+naYDIR8JXr9vN+UZCJ8Gdf6rEVbYlsUXlyNj5xt7tccgBiGwZwl+QfoEZrZ4lKzlAoxv5nTEu0sVoP7Ii+htKK+YDqtwN4KsFtfQ45TidgPPYUdZx/w+/eaDdMh1OBoYEonvB9IXjZqTBR3tgabBq3291CHPq9BCdhkFUvwqQ2Zd5haqA10rZiLjQb38j2YZLKrOcyaMRe8CaIQsCAi282WnJ2vMMeumRJc2Z7o89Uypc/Pg9mB4d0mwHbKWw3jLb+j+TIyllXHYyunTZ9aIXcqe03E/wgZiI+HELUhKcHLLvAIsXrvrRiugzsraoJVc3QfFB0cowcf0+b34AxhJkiBAh07KIEPRWOgISC13EobvETAAk0347ESvH9i4si10ZcjT5usv3wP469zv4s8V3vr33CtayOEJ5ZEYwTegHZHethSNcBVKYwFhfBCL3KkLq0aA+wEFGX/f10RDfAsmfCUOyY6q5faaddsNQrYBBOIKY+DE7GiHSnCSEwgnd8SFIHIdKhja2JIywxDLkhCtRGQ+0v8Uu5LNKyymlBUUASoRYr/ZDB33Gm2JQPRL4bBLgEQo6N6l0cyWPI/f/6oC9iNCV9H1yUE7YgMHiZRFLxRJt4oE7k6xLyzafBQ0YTNydosGE8gE6MRqs9mSdBHNdA4cTtpxikaPUsObNBU=
+  app:
+    master: pwa-stage
+    production: pwa
+  skip_cleanup: true
+  on:
+    branch:
+      - master
+      - production
+    repo: localnerve/flux-react-example-sw
+    node: 4.2

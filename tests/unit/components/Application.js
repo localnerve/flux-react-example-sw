@@ -42,7 +42,7 @@ describe('application component', function () {
     setTimeout(done, timeout);
   }
 
-  before(function () {
+  before('setup', function (done) {
     // We'll be rendering the isomorphic component, so set dom env for react here
     testDom.start();
 
@@ -81,6 +81,8 @@ describe('application component', function () {
         query: {}
       })
     };
+
+    settle(100, done);
   });
 
   after(function () {

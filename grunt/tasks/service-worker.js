@@ -17,7 +17,7 @@ module.exports = function (grunt) {
   grunt.config('_service_worker', {
     options: {
       // options for sw-precache
-      cacheId: '<%= pkg.name %>',
+      cacheId: '<%= pkg.name %>/<%= pkg.version %>',
       serviceWorkerScript: '<%= project.src.serviceWorker.precache %>',
       directoryIndex: false,
       stripPrefix: '<%= project.dist.baseDir %>',

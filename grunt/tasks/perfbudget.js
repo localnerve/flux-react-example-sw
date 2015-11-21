@@ -21,8 +21,7 @@ module.exports = function (grunt) {
         emulateMobile: true,
         runs: 3,
         budget: {
-          // nominal is < 1400 on 3g, but bg-image doubles it
-          SpeedIndex: 2800
+          SpeedIndex: 3000
         }
       }
     }

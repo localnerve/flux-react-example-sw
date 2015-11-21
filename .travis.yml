@@ -1,6 +1,10 @@
 language: node_js
 node_js:
 - '4.2'
+env:
+  global:
+    - DEPLOY_URL=$(if test $TRAVIS_BRANCH = master; then echo "https://pwa-stage.localnerve.net"; elif test $TRAVIS_BRANCH = production; then echo "https://pwa.localnerve.net"; else echo "."; fi)
+    secure: JX3YuDKx3PLp9lTdWPfilIH80vVEMpxX4sEo+xowhkounTCLRZ9ssjc+E9TPqaqP4FczZv+I7SYzW13W1YrxNO0oCab0NnVKrPtcF7bHRJ0ZapGHDADRsf0T35GsEKJH4Ufpd+1FWD7LzgbYSARmyd6vHPTwCMtLAle3yNLQS+flVX3mq95jbwv2f7kHlgvBLy0ifTeIdSVyoKK1pZhNeHaB8hy+jR92AKRWT+NOow04EdJQc4lYIha0t7n0ief/A5AuB8H77n7tkWtHEA0wi3R17fys1ga9eUUC+y4HqeJqftp7eggxzrBEJ6a+s9DkZ4jjkMLuAAztwehFiU4bRua5CLv0KLZ0IsZTMy9FhJIISvbhsBPVqSyCNmeljQTo/aZCJ2MMK2kSqaIUpBMPsZ5YPRpoSuWZwnq1zDtUBUX1emNX4U1eTLPhLgsip+4MLrBatD+zIGZJRCay5vvwVYylqJy5cR6TK/0nxamfvaCCVDvHW0rZddYm8fXIiVNqBM2xXxa4l4M9LDW9KiRmByFQePO5Al5T2m1LNGmF/V3iX4BQM9UEOsTz3fzkiU1fNNPd3FcJHc6YKYxI8Dt+6DCh0RoukPTd55v2JlqK5UwElxQQgB+YIv4aGnKNTPge8notsS/9qEZfn5o9NHB1Dl7xlG7XsCMcZzL4Nbz+HRE=
 before_install:
 - sudo apt-get update
 - sudo apt-get install rubygems
@@ -22,7 +26,10 @@ deploy:
   skip_cleanup: true
   on:
     branch:
-      - master
-      - production
+    - master
+    - production
     repo: localnerve/flux-react-example-sw
     node: 4.2
+after_deploy:
+- npm install
+- grunt perfbudget:mobile

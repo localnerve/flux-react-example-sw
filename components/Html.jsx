@@ -28,7 +28,7 @@ var Html = React.createClass({
   render: function () {
     var asyncStyleImports = this.props.otherStyles.map(function (otherStyle) {
       // return <link rel="import" type="text/css" href={otherStyle} async />;
-      return <link rel="stylesheet" type="text/css" href={otherStyle} lazyload />;
+      return <meta itemprop="stylesheet" content={otherStyle} />;
     });
 
     return (
@@ -63,6 +63,7 @@ var Html = React.createClass({
           <meta name="msapplication-TileColor" content="#1B5E20" />
           <meta name="msapplication-TileImage" content={this.props.images + '/mstile-144x144.png'} />
           <meta name="theme-color" content="#1B5E20" />
+          {asyncStyleImports}
           <style dangerouslySetInnerHTML={{__html: this.props.headerStyles}}></style>
           <script dangerouslySetInnerHTML={{__html: this.props.trackingSnippet}}></script>
           <script async src={this.props.swRegistrationScript} data-service-worker={this.props.swMainScript}></script>
@@ -74,7 +75,6 @@ var Html = React.createClass({
           </section>
           <script dangerouslySetInnerHTML={{__html: this.props.state}}></script>
           <script src={this.props.mainScript}></script>
-          {asyncStyleImports}
         </body>
       </html>
     );

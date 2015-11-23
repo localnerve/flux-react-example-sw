@@ -21,7 +21,8 @@ module.exports = function (grunt) {
         emulateMobile: true,
         runs: 3,
         budget: {
-          SpeedIndex: 3000
+          // 3000 nominal + (2 * 300) ssl negotiation
+          SpeedIndex: 3600
         }
       }
     }

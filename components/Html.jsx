@@ -39,7 +39,9 @@ var Html = React.createClass({
           <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
           <meta httpEquiv="x-dns-prefetch-control" content="on" />
           <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+          <link rel="preconnect" href="//fonts.gstatic.com" />
           <link rel="dns-prefetch" href={this.props.imageServiceHost} />
+          <link rel="preconnect" href={this.props.imageServiceHost} />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="application-name" content="Flux React Example SW" />
           <meta name="apple-mobile-web-app-capable" content="yes" />

@@ -68,12 +68,16 @@ function getSkipRoute (url) {
   var maxAge = 1000 * 10;
 
   return idb.get(idb.stores.init, 'skipRoute').then(function (skipRoute) {
-    var age = Date.now() - skipRoute.timestamp;
-    var skipUrl = (new URL(skipRoute.url, location.origin)).pathname;
+    var age, skipUrl;
 
-    if (age < maxAge && url === skipUrl) {
-      debug(toolbox.options, 'skipping fetchAndCache for '+url);
-      return true;
+    if (skipRoute) {
+      age = Date.now() - skipRoute.timestamp;
+      skipUrl = (new URL(skipRoute.url, location.origin)).pathname;
+
+      if (age < maxAge && url === skipUrl) {
+        debug(toolbox.options, 'skipping fetchAndCache for '+url);
+        return true;
+      }
     }
 
     return false;
@@ -81,7 +85,8 @@ function getSkipRoute (url) {
 }
 
 /**
- * Fetch and cache a route, the install route handler.
+ * Install a read-thru cache handler for the given route url.
+ * Also, try to precache the route.
  *
  * @param {String} url - The url to cache and install.
  * @return {Promise} A Promise resolving on success (no sig value).
@@ -89,9 +94,13 @@ function getSkipRoute (url) {
 function cacheAndInstallRoute (url) {
   debug(toolbox.options, 'cache route', url);
 
+  // This has to happen regardless of the precache outcome.
+  installRouteGetHandler(url);
+
+  // Must handle errors here, precache error is irrelevant beyond here.
   return networkFirst.fetchAndCache(networkRequest(url), url)
-  .then(function () {
-    return installRouteGetHandler(url);
+  .catch(function (error) {
+    debug(toolbox.options.debug, 'failed to precache ' + url);
   });
 }
 
@@ -146,7 +155,7 @@ module.exports = function cacheRoutes (payload) {
         }
         return cacheAndInstallRoute(url);
       }).catch(function (error) {
-        debug(toolbox.options, 'failed to get skipRoute');
+        debug(toolbox.options, 'failed to get skipRoute', error);
         return cacheAndInstallRoute(url);
       });
     }

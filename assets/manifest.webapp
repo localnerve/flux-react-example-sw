@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "Flux React Example SW",
+  "name": "LocalNerve Example App",
   "launch_path": "/",
   "description": "An isomorphic, data driven flux/react/service-worker example",
   "icons": {
@@ -21,7 +21,7 @@
   },
   "locales": {
     "en": {
-      "name": "Flux React Example SW",
+      "name": "LocalNerve Example App",
       "description": "An isomorphic, data driven flux/react/service-worker example."
     }
   }

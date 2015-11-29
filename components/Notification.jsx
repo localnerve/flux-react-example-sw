@@ -20,10 +20,16 @@ var Notification = React.createClass({
 
   componentDidMount: function () {
     window.addEventListener('message', this.messageHandler);
+    if ('serviceWorker' in window.navigator) {
+      window.navigator.serviceWorker.addEventListener('message', this.messageHandler);
+    }
   },
 
   componentWillUnmount: function () {
     window.removeEventListener('message', this.messageHandler);
+    if ('serviceWorker' in window.navigator) {
+      window.navigator.serviceWorker.removeEventListener('message', this.messageHandler);
+    }
   },
 
   render: function () {

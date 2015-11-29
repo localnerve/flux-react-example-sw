@@ -4,15 +4,16 @@
  *
  * Handling for dynamic routes.
  *
- * NOTE: Not really idempotent, because toolbox router Map will have old routes in it.
- * TODO: Handle that little issue.
+ * NOTE: idempotent? toolbox router Map will have old routes in it.
+ * TODO: Investigate/Handle that little issue.
  */
 /* global Promise, Request, URL, location */
 'use strict';
 
 var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('init.routes');
-var networkFirst = require('../utils/customNetworkFirst');
+var helpers = require('../utils/customHelpers');
+var fastest = require('../utils/customFastest');
 var idb = require('../utils/idb');
 var requestLib = require('../utils/requests');
 
@@ -46,7 +47,7 @@ function networkRequest (request) {
  *
  * @param {Request} request - The request of the successful network fetch.
  * @param {Response} response - The response of the successful network fetch.
- * @return {Promise} A Promise resolving to the input response.
+ * @returns {Promise} A Promise resolving to the input response.
  */
 function addSkipRoute (request, response) {
   return idb.put(idb.stores.init, 'skipRoute', {
@@ -61,7 +62,7 @@ function addSkipRoute (request, response) {
  * Look up the given url in skipRoute to see if fetchAndCache should be skipped.
  *
  * @param {String} url - The url pathname to test.
- * @return {Promise} Promise resolves to Boolean, true if cache should be skipped.
+ * @returns {Promise} Promise resolves to Boolean, true if cache should be skipped.
  */
 function getSkipRoute (url) {
   // Anything older than this and its like it didn't happen
@@ -89,7 +90,7 @@ function getSkipRoute (url) {
  * Also, try to precache the route.
  *
  * @param {String} url - The url to cache and install.
- * @return {Promise} A Promise resolving on success (no sig value).
+ * @returns {Promise} A Promise resolving on success (no sig value).
  */
 function cacheAndInstallRoute (url) {
   debug(toolbox.options, 'cache route', url);
@@ -98,7 +99,7 @@ function cacheAndInstallRoute (url) {
   installRouteGetHandler(url);
 
   // Must handle errors here, precache error is irrelevant beyond here.
-  return networkFirst.fetchAndCache(networkRequest(url), url)
+  return helpers.contentRace(networkRequest(url), url)
   .catch(function (error) {
     debug(toolbox.options.debug, 'failed to precache ' + url);
   });
@@ -108,13 +109,13 @@ function cacheAndInstallRoute (url) {
  * Install a read-thru cache handler for the given route url.
  *
  * @param {String} url - The url to install route GET handler on.
- * @return {Promise} A Promise resolving on success (no sig value).
+ * @returns {Promise} A Promise resolving on success (no sig value).
  */
 function installRouteGetHandler (url) {
   debug(toolbox.options, 'install route GET handler on', url);
 
-  toolbox.router.get(url, networkFirst.routeHandlerFactory(
-    networkRequest, networkFirst.passThru
+  toolbox.router.get(url, fastest.routeHandlerFactory(
+    networkRequest, helpers.passThru
   ), {
     debug: toolbox.options.debug,
     successHandler: addSkipRoute
@@ -138,7 +139,7 @@ function installRouteGetHandler (url) {
  *
  * @param {Object} payload - The payload of the init message.
  * @param {Object} payload.RouteStore.routes - The routes of the application.
- * @return {Promise} A Promise with all aggregate route results.
+ * @returns {Promise} A Promise with all aggregate route results.
  */
 module.exports = function cacheRoutes (payload) {
   var routes = payload.RouteStore.routes;

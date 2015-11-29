@@ -2,19 +2,27 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * A custom network first sw-toolbox route handler and factory
+ * A custom "fastest strategy" sw-toolbox route handler, factory, and supportive
+ * methods.
+ *
+ * Fastest Strategy
+ * The fastest strategy checks cache and network, returns whichever wins the race.
+ * The network result always updates the cache for next time.
+ *
+ * Custom Fastest Strategy
+ * The custom fastest strategy is like the fastest strategy except, in the
+ * network case, if the cache update would result in an actual difference, AND
+ * a stale cached copy was served, a message is sent that notifies the UI.
  */
-/* global caches */
 'use strict';
 
-var toolbox = require('sw-toolbox');
 var helpers = require('./customHelpers');
-var debug = require('./debug')('customNetworkFirst');
 
 /**
- * A customized networkFirst cache strategy.
- * Nominal behavior is read-thru caching from network.
- * If network fails, fallback to cache.
+ * A customized fastest cache strategy.
+ * Race network and cache, return the first responder.
+ * When network finally returns, update the cache.
+ * If network caused an update making the prior response stale, notify UI.
  *
  * Specializations:
  *
@@ -26,48 +34,38 @@ var debug = require('./debug')('customNetworkFirst');
  * the request url in the cache, network cookie preservation, changing VARY, etc.
  * @see https://code.google.com/p/chromium/issues/detail?id=426309
  *
- * Allow optional cache fallback behavior.
- * If cache fallback fails, executes cacheFallback if specified.
+ * contentUpdate is called if the network response is different than a prior
+ * cached response, and the route handler already responded with what must be
+ * a stale response from cache.
+ *
+ * NOTE: I'm not 100% sure the text() method will operate correctly on a json body.
  *
  * @param {Function} fetchRequest - Produces the network request, given the original.
  * @param {Function} cacheRequest - Produces the cache request, given the original.
- * @param {Function} [cacheFallback] - Receives the cacheRequest,
- * returns a Promise (resolves to) Response in the event of a fallback cache miss.
+ * @param {Function} contentUpdate - Called if a network request caused a content update
+ * AND a stale response was returned prior.
  * @return {Function} An sw-toolbox route handler (request, values, options)
  */
-function routeHandlerFactory (fetchRequest, cacheRequest, cacheFallback) {
+function routeHandlerFactory (fetchRequest, cacheRequest, contentUpdate) {
   /**
-   * The custom network first sw-toolbox route handler
+   * The custom fastest sw-toolbox route handler
    *
    * @param {Request} request - The request from sw-toolbox router.
    * @param {Object} values - route values, not used.
    * @param {Object} [options] - The options passed to sw-toolbox router.
    * @param {Function} [options.successHandler] - Receives the Request and Response for
    * optional post processing of successful fetch.
+   * @param {Function} [options.cacheHandler] - Will be overwritten if supplied.
    * @return {Promise} Resolves to a Response on success.
    */
-  return function customNetworkFirst (request, values, options) {
+  return function customFastest (request, values, options) {
     options = options || {};
 
     // Make the network and cache requests
     var reqNet = fetchRequest(request),
         reqCache = cacheRequest(request);
 
-    return helpers.fetchAndCache(reqNet, reqCache, options).catch(function (error) {
-      debug(options, 'network req failed, fallback to cache', error);
-
-      // Returned cached response, if none, try cacheFallback if exists.
-      return caches.open(toolbox.options.cache.name).then(function (cache) {
-        var response = cache.match(reqCache);
-
-        return response.then(function (data) {
-          if (!data && cacheFallback) {
-            return cacheFallback(reqCache);
-          }
-          return response;
-        });
-      });
-    });
+    return helpers.contentRace(reqNet, reqCache, contentUpdate, options);
   };
 }
 

@@ -86,23 +86,20 @@ self.addEventListener('notificationclick', function (event) {
   var url = event.notification.data.url;
 
   event.notification.close();
-  event.waitUntil(
-    clients.openWindow(url)
-  );
-  /***
-  TODO: handle postMessage for navigation so a new tab is not created every time.
 
   event.waitUntil(
     clients.matchAll({
       type: 'window'
-    }).then(function (clients) {
-      if (clients.length > 0) {
-        clients[0].postMessage({ navigateTo: url });
-        return clients[0].focus();
+    }).then(function (windowClients) {
+      if (windowClients.length > 0) {
+        windowClients[0].postMessage({
+          command: 'navigate',
+          url: url
+        });
+        return windowClients[0].focus();
       } else {
         return clients.openWindow(url);
       }
     })
   );
-  */
 });

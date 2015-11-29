@@ -41,6 +41,15 @@ var Application = React.createClass({
     }
   },
 
+  handleMessage: function (event) {
+    if (event.data.command === 'navigate') {
+      this.modalClose();
+      this.context.executeAction(navigateAction, {
+        url: event.data.url
+      });
+    }
+  },
+
   modalClose: function () {
     this.context.executeAction(modalAction);
   },
@@ -108,6 +117,18 @@ var Application = React.createClass({
         <Footer models={this.props.pageModels} />
       </div>
     );
+  },
+
+  componentDidMount: function () {
+    if ('serviceWorker' in window.navigator) {
+      window.navigator.serviceWorker.addEventListener('message', this.handleMessage);
+    }
+  },
+
+  componentWillUnmount: function () {
+    if ('serviceWorker' in window.navigator) {
+      window.navigator.serviceWorker.removeEventListener('message', this.handleMessage);
+    }
   },
 
   shouldComponentUpdate: function (nextProps) {

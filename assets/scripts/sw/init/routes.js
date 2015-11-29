@@ -42,6 +42,24 @@ function networkRequest (request) {
 }
 
 /**
+ * Create a request for cache.
+ *
+ * This exists because:
+ * ignoreSearch option is not implemented yet in cache.match/matchAll,
+ * so we stripSearchParameters to ignoreSearch ourselves in the request we cache.
+ * https://code.google.com/p/chromium/issues/detail?id=426309
+ *
+ * Response from Google:
+ * https://github.com/GoogleChrome/sw-toolbox/issues/35
+ *
+ * @param {Object} request - A Request object from sw-toolbox.
+ * @returns A string of the modified request url to be used in caching.
+ */
+function cacheRequest (request) {
+  return requestLib.stripSearchParameters(request.url);
+}
+
+/**
  * Add the given successful request url and timestamp to init.routes IDB store.
  * This handler stores the request as a side effect and just returns the response.
  *
@@ -115,7 +133,7 @@ function installRouteGetHandler (url) {
   debug(toolbox.options, 'install route GET handler on', url);
 
   toolbox.router.get(url, fastest.routeHandlerFactory(
-    networkRequest, helpers.passThru
+    networkRequest, cacheRequest
   ), {
     debug: toolbox.options.debug,
     successHandler: addSkipRoute

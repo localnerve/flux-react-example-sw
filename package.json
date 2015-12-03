@@ -27,25 +27,26 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://localnerve@github.com/localnerve/flux-react-example"
+    "url": "https://localnerve@github.com/localnerve/flux-react-example-sw"
   },
   "keywords": [
     "flux",
     "react",
     "fluxible",
     "isomorphic",
-    "example"
+    "example",
+    "service-worker"
   ],
   "author": "Alex Grant <alex@localnerve.com>",
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/localnerve/flux-react-example/issues"
+    "url": "https://github.com/localnerve/flux-react-example-sw/issues"
   },
   "engines": {
     "node": "~4.2.2",
     "npm": "~2.14.7"
   },
-  "homepage": "https://github.com/localnerve/flux-react-example",
+  "homepage": "https://github.com/localnerve/flux-react-example-sw",
   "devDependencies": {
     "chai": "^3.0.0",
     "chai-as-promised": "^5.0.0",

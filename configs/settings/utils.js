@@ -4,7 +4,6 @@
  */
 'use strict';
 
-var debug = require('debug')('prependPath');
 var path = require('path');
 var toString = Object.prototype.toString;
 
@@ -19,8 +18,6 @@ var toString = Object.prototype.toString;
  * @returns {Object} A fromObject copy with the given path prepended to the String values.
  */
 function prependPath (fromObj, prePath) {
-  debug (fromObj, prePath);
-
   var conversion = toString.call(fromObj) === '[object Array]' ? {
     from: fromObj,
     to: [],

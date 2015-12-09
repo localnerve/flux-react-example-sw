@@ -4,9 +4,12 @@
  *
  * Apply all global client-side polyfills.
  */
+/* global Promise, Object */
 'use strict';
 
-require('es6-promise').polyfill();
+if (!Promise) {
+  require('es6-promise').polyfill();
+}
 
 if (!Object.assign) {
   Object.defineProperty(Object, 'assign', {

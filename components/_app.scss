@@ -43,12 +43,12 @@
   overflow-y: auto !important;
 }
 
-a {
+a, a:visited {
   color: $app-primary-light-color;
   text-decoration: none;
   outline: 0;
 }
-a:hover, a:visited {
+a:hover {
   color: darken($app-primary-light-color, 10%);
 }
 

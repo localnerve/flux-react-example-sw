@@ -90,8 +90,10 @@ var BackgroundStore = createStore({
    * @param {Object} route - An route object.
    */
   updateBackground: function (route) {
-    this.currentBackground = route.background;
-    this.emitChange();
+    if (this.currentBackground !== route.background) {
+      this.currentBackground = route.background;
+      this.emitChange();
+    }
   },
 
   /**

@@ -91,7 +91,8 @@ function reportRenderedSize (Component, selector, options) {
      */
     componentDidMount: function () {
       window.addEventListener('resize', this.reportSize);
-      this.reportSize();
+      // reportSize is bound to this by React, so this is safe.
+      setTimeout(this.reportSize, 0);
     },
 
     /**

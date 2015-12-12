@@ -10,6 +10,7 @@
  *  TRAVIS - Boolean to indicate running on Travis
  *  TRAVIS_BUILD_NUMBER - The SauceLabs required build number from Travis
  *  TRAVIS_BRANCH - The branch being tested on Travis
+ *  TRAVIS_REPO_SLUG - The owner/repo slug on Travis
  *  SAUCE_USERNAME - The SauceLabs account username
  *  SAUCE_ACCESS_KEY - The SauceLabs access key
  *  VERBOSE - Boolean to indicate verbose test output
@@ -43,7 +44,7 @@ wd.configureHttp({
 var browserKey = process.env.TEST_BROWSER;
 var test = browserSpecs[browserKey];
 test.name = testName + ' with ' + browserKey;
-test.tags = ['flux-react-example'];
+test.tags = [ process.env.TRAVIS_REPO_SLUG ];
 if (process.env.TRAVIS) {
   test.tags = test.tags.concat('travis', process.env.TRAVIS_BRANCH);
   test.build = process.env.TRAVIS_BUILD_NUMBER;
@@ -72,7 +73,7 @@ function beforeAll(done) {
   var accessKey = process.env.SAUCE_ACCESS_KEY;
   state.browser = wd.promiseChainRemote('ondemand.saucelabs.com', 80, username, accessKey);
   if (process.env.VERBOSE) {
-    // optional logging     
+    // optional logging
     state.browser.on('status', function(info) {
       console.log(info.cyan);
     });

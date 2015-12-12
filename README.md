@@ -5,6 +5,8 @@
 [![Dependency Status](https://david-dm.org/localnerve/flux-react-example-sw.svg)](https://david-dm.org/localnerve/flux-react-example-sw)
 [![devDependency Status](https://david-dm.org/localnerve/flux-react-example-sw/dev-status.svg)](https://david-dm.org/localnerve/flux-react-example-sw#info=devDependencies)
 
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/localnerve.svg)](https://saucelabs.com/u/localnerve)
+
 > A WIP learning playground for service worker
 
 This repository expands on [flux-react-example](https://github.com/localnerve/flux-react-example) and adds a **service worker** to test progressive app offline and push capabilities based on that architecture.

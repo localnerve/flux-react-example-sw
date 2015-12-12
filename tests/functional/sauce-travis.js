@@ -45,6 +45,7 @@ var browserKey = process.env.TEST_BROWSER;
 var test = browserSpecs[browserKey];
 test.name = testName + ' with ' + browserKey;
 test.tags = [ process.env.TRAVIS_REPO_SLUG ];
+test.acceptSslCerts = true;
 if (process.env.TRAVIS) {
   test.tags = test.tags.concat('travis', process.env.TRAVIS_BRANCH);
   test.build = process.env.TRAVIS_BUILD_NUMBER;

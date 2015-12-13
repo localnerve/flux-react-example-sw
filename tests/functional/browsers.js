@@ -10,8 +10,10 @@ module.exports = {
   },
   firefox: {
     browserName: 'firefox'
-  },
-  explorer: {
+  }
+  /*
+  , explorer: {
     browserName: 'internet explorer'
   }
+  */
 };

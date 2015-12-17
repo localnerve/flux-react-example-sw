@@ -87,12 +87,6 @@ if ('serviceWorker' in window.navigator &&
   serviceWorkerContainer.register(serviceWorkerScript, {
     scope: './'
   }).then(function (registration) {
-    // Check to see if there's an updated version of service-worker.js with new files to cache:
-    // https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html#service-worker-registration-update-method
-    if (typeof registration.update === 'function') {
-      registration.update();
-    }
-
     /**
      * updatefound is fired if service-worker.js changes.
      */

@@ -26,9 +26,9 @@ var Html = React.createClass({
     swMainScript: React.PropTypes.string.isRequired
   },
   render: function () {
-    var asyncStyleImports = this.props.otherStyles.map(function (otherStyle) {
+    var asyncStyleImports = this.props.otherStyles.map(function (otherStyle, i) {
       // return <link rel="import" type="text/css" href={otherStyle} async />;
-      return <meta itemprop="stylesheet" content={otherStyle} />;
+      return <meta key={'otherStyle-'+i} itemProp="stylesheet" content={otherStyle} />;
     });
 
     return (

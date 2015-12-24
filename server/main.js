@@ -23,33 +23,7 @@ var config = require(baseDir + '/configs').create({
   baseDir: baseDir
 });
 var settings = config.settings;
-
-/**
- * Utility to promisify a Node function
- *
- * @param {Function} nodeFunc - The node function to Promisify.
- */
-function nodeCall (nodeFunc /* args... */) {
-  var nodeArgs = Array.prototype.slice.call(arguments, 1);
-
-  return new Promise(function (resolve, reject) {
-    /**
-     * Resolve a node callback
-     */
-    function nodeResolver (err, value) {
-      if (err) {
-        reject(err);
-      } else if (arguments.length > 2) {
-        resolve.apply(resolve, Array.prototype.slice.call(arguments, 1));
-      } else {
-        resolve(value);
-      }
-    }
-
-    nodeArgs.push(nodeResolver);
-    nodeFunc.apply(nodeFunc, nodeArgs);
-  });
-}
+var utils = require('./utils');
 
 /**
  * Render the full application with props and send the response.
@@ -176,14 +150,14 @@ function bootstrap (app) {
     })
     .then(function () {
       debug('Reading the inline styles from ' + settings.dist.css.inline);
-      return nodeCall(fs.readFile, settings.dist.css.inline, {
+      return utils.nodeCall(fs.readFile, settings.dist.css.inline, {
         encoding: 'utf8'
       });
     })
     .then(function (inlineStyles) {
       debug('Reading the header scripts from ' + settings.dist.headerScript);
       renderProps.headerStyles = inlineStyles;
-      return nodeCall(fs.readFile, settings.dist.headerScript, {
+      return utils.nodeCall(fs.readFile, settings.dist.headerScript, {
         encoding: 'utf8'
       });
     })

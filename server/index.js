@@ -28,6 +28,8 @@ var config = require(baseDir + '/configs').create({
 });
 var fluxibleApp = require(baseDir + '/app');
 var main = require('./main');
+var robots = require('./robots');
+var sitemap = require('./sitemap');
 
 var data = require(baseDir + '/services/data');
 
@@ -79,7 +81,10 @@ app.use(settings.web.baseDir, express.static(
 ));
 
 // Setup security
-app.use(cookieParser({ httpOnly: true, secure: settings.web.ssl }));
+app.use(cookieParser({
+  httpOnly: true,
+  secure: settings.web.ssl || settings.web.sslRemote
+}));
 app.use(bodyParser.json());
 app.use(csrf({ cookie: true }));
 
@@ -91,6 +96,12 @@ fetchrPlugin.registerService(require(baseDir + '/services/contact'));
 fetchrPlugin.registerService(require(baseDir + '/services/subscription'));
 fetchrPlugin.registerService(require(baseDir + '/services/push'));
 app.use(fetchrPlugin.getXhrPath(), fetchrPlugin.getMiddleware());
+
+// Handle robots.txt
+app.get(settings.web.robots, robots);
+
+// Handle sitemap.xml
+app.get(settings.web.sitemap, sitemap);
 
 // Every other request gets the app bootstrap
 app.use(main(fluxibleApp));

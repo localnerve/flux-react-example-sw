@@ -1,6 +1,11 @@
 /***
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ *
+ * Environment variables used:
+ *   NODE_ENV
+ *   ASSET_HOST
+ *   APP_HOSTNAME
  */
 'use strict';
 
@@ -28,8 +33,7 @@ var commonFiles = {
   five00: '500.html',
   five03: '503.html',
   favicon: path.join(commonDirs.images, 'favicon.ico'),
-  robots: 'robots.txt',
-  sitemap: 'sitemap.xml',
+  robotsTemplate: 'robots.txt',
   headerScript: path.join(commonDirs.scripts, 'header.js'),
   appManifest: 'manifest.json',
   browserConfig: 'browserconfig.xml'
@@ -84,9 +88,9 @@ function overrides (env, baseDir) {
       },
       loggerFormat: 'tiny',
       web: {
-        // ssl: true,
-        assetAge: 31556926000,
-        assetHost: process.env.ASSET_HOST || 'flux-react-example.herokuapp.com'
+        // ssl: true, // for ssl here on this app (this tier)
+        sslRemote: true, // for ssl elsewhere (an appliance or CloudFlare, etc)
+        assetAge: 31556926000
       }
     }
   };
@@ -118,8 +122,12 @@ function makeConfig (nconf) {
     web: {
       baseDir: publicbase,
       assetAge: 0,
-      assetHost: 'localhost',
-      ssl: false
+      assetHost: nconf.get('ASSET_HOST') || nconf.get('APP_HOSTNAME') || 'localhost',
+      ssl: false,
+      sslRemote: false,
+      robots: '/robots.txt',
+      sitemap: '/sitemap.xml',
+      appHostname: nconf.get('APP_HOSTNAME') || 'localhost'
     },
 
     // unmovable project directories

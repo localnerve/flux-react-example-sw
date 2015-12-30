@@ -44,7 +44,7 @@ function precacheBackground (options, req, res) {
  *
  * @param {Object} backgroundUrls - The backgroundUrls used to init the BackgroundStore.
  * @param {Object} request - A Request object
- * @param {Object} values - Ignored, passed on to networkFirst strategy.
+ * @param {Object} values - Ignored, passed on to the strategy.
  * @param {Object} options - The router options.
  */
 function precacheBackgrounds (backgroundUrls, request, values, options) {

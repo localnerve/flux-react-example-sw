@@ -5,7 +5,8 @@
  * Handling for dynamic routes.
  *
  * NOTE: idempotent? toolbox router Map will have old routes in it.
- * TODO: Investigate/Handle that little issue.
+ * TODO: Investigate/Handle that little issue
+ *   (exists for apiRequests and Backgrounds also).
  */
 /* global Promise, Request, URL, location */
 'use strict';

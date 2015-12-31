@@ -43,7 +43,7 @@ module.exports = function (grunt) {
             matchIndex: 1,
             re: /url\(([^\)]+)\)/ig
           }]
-        }],
+        }]/*,
         api_paths: [{
           file: 'app.js',
           captures: [{
@@ -52,6 +52,7 @@ module.exports = function (grunt) {
             re: /xhrPath\s*\:\s*(?:'|")([^'"]+)/
           }]
         }]
+        */
       }
     },
     dev: {
@@ -92,8 +93,8 @@ module.exports = function (grunt) {
     var output = {
       debug: options.debug ? true : false,
       cacheId: options.cacheId,
-      assets: [],
-      api_paths: []
+      assets: [] // ,
+      // api_paths: []
     };
     var reClean = /^(?:\s+|"|')|(?:\s+|"|')$/g;
     var replacement = 'DATA';
@@ -117,7 +118,7 @@ module.exports = JSON.parse(JSON.stringify(\n' + replacement + '\n));';
 
     if (options) {
       // build output.assets, output.api_paths from respective options
-      ['assets', 'api_paths'].forEach(function (item) {
+      ['assets'/*, 'api_paths'*/].forEach(function (item) {
         options[item].forEach(function (input) {
           input.contents = fs.readFileSync(input.file, { encoding: 'utf8' });
 

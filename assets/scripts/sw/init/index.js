@@ -13,6 +13,7 @@ var routes = require('./routes');
 var update = require('./update');
 var stores = require('./stores');
 var apis = require('./apis');
+var apiRequests = require('./apiRequests');
 var timestamp = require('./timestamp');
 var debug = require('../utils/debug')('init');
 
@@ -29,8 +30,10 @@ var debug = require('../utils/debug')('init');
  *
  * What?
  * 1. Updates the init.stores in IndexedDB if the app is online.
- * 2. Installs background and route fetch handling.
- * 3. Precaches backgrounds and routes.
+ * 2. Installs api request fetch handling.
+ * 3. Installs background fetch handling.
+ * 4. Installs route fetch handling.
+ * 5. Precaches/prefetches backgrounds and routes.
  *
  * @param {Object} payload - Initial payload
  * @param {Number} payload.timestamp - The timestamp of the payload.
@@ -43,11 +46,15 @@ var debug = require('../utils/debug')('init');
 function init (payload, responder) {
   debug(toolbox.options, 'Running init, payload:', payload);
 
-  update(payload).then(function (updated) {
+  return update(payload).then(function (updated) {
     if (updated || payload.startup) {
-      return backgrounds(payload.stores).then(function () {
-        return routes(payload.stores);
-      });
+      return apiRequests(payload.apis)
+        .then(function () {
+          return backgrounds(payload.stores);
+        })
+        .then(function () {
+          return routes(payload.stores);
+        });
     } else {
       debug(toolbox.options, 'init skipped');
       return Promise.resolve();
@@ -90,6 +97,5 @@ function initData () {
  */
 module.exports = {
   command: init,
-  data: initData,
-  resourceContentResponse: stores.resourceContentResponse
+  data: initData
 };

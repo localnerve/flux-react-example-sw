@@ -13,7 +13,13 @@ var data = require('./data');
 var urlm = require('../../../utils/urls');
 
 /**
- * Install route handlers for cdn requests and precache assets. 
+ * Install route GET handlers for cdn requests and precache assets.
+ *
+ * Route handlers for CDN requests are installed everytime as a side effect
+ * of setting up precaching. However, precaching is only carried out as a result
+ * of an 'install' event (not everytime).
+ *
+ * @see sw-toolbox
  */
 function setupAssetRequests () {
   var next, hostname;
@@ -27,7 +33,9 @@ function setupAssetRequests () {
         hostname = next;
         // New hostname, so install GET handler for that host
         toolbox.router.get('*', toolbox.networkFirst, {
-          origin: hostname
+          origin: hostname,
+          // any/all CDNs get 3 seconds max
+          networkTimeoutSeconds: 3
         });
       }
 

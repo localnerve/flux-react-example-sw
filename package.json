@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example-sw",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "An isomorphic flux-react example application with a service worker",
   "main": "./server",
   "scripts": {

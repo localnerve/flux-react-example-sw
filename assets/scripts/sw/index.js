@@ -23,7 +23,6 @@ toolbox.options.cache.name = data.cacheId + '-' + toolbox.options.cache.name;
 
 var debug = require('./utils/debug')('index');
 var init = require('./init');
-var apis = require('./apis');
 var assets = require('./assets');
 
 // Setup our activate handling
@@ -32,17 +31,14 @@ require('./activate');
 // Setup push notification handling
 require('./push');
 
-// Setup non-project static asset precaching (cdn requests)
-assets.setupAssetRequests();
-
-// Setup api requests
-apis.setupApiRequests();
-
 // Setup message handling
 require('./messages');
 
-// Setup the sw-precache managed cache
+// Setup the sw-precache event handling and managed cache
 require('./precache');
+
+// Setup non-project static asset precaching (cdn requests)
+assets.setupAssetRequests();
 
 // If all init.data exists (and service-worker is starting), run the init command.
 // The init message may never come if service-worker was restarted by the system.

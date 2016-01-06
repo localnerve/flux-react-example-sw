@@ -8,6 +8,7 @@
 
 var webPush = require('web-push');
 var pushConfig = require('../configs').create().push;
+var error = require('./error');
 
 module.exports = {
   name: 'push',
@@ -37,8 +38,8 @@ module.exports = {
 
     return webPush.sendNotification(params.endpoint).then(function () {
       callback();
-    }).catch(function (error) {
-      callback(error);
+    }).catch(function (err) {
+      callback(error(err));
     });
   },
 

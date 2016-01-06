@@ -7,6 +7,7 @@
 'use strict';
 
 var subs = require('./subs');
+var error = require('./error');
 
 module.exports = {
   name: 'subscription',
@@ -22,7 +23,13 @@ module.exports = {
    * @param {Function} callback - The callback to execute on completion.
    */
   create: function (req, resource, params, body, config, callback) {
-    return subs.create(params.subscriptionId, params.endpoint, callback);
+    return subs.create(
+      params.subscriptionId,
+      params.endpoint,
+      function (err, data) {
+        callback(error(err), data);
+      }
+    );
   },
 
   /**
@@ -35,7 +42,12 @@ module.exports = {
    * @param {Function} callback - The callback to execute on completion.
    */
   read: function (req, resource, params, config, callback) {
-    return subs.read(params.subscriptionId, callback);
+    return subs.read(
+      params.subscriptionId,
+      function (err, data) {
+        callback(error(err), data);
+      }
+    );
   },
 
   /**
@@ -49,7 +61,14 @@ module.exports = {
    * @param {Function} callback - The callback to execute on completion.
    */
   update: function(req, resource, params, body, config, callback) {
-    return subs.update(params.subscriptionId, body.topics, params.endpoint, callback);
+    return subs.update(
+      params.subscriptionId,
+      body.topics,
+      params.endpoint,
+      function (err, data) {
+        callback(error(err), data);
+      }
+    );
   },
 
   /**
@@ -62,6 +81,11 @@ module.exports = {
    * @param {Function} callback - The callback to execute on completion.
    */
   delete: function(req, resource, params, config, callback) {
-    return subs.delete(params.subscriptionId, callback);
+    return subs.delete(
+      params.subscriptionId,
+      function (err, data) {
+        callback(error(err), data);
+      }
+    );
   }
 };

@@ -7,6 +7,7 @@
 'use strict';
 
 var data = require('./data');
+var error = require('./error');
 
 module.exports = {
   name: 'routes',
@@ -23,7 +24,7 @@ module.exports = {
    */
   read: function (req, resource, params, config, callback) {
     return data.fetch(params, function (err, res) {
-      callback(err, res ? res.content : null);
+      callback(error(err), res ? res.content : null);
     });
   }
 

@@ -7,6 +7,7 @@
 'use strict';
 
 var mail = require('./mail');
+var error = require('./error');
 
 module.exports = {
   name: 'contact',
@@ -23,7 +24,9 @@ module.exports = {
    * @param {Function} callback - The callback to execute on completion.
    */
   create: function (req, resource, params, body, config, callback) {
-    return mail.send(params, callback);
+    return mail.send(params, function (err, data) {
+      callback(error(err), data);
+    });
   }
 
   // read: function(req, resource, params, config, callback) {},

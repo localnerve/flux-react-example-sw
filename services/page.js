@@ -7,6 +7,7 @@
 'use strict';
 
 var data = require('./data');
+var error = require('./error');
 
 module.exports = {
   name: 'page',
@@ -22,7 +23,9 @@ module.exports = {
    * @param {Function} callback - The callback to execute on completion.
    */
   read: function (req, resource, params, config, callback) {
-    return data.fetch(params, callback);
+    return data.fetch(params, function (err, data) {
+      callback(error(err), data);
+    });
   }
 
   // create: function(req, resource, params, body, config, callback) {},

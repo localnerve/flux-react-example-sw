@@ -39,7 +39,7 @@ describe('contact action', function () {
       stores: [ ContactStore ]
     });
     context.service = new MockService();
-    context.service.setService('contact', function (method, params, config, callback) {
+    context.service.setService('contact', function (method, params, body, config, callback) {
       serviceMail.send(params, callback);
     });
   });

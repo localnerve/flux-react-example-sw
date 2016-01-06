@@ -14,7 +14,7 @@ var debug = require('debug')('Example:ContactAction');
  * @param {Function} done - The callback to execute on completion.
  */
 function serviceRequest (context, fields, done) {
-  context.service.create('contact', fields, {}, function(err) {
+  context.service.create('contact', fields, {}, {}, function(err) {
     if (err) {
       debug('dispatching CREATE_CONTACT_FAILURE');
       context.dispatch('CREATE_CONTACT_FAILURE', fields);

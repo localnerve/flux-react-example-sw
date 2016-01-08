@@ -6,8 +6,8 @@
  *
  * NOTE:
  *   The pre-emptive timeout shown here is a general use case that doesn't
- *   actually exist in this demo application (like multiple api support).
- *   This application caches the api content in stores (app layer) and never
+ *   actually exist for GET requests in this demo application.
+ *   This application caches the api GET content in stores (app layer) and never
  *   makes another Request. Flux Store caching is the desired behavior for this
  *   app demo as it shows off flux and also works well in browsers that don't
  *   support service worker.
@@ -25,6 +25,8 @@
  *   Who knows, maybe you'll need an api that is not cached in the
  *   app layer? If so, cache in the service worker as demonstrated here, and
  *   never timeout.
+ *
+ *   However, the pre-emptive timeout is effective for api POST requests.
  */
 /* global Promise, Request */
 'use strict';

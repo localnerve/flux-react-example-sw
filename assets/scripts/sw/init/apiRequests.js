@@ -142,6 +142,8 @@ module.exports = function apiRequests (payload) {
     );
 
     // Handle POST requests, fail to sync.deferRequest
+    // NOTE: _fallback is not currently being removed from networkRequest,
+    // but could/should be.
     toolbox.router.post(xhrPath + '*',
       networkFirst.routeHandlerFactory(
         networkRequest, networkRequest, sync.deferRequest.bind(null, xhrPath)

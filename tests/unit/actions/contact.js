@@ -30,8 +30,12 @@ describe('contact action', function () {
     };
   }
 
+  function getFields () {
+    return JSON.parse(JSON.stringify(fields));
+  }
+
   function populateStore (callback) {
-    context.executeAction(contactAction, { fields: fields }, callback);
+    context.executeAction(contactAction, { fields: getFields() }, callback);
   }
 
   beforeEach(function () {
@@ -81,7 +85,7 @@ describe('contact action', function () {
   });
 
   it('should send and clear the ContactStore when complete, success', function (done) {
-    context.executeAction(contactAction, { fields: fields, complete: true }, function (err) {
+    context.executeAction(contactAction, { fields: getFields(), complete: true }, function (err) {
       if (err) {
         return done(err);
       }
@@ -103,7 +107,7 @@ describe('contact action', function () {
         return done(err);
       }
 
-      var mockFields = JSON.parse(JSON.stringify(fields));
+      var mockFields = getFields();
       mockFields.emulateError = true;
 
       context.executeAction(contactAction, { fields: mockFields, complete: true }, function (err) {

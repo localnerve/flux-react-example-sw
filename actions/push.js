@@ -9,6 +9,7 @@
 
 var debug = require('debug')('Example:PushAction');
 var getSubscriptionId = require('../utils/push').getSubscriptionId;
+var syncable = require('../utils/syncable');
 var __DEV__ = process.env.NODE_ENV !== 'production';
 
 /**
@@ -23,10 +24,12 @@ var __DEV__ = process.env.NODE_ENV !== 'production';
 function demoSend (context, payload, done) {
   debug('performing demo send push notification', payload);
 
-  context.service.create('push', {
-    subscriptionId: getSubscriptionId(payload.subscription),
+  var subscriptionId = getSubscriptionId(payload.subscription);
+
+  context.service.create('push', syncable.push({
+    subscriptionId: subscriptionId,
     endpoint: payload.subscription.endpoint
-  }, {}, {}, function (err) {
+  }, subscriptionId, syncable.ops.demo), {}, {}, function (err) {
     debug('completed push', err);
     if (err) {
       return done(err);
@@ -78,7 +81,9 @@ function subscribe (context, payload, done) {
         params.emulateError = payload && payload.emulateError;
       }
 
-      context.service.create('subscription', params, {}, {}, function (err, data) {
+      context.service.create('subscription',
+        syncable.push(params, params.subscriptionId, syncable.ops.subscribe),
+        {}, {}, function (err, data) {
         complete(err, subscription, data);
       });
     }).catch(function (error) {
@@ -176,9 +181,11 @@ function unsubscribe (context, payload, done) {
           params.emulateError = payload && payload.emulateError;
         }
 
-        context.service.delete('subscription', params, {}, function (err) {
-          complete(err);
-        });
+        context.service.delete('subscription',
+          syncable.push(params, params.subscriptionId, syncable.ops.unsubscribe),
+          {},
+          complete
+        );
       }).catch(function (error) {
         error.message = 'Unsubscribe failed: ' + error.message;
         complete(error);
@@ -242,21 +249,26 @@ function updateTopics (context, payload, done) {
   };
   delete payload.topics;
 
-  context.service.update('subscription', payload, body, {}, function (err, data) {
-    debug('completed push notification topic update', err, data);
+  context.service.update('subscription',
+    syncable.push(payload, payload.subscriptionId, syncable.ops.updateTopics),
+    body,
+    {},
+    function (err, data) {
+      debug('completed push notification topic update', err, data);
 
-    var state = {
-      pushTopicsError: err
-    };
+      var state = {
+        pushTopicsError: err
+      };
 
-    if (!err) {
-      state.pushTopics = data;
+      if (!err) {
+        state.pushTopics = data;
+      }
+
+      context.dispatch('SETTINGS_STATE', state);
+
+      return done(err);
     }
-
-    context.dispatch('SETTINGS_STATE', state);
-
-    return done(err);
-  });
+  );
 }
 
 module.exports = {

@@ -35,6 +35,8 @@ var debug = require('../utils/debug')('init');
  * 4. Installs route fetch handling.
  * 5. Precaches/prefetches backgrounds and routes.
  *
+ * TODO: Add sync.serviceAllRequests to maintain deferred api requests (#15).
+ *
  * @param {Object} payload - Initial payload
  * @param {Number} payload.timestamp - The timestamp of the payload.
  * @param {Object} payload.stores - The flux stores for the app.

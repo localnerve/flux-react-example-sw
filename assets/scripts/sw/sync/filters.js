@@ -69,8 +69,8 @@ function latestTypeAndOperation (dehydratedRequests, type, operations, prop) {
     // Then, unique key or unqiue custom prop val.
     if (fallback.type === type &&
         operations.indexOf(fallback.operation) !== -1 &&
-        (propVal || keys.indexOf(fallback.key) === -1) &&
-        (!propVal || vals.indexOf(propVal) === -1)) {
+        (prop || keys.indexOf(fallback.key) === -1) &&
+        (!prop || (propVal && vals.indexOf(propVal) === -1))) {
       keys.push(fallback.key);
       propVal && vals.push(propVal);
       return true;

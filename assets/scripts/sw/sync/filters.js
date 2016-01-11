@@ -81,6 +81,25 @@ function latestTypeAndOperation (dehydratedRequests, type, operations, prop) {
 }
 
 /**
+ * Return array of dehydrated requests that match type, one of a given
+ * set of operations, and an optional key.
+ *
+ * @param {Array} dehydratedRequests - The dehydrated requests to search.
+ * @param {String} type - The type to match against.
+ * @param {Array} operations - The operations to match against.
+ * @param {String} [key] - The key to match against.
+ */
+function typeAndOperation (dehydratedRequests, type, operations, key) {
+  return dehydratedRequests.filter(function (req) {
+    var fallback = req.fallback;
+
+    return (fallback.type === type &&
+            operations.indexOf(fallback.operation) !== -1 &&
+            (!key || fallback.key === key));
+  });
+}
+
+/**
  * Return array of dehydrated requests from source that aren't in exclusions.
  *
  * Uses request.timestamp to make the identifying distinction.
@@ -103,6 +122,7 @@ function without (source, exclusions) {
 
 module.exports = {
   latest: latestTypeAndOperation,
+  match: typeAndOperation,
   without: without,
   getFallback: property.find.bind(null, syncable.propertyName)
 };

@@ -32,11 +32,11 @@ function passThru (param) {
  * Required only for GET requests.
  * @param {Object} [options] - Options to modify behavior.
  * @param {RegExp} [options.successResponses] - Defines a successful response test.
- * @param {Function} [options.successHandler] - Receives Request, Response;
- * Returns Promise to Response.
+ * @param {Function} [options.successHandler] - Receives netRequest, Response,
+ * cacheRequest; Returns Promise that resolves to Response.
  * Supply to optionally post process a successful network response.
- * @param {Function} [options.cacheHandler] - Receives cache, Request, PreviousResponse, NewResponse;
- * Returns Promise to Response.
+ * @param {Function} [options.cacheHandler] - Receives cache, Request,
+ * PreviousResponse, NewResponse; Returns Promise to Response.
  * Supply to optionally post process after cache update.
  * @return {Response} A Response Promise.
  * @throws {Response} A Response Promise if response is not successful.
@@ -51,7 +51,7 @@ function fetchAndCache (reqNet, reqCache, options) {
       var promResponse = Promise.resolve(response);
 
       if (options.successHandler) {
-        promResponse = options.successHandler(reqNet, response);
+        promResponse = options.successHandler(reqNet, response, reqCache);
       }
 
       return promResponse.then(function (newResponse) {

@@ -110,7 +110,7 @@ describe('sw/sync', function () {
       filters = require('../../../../assets/scripts/sw/sync/filters');
     });
 
-    describe('latestTypeAndOperation', function () {
+    describe('latest', function () {
       it('should be callable', function () {
         expect(filters).to.respondTo('latest');
       });
@@ -170,6 +170,74 @@ describe('sw/sync', function () {
           expect(tagValues.indexOf(tagVal) === -1);
           tagValues.push(tagVal);
         });
+      });
+    });
+
+    describe('match', function () {
+      it('should be callable', function () {
+        expect(filters).to.respondTo('match');
+      });
+
+      it('should return empty array if no matches', function () {
+        createFixtures();
+
+        var result = filters.match(dehydratedRequests, 'two', ['notfound']);
+
+        expect(result.length).to.equal(0);
+      });
+
+      it('should match type and single operation', function () {
+        createFixtures();
+
+        var result = filters.match(dehydratedRequests, 'one', [operations[0]]);
+
+        // this is the number of operations[0] used in createFixtures with
+        // type==='one'.
+        expect(result.length).to.equal(2);
+
+        // better all be type 'one' and the right operation.
+        result.forEach(function (req) {
+          expect(req.fallback.type).to.equal('one');
+          expect(req.fallback.operation).to.equal(operations[0]);
+        });
+      });
+
+      it('should match type and multiple operations', function () {
+        var opsShouldFind = {};
+
+        opsShouldFind[operations[0]] = true;
+        opsShouldFind[operations[1]] = true;
+
+        createFixtures();
+
+        var result = filters.match(dehydratedRequests, 'two', [
+          operations[0],
+          operations[1]
+        ]);
+
+        // this should be the number of 'two' types, since they all have
+        // operations[0] or operations[1].
+        expect(result.length).to.equal(3);
+
+        // better all have type 'two' and the right operations.
+        result.forEach(function (req) {
+          expect(req.fallback.type).to.equal('two');
+          expect(req.fallback.operation === operations[0] ||
+                 req.fallback.operation === operations[1]).to.be.true;
+          delete opsShouldFind[req.fallback.operation];
+        });
+        expect(opsShouldFind).to.be.an('object').that.is.empty;
+      });
+
+      it('should match type, operation, and key', function () {
+        createFixtures();
+
+        var result = filters.match(dehydratedRequests, 'one', [
+          operations[1]
+        ], targetIds[1]);
+
+        // there just happens to be one of these in the fixture.
+        expect(result.length).to.equal(1);
       });
     });
 

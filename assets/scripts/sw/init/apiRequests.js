@@ -4,7 +4,7 @@
  *
  * Handling for api requests.
  *
- * NOTE:
+ * NOTE about pre-emptive timeouts:
  *   The pre-emptive timeout shown here is a general use case that doesn't
  *   actually exist for GET requests in this demo application.
  *   This application caches the api GET content in stores (app layer) and never
@@ -26,7 +26,7 @@
  *   app layer? If so, cache in the service worker as demonstrated here, and
  *   never timeout.
  *
- *   However, the pre-emptive timeout is effective for api POST requests.
+ *   The pre-emptive timeout is effective for api POST requests.
  */
 /* global Promise, Request */
 'use strict';
@@ -66,11 +66,11 @@ var defaultXhrPath = '/api';
  * Api is CSRF protected, so we include the cookie.
  *
  * @param {Object} request - The Request object from sw-toolbox.
- * @returns A Request object that includes the cookie.
+ * @returns {Promise} Resolves to a Request object that includes the cookie.
  */
 function networkRequest (request) {
   // Thought 'same-origin' would work by spec, but it doesn't. 'include' does.
-  return new Request(request.clone(), { credentials: 'include' });
+  return Promise.resolve(new Request(request.clone(), { credentials: 'include' }));
 }
 
 /**
@@ -85,10 +85,21 @@ function networkRequest (request) {
  * https://github.com/GoogleChrome/sw-toolbox/issues/35
  *
  * @param {Object} request - A Request object from sw-toolbox.
- * @returns A string of the modified request url to be used in caching.
+ * @returns {Promise} Resolves to a string of the modified request url to be
+ *  used in caching.
  */
 function cacheRequest (request) {
-  return requestLib.stripSearchParameters(request.url);
+  return Promise.resolve(requestLib.stripSearchParameters(request.url));
+}
+
+/**
+ * A pass through that returns a promise.
+ *
+ * @param {Request} request - A Request object from sw-toolbox.
+ * @returns {Promise} that resolves to the passed-in request.
+ */
+function passThruRequest (request) {
+  return Promise.resolve(request);
 }
 
 /**
@@ -110,6 +121,7 @@ function cacheRequest (request) {
  *
  * POSTS:
  *  Network first, fallback to defer request.
+ *  When a post request succeeds, clear appropriate deferred requests.
  *  When a post request fails, defer the request for later processing.
  *  (More to come)
  *
@@ -142,14 +154,18 @@ module.exports = function apiRequests (payload) {
     );
 
     // Handle POST requests, fail to sync.deferRequest
-    // NOTE: _fallback is not currently being removed from networkRequest,
-    // but could/should be.
+    // Maintain deferred requests on success
     toolbox.router.post(xhrPath + '*',
       networkFirst.routeHandlerFactory(
-        networkRequest, networkRequest, sync.deferRequest.bind(null, xhrPath)
+        sync.removeFallback.bind(null, {
+          credentials: 'include'
+        }),
+        passThruRequest,
+        sync.deferRequest.bind(null, xhrPath)
       ), {
         debug: toolbox.options.debug,
-        networkTimeout: xhrTimeout * factorCacheFailoverTime
+        networkTimeout: xhrTimeout * factorCacheFailoverTime,
+        successHandler: sync.maintainRequests
       }
     );
   });

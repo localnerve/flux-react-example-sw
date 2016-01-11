@@ -79,7 +79,7 @@ function mergeContent (newStores) {
  * return the content response for that resource (if one exists).
  *
  * Uses IndexedDB init.stores to retrieve the initially served content.
- * @see ./apis.js: handleApiRequest
+ * @see apiRequests.js
  *
  * @param {String} request - the request url to find the resource in.
  * @return {Object} A promise that resolves to the Response with the initial

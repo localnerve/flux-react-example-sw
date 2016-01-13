@@ -46,7 +46,7 @@ var debug = require('../utils/debug')('init');
  * @param {Function} responder - Function to call to resolve the message
  */
 function init (payload, responder) {
-  debug(toolbox.options, 'Running init, payload:', payload);
+  debug('Running init, payload:', payload);
 
   return update(payload).then(function (updated) {
     if (updated || payload.startup) {
@@ -58,7 +58,7 @@ function init (payload, responder) {
           return routes(payload.stores);
         });
     } else {
-      debug(toolbox.options, 'init skipped');
+      debug('init skipped');
       return Promise.resolve();
     }
   })
@@ -68,7 +68,7 @@ function init (payload, responder) {
     });
   })
   .catch(function (error) {
-    debug(toolbox.options, 'init failed', error);
+    debug('init failed', error);
     responder({
       error: error.toString()
     });

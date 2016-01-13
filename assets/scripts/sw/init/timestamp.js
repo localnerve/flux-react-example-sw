@@ -7,7 +7,6 @@
 /* global Promise */
 'use strict';
 
-var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('init.timestamp');
 var idb = require('../utils/idb');
 var keyName = 'timestamp';
@@ -19,7 +18,7 @@ var keyName = 'timestamp';
  * @return {Promise} The result of the idb put.
  */
 function updateInitTimestamp (timestamp) {
-  debug(toolbox.options, 'Updating init.timestamp');
+  debug('Updating init.timestamp');
   return idb.put(idb.stores.init, keyName, timestamp);
 }
 
@@ -32,10 +31,10 @@ function readInitTimestamp () {
   return idb.get(idb.stores.init, keyName).then(function (timestamp) {
     return new Promise(function (resolve, reject) {
       if (timestamp) {
-        debug(toolbox.options, 'successfully read init.timestamp');
+        debug('successfully read init.timestamp');
         resolve(timestamp);
       } else {
-        debug(toolbox.options, 'init.timestamp not found');
+        debug('init.timestamp not found');
         reject();
       }
     });

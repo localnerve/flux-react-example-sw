@@ -8,7 +8,6 @@
 'use strict';
 
 // For now, this only works in dev builds, sw-toolbox issue #31
-var toolbox = require('sw-toolbox');
 var debug = require('./utils/debug')('messages');
 
 /**
@@ -62,7 +61,7 @@ self.addEventListener('message', function (event) {
   var command = event.data.command;
   var payload = event.data.payload;
 
-  debug(toolbox.options, '\'' + command + '\' command received', payload);
+  debug('\'' + command + '\' command received', payload);
 
   var handler = commands[command] || unknownCommand;
   handler(payload, sendResponse.bind(this, event));

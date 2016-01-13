@@ -8,7 +8,6 @@
 'use strict';
 
 var debug = require('./utils/debug')('push');
-var toolbox = require('sw-toolbox');
 var requests = require('./utils/requests');
 var pushUtil = require('../../../utils/push');
 
@@ -32,14 +31,14 @@ function getPayloadAndShowNotification (timestamp) {
     );
 
     return fetch(payloadUrl).then(function (response) {
-      debug(toolbox.options, 'Received push payload response', response);
+      debug('Received push payload response', response);
 
       if (response.status !== 200) {
         throw new Error('Push payload response error, status' + response.status);
       }
 
       return response.json().then(function (data) {
-        debug(toolbox.options, 'Received push payload data', data);
+        debug('Received push payload data', data);
 
         var title = data.title;
         var options = {
@@ -54,7 +53,7 @@ function getPayloadAndShowNotification (timestamp) {
         return self.registration.showNotification(title, options);
       });
     }).catch(function (error) {
-      debug(toolbox.options, 'Failed to get push payload', error);
+      debug('Failed to get push payload', error);
 
       return self.registration.showNotification('An error occurred', {
         body: 'Failed to get push payload from ' + payloadUrl,
@@ -70,7 +69,7 @@ function getPayloadAndShowNotification (timestamp) {
  * Retrieves the message payload and shows the notification.
  */
 self.addEventListener('push', function (event) {
-  debug(toolbox.options, 'Received a push message', event);
+  debug('Received a push message', event);
 
   event.waitUntil(
     getPayloadAndShowNotification(event.timeStamp || Date.now())
@@ -81,7 +80,7 @@ self.addEventListener('push', function (event) {
  * Handle push message notification clicks.
  */
 self.addEventListener('notificationclick', function (event) {
-  debug(toolbox.options, 'Received a notification click', event);
+  debug('Received a notification click', event);
 
   var url = event.notification.data.url;
 

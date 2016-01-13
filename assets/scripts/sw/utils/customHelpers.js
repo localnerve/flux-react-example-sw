@@ -59,7 +59,7 @@ function fetchAndCache (reqNet, reqCache, options) {
         if (reqNet.method === 'GET') {
           return caches.open(toolbox.options.cache.name).then(function (cache) {
             debug(
-              toolbox.options, 'caching successful network request:', reqCache
+              'caching successful network request:', reqCache
             );
 
             return cache.match(reqCache).then(function (previousResponse) {
@@ -73,7 +73,7 @@ function fetchAndCache (reqNet, reqCache, options) {
                 }
 
                 return promCache.then(function (res) {
-                  debug(toolbox.options, 'cached response', res);
+                  debug('cached response', res);
                   return res;
                 });
               });
@@ -129,7 +129,7 @@ function contentRace (reqNet, reqCache, updateHandler, options) {
     var conditionalReject = function (error) {
       errors.push(error);
       if (rejected) {
-        debug(toolbox.options, 'Both cache and network failed');
+        debug('Both cache and network failed');
         reject(new Error('Cache and network failed "' + errors.join('", "') + '"'));
       } else {
         rejected = true;
@@ -154,7 +154,6 @@ function contentRace (reqNet, reqCache, updateHandler, options) {
         var newResponse = res.clone();
 
         debug(
-          toolbox.options,
           'cacheHandler comparing responses',
           prevResponse,
           newResponse
@@ -168,7 +167,6 @@ function contentRace (reqNet, reqCache, updateHandler, options) {
           // If the contents are 1% different and a stale response was served...
           if (nDiff(contents[0], contents[1], 1.0) && maybeStale) {
             debug(
-              toolbox.options,
               'cacheHandler found objects different AND stale prior response'
             );
 

@@ -95,7 +95,7 @@ function getSkipRoute (url) {
       skipUrl = (new URL(skipRoute.url, location.origin)).pathname;
 
       if (age < maxAge && url === skipUrl) {
-        debug(toolbox.options, 'skipping fetchAndCache for '+url);
+        debug('skipping fetchAndCache for '+url);
         return true;
       }
     }
@@ -112,7 +112,7 @@ function getSkipRoute (url) {
  * @returns {Promise} A Promise resolving on success (no sig value).
  */
 function cacheAndInstallRoute (url) {
-  debug(toolbox.options, 'cache route', url);
+  debug('cache route', url);
 
   // This has to happen regardless of the precache outcome.
   installRouteGetHandler(url);
@@ -120,7 +120,7 @@ function cacheAndInstallRoute (url) {
   // Must handle errors here, precache error is irrelevant beyond here.
   return helpers.contentRace(networkRequest(url), url)
   .catch(function (error) {
-    debug(toolbox.options.debug, 'failed to precache ' + url);
+    debug('failed to precache ' + url);
   });
 }
 
@@ -131,7 +131,7 @@ function cacheAndInstallRoute (url) {
  * @returns {Promise} A Promise resolving on success (no sig value).
  */
 function installRouteGetHandler (url) {
-  debug(toolbox.options, 'install route GET handler on', url);
+  debug('install route GET handler on', url);
 
   toolbox.router.get(url, fastest.routeHandlerFactory(
     networkRequest, cacheRequest
@@ -163,7 +163,7 @@ function installRouteGetHandler (url) {
 module.exports = function cacheRoutes (payload) {
   var routes = payload.RouteStore.routes;
 
-  debug(toolbox.options, 'received routes', routes);
+  debug('received routes', routes);
 
   return Promise.all(Object.keys(routes).map(function (route) {
     if (routes[route].mainNav) {
@@ -175,7 +175,7 @@ module.exports = function cacheRoutes (payload) {
         }
         return cacheAndInstallRoute(url);
       }).catch(function (error) {
-        debug(toolbox.options, 'failed to get skipRoute', error);
+        debug('failed to get skipRoute', error);
         return cacheAndInstallRoute(url);
       });
     }

@@ -7,7 +7,6 @@
 /* global Promise, Response, Blob, JSON */
 'use strict';
 
-var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('init.stores');
 var idb = require('../utils/idb');
 var keyName = 'stores';
@@ -19,7 +18,7 @@ var keyName = 'stores';
  * @return {Promise} A Promise that resolves to the result of idb.put.
  */
 function updateInitStores (stores) {
-  debug(toolbox.options, 'Updating init.stores');
+  debug('Updating init.stores');
   return mergeContent(stores).then(function (merged) {
     return idb.put(idb.stores.init, keyName, merged);
   });
@@ -34,10 +33,10 @@ function readInitStores () {
   return idb.get(idb.stores.init, keyName).then(function (stores) {
     return new Promise(function (resolve, reject) {
       if (stores) {
-        debug(toolbox.options, 'successfully read init.stores');
+        debug('successfully read init.stores');
         resolve(stores);
       } else {
-        debug(toolbox.options, 'init.stores not found');
+        debug('init.stores not found');
         reject();
       }
     });
@@ -94,7 +93,7 @@ function resourceContentResponse (request) {
       var content = payload && payload.ContentStore &&
         payload.ContentStore.contents[resource];
 
-      debug(toolbox.options, 'resourceContentResponse, resource:', resource, ', response:', content);
+      debug('resourceContentResponse, resource:', resource, ', response:', content);
 
       return new Promise(function (resolve, reject) {
         if (content) {
@@ -114,7 +113,7 @@ function resourceContentResponse (request) {
   }
 
   // No resource, so Promise resolves to undefined.
-  debug(toolbox.options, 'resourceContentResponse: no resource');
+  debug('resourceContentResponse: no resource');
   return Promise.resolve();
 }
 

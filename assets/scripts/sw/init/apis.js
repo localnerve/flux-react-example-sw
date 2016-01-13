@@ -20,7 +20,7 @@ var keyName = 'apis';
  * @return {Promise} A Promise that resolves to the result of idb.put.
  */
 function updateInitApis (apis) {
-  debug(toolbox.options, 'Updating init.apis');
+  debug('Updating init.apis');
   return idb.put(idb.stores.init, keyName, apis);
 }
 
@@ -33,10 +33,10 @@ function readInitApis () {
   return idb.get(idb.stores.init, keyName).then(function (apis) {
     return new Promise(function (resolve, reject) {
       if (apis) {
-        debug(toolbox.options, 'successfully read init.apis');
+        debug('successfully read init.apis');
         resolve(apis);
       } else {
-        debug(toolbox.options, 'init.apis not found');
+        debug('init.apis not found');
         reject();
       }
     });

@@ -10,7 +10,6 @@
 /* global Promise, self */
 'use strict';
 
-var toolbox = require('sw-toolbox');
 var filters = require('./filters');
 var debug = require('../utils/debug')('serviceable');
 var idb = require('../utils/idb');
@@ -29,7 +28,7 @@ function getContactRequests (dehydratedRequests) {
     dehydratedRequests, syncable.types.contact, [syncable.ops.contact]
   );
 
-  debug(toolbox.options, 'getContactRequests', contactRequests);
+  debug('getContactRequests', contactRequests);
 
   return Promise.resolve(contactRequests);
 }
@@ -84,12 +83,12 @@ function getPushRequests (dehydratedRequests) {
         pushRequests.push(updateTopicsRequests);
       }
 
-      debug(toolbox.options, 'getPushRequests', pushRequests);
+      debug('getPushRequests', pushRequests);
       return pushRequests;
     });
   }
 
-  debug(toolbox.options, 'getPushRequests, pushManager not found');
+  debug('getPushRequests, pushManager not found');
   return Promise.resolve(pushRequests);
 }
 
@@ -121,7 +120,7 @@ function pruneRequests (dehydratedRequests, serviceableRequests) {
     dehydratedRequests, serviceableRequests
   );
 
-  debug(toolbox.options, 'pruneRequests', unserviceableRequests);
+  debug('pruneRequests', unserviceableRequests);
 
   return Promise.all(unserviceableRequests.map(function (request) {
     return idb.del(idb.stores.requests, request.timestamp);
@@ -155,7 +154,7 @@ function prunePolicyContact (dehydratedRequests, fallback) {
   );
 
   debug(
-    toolbox.options, 'pruneContactRequests', fallback, redundantContactRequests
+    'pruneContactRequests', fallback, redundantContactRequests
   );
 
   return Promise.all(redundantContactRequests.map(function (request) {
@@ -190,7 +189,7 @@ function prunePolicyPush (dehydratedRequests) {
     dehydratedRequests, syncable.types.push, operations
   );
 
-  debug(toolbox.options, 'prunePushRequests', redundantPushRequests);
+  debug('prunePushRequests', redundantPushRequests);
 
   return Promise.all(redundantPushRequests.map(function (request) {
     return idb.del(idb.stores.requests, request.timestamp);
@@ -207,7 +206,7 @@ function prunePolicyPush (dehydratedRequests) {
  * @returns {Promise} Resolves after prune complete.
  */
 function pruneRequestsByPolicy (dehydratedRequests, fallback) {
-  debug(toolbox.options, 'prune fallback requests from database ', fallback);
+  debug('prune fallback requests from database ', fallback);
 
   if (fallback.type in prunePolicies) {
     return prunePolicies[fallback.type].apply(prunePolicies, [
@@ -218,7 +217,7 @@ function pruneRequestsByPolicy (dehydratedRequests, fallback) {
   }
 
   debug(
-    toolbox.options, 'prune policy not found for fallback type ', fallback.type
+    'prune policy not found for fallback type ', fallback.type
   );
 
   return Promise.resolve();

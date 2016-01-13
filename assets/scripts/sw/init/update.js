@@ -7,7 +7,6 @@
  */
 'use strict';
 
-var toolbox = require('sw-toolbox');
 var stores = require('./stores');
 var apis = require('./apis');
 var timestamp = require('./timestamp');
@@ -24,7 +23,7 @@ var debug = require('../utils/debug')('init.update');
  * got new data and should run.
  */
 module.exports = function update (payload) {
-  debug(toolbox.options, 'Running update');
+  debug('Running update');
 
   return timestamp.readInitTimestamp().then(function (currentTs) {
     // If the incoming timestamp is newer, it's on.
@@ -46,7 +45,7 @@ module.exports = function update (payload) {
           return true;
         });
       }).catch(function (error) {
-        debug(toolbox.options, 'Failed to update', error);
+        debug('Failed to update', error);
         throw error; // rethrow
       });
     } else {

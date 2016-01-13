@@ -22,11 +22,10 @@ var debug = require('./utils/debug')('activate');
  * 3. is not exactly the current sw-toolbox cacheName
  */
 self.addEventListener('activate', function (event) {
-  debug(toolbox.options, 'activate event fired, scope: ', toolbox.options.scope);
+  debug('activate event fired, scope: ', toolbox.options.scope);
 
   if (!toolbox.options.scope) {
-    return debug(toolbox.options,
-      'Unable to determine cache scope, no action taken');
+    return debug('Unable to determine cache scope, no action taken');
   }
 
   event.waitUntil(
@@ -38,7 +37,7 @@ self.addEventListener('activate', function (event) {
               !/inactive\${3}$/i.test(cacheName) &&
               cacheName !== toolbox.options.cache.name
           ) {
-            debug(toolbox.options, 'deleting old cache ', cacheName);
+            debug('deleting old cache ', cacheName);
             return caches.delete(cacheName);
           }
         })

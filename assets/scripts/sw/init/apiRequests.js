@@ -141,7 +141,7 @@ module.exports = function apiRequests (payload) {
     xhrPath = payload[key].xhrPath || defaultXhrPath;
     xhrTimeout = parseInt(payload[key].xhrTimeout, 10) || defaultXhrTimeout;
 
-    debug(toolbox.options, 'install api handler', xhrPath);
+    debug('install api handler', xhrPath);
 
     // Handle GET requests, fail to cache, fail to resourceContent
     toolbox.router.get(xhrPath + '*',

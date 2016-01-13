@@ -72,7 +72,7 @@ function precacheBackgrounds (backgroundUrls, request, values, options) {
       });
     }
   })).catch(function (error) {
-    debug(toolbox.options, 'Error prefetching next backgrounds:', error);
+    debug('Error prefetching next backgrounds:', error);
   });
 
   return toolbox.fastest(request, values, options);
@@ -84,7 +84,7 @@ function precacheBackgrounds (backgroundUrls, request, values, options) {
 module.exports = function backgroundHandler (payload) {
   var backgroundStore = payload.BackgroundStore;
 
-  debug(toolbox.options, 'install background image handler', backgroundStore);
+  debug('install background image handler', backgroundStore);
 
   // Install a precaching, read-thru cache on all requests to the background image service
   toolbox.router.get('*',

@@ -7,7 +7,6 @@
 /* global Promise */
 'use strict';
 
-var toolbox = require('sw-toolbox');
 var backgrounds = require('./backgrounds');
 var routes = require('./routes');
 var update = require('./update');

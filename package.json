@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example-sw",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "An isomorphic flux-react example application with a service worker",
   "main": "./server",
   "scripts": {
@@ -80,6 +80,7 @@
     "mocha": "^2.2.1",
     "mockery": "^1.4.0",
     "nodemon": "^1.3.7",
+    "path-to-regexp": "^1.2.1",
     "precommit-hook": "^3.0.0",
     "q": "^1.4.1",
     "react-addons-test-utils": "0.14.x",

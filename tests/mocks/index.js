@@ -19,6 +19,7 @@ var queue = require('./queue');
 var mailer = require('./mailer');
 var remarkable = require('./remarkable');
 var actionInterface = require('./actionInterface');
+var swToolbox = require('./sw-toolbox');
 
 function mockModuleBegin (mocks) {
   mocks.forEach(function (mock) {
@@ -185,6 +186,19 @@ function mockRemarkableEnd () {
   }]);
 }
 
+function mockSwToolboxBegin () {
+  mockModuleBegin([{
+    pattern: 'sw-toolbox',
+    module: swToolbox
+  }]);
+}
+
+function mockSwToolboxEnd () {
+  mockModuleEnd([{
+    pattern: 'sw-toolbox'
+  }]);
+}
+
 module.exports = {
   serviceData: {
     begin: mockServiceDataBegin,
@@ -225,5 +239,9 @@ module.exports = {
   remarkable: {
     begin: mockRemarkableBegin,
     end: mockRemarkableEnd
+  },
+  swToolbox: {
+    begin: mockSwToolboxBegin,
+    end: mockSwToolboxEnd
   }
 };

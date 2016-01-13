@@ -20,6 +20,7 @@ var mailer = require('./mailer');
 var remarkable = require('./remarkable');
 var actionInterface = require('./actionInterface');
 var swToolbox = require('./sw-toolbox');
+var swUtilsDb = require('./sw-utils-db');
 
 function mockModuleBegin (mocks) {
   mocks.forEach(function (mock) {
@@ -199,6 +200,24 @@ function mockSwToolboxEnd () {
   }]);
 }
 
+function mockSwUtilsDbBegin () {
+  mockModuleBegin([{
+    pattern: './idb',
+    module: swUtilsDb
+  },{
+    pattern: 'sw-toolbox',
+    module: swToolbox
+  }]);
+}
+
+function mockSwUtilsDbEnd () {
+  mockModuleEnd([{
+    pattern: './idb'
+  }, {
+    pattern: 'sw-toolbox'
+  }]);
+}
+
 module.exports = {
   serviceData: {
     begin: mockServiceDataBegin,
@@ -243,5 +262,9 @@ module.exports = {
   swToolbox: {
     begin: mockSwToolboxBegin,
     end: mockSwToolboxEnd
+  },
+  swUtilsDb: {
+    begin: mockSwUtilsDbBegin,
+    end: mockSwUtilsDbEnd
   }
 };

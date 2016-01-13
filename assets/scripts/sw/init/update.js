@@ -8,8 +8,8 @@
 'use strict';
 
 var stores = require('./stores');
-var apis = require('./apis');
-var timestamp = require('./timestamp');
+var apis = require('../utils/db').init({ key: 'apis' });
+var timestamp = require('../utils/db').init({ key: 'timestamp' });
 var debug = require('../utils/debug')('init.update');
 
 /**
@@ -25,7 +25,7 @@ var debug = require('../utils/debug')('init.update');
 module.exports = function update (payload) {
   debug('Running update');
 
-  return timestamp.readInitTimestamp().then(function (currentTs) {
+  return timestamp.read().then(function (currentTs) {
     // If the incoming timestamp is newer, it's on.
     return payload.timestamp && currentTs < payload.timestamp;
   }, function () {
@@ -34,14 +34,14 @@ module.exports = function update (payload) {
   }).then(function (shouldUpdate) {
     if (shouldUpdate) {
       // Update the init.timestamp
-      return timestamp.updateInitTimestamp(payload.timestamp)
+      return timestamp.update(payload.timestamp)
       .then(function () {
         // Update init.stores
         return stores.updateInitStores(payload.stores);
       })
       .then(function () {
         // Update init.apis
-        return apis.updateInitApis(payload.apis).then(function () {
+        return apis.update(payload.apis).then(function () {
           return true;
         });
       }).catch(function (error) {

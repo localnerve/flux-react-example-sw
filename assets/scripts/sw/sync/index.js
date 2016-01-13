@@ -11,7 +11,7 @@ var toolbox = require('sw-toolbox');
 var idb = require('../utils/idb');
 var debug = require('../utils/debug')('sync');
 var requestLib = require('../utils/requests');
-var initApis = require('../init/apis');
+var initApis = require('../utils/db').init({ key: 'apis' });
 var filters = require('./filters');
 var serviceable = require('./serviceable');
 
@@ -153,7 +153,7 @@ function serviceAllRequests (options) {
   var successResponses =
     options.successResponses || toolbox.options.successResponses;
 
-  return initApis.readInitApis().then(function (apis) {
+  return initApis.read().then(function (apis) {
     return idb.all(idb.stores.requests).then(function (storedRequests) {
       serviceable.getRequests(storedRequests).then(function (requests) {
         serviceable.pruneRequests(storedRequests, requests).then(function () {

@@ -10,10 +10,10 @@
 var backgrounds = require('./backgrounds');
 var routes = require('./routes');
 var update = require('./update');
-var stores = require('./stores');
-var apis = require('./apis');
 var apiRequests = require('./apiRequests');
-var timestamp = require('./timestamp');
+var stores = require('../utils/db').init({ key: 'stores' });
+var apis = require('../utils/db').init({ key: 'apis' });
+var timestamp = require('../utils/db').init({ key: 'timestamp' });
 var debug = require('../utils/debug')('init');
 
 /**
@@ -81,9 +81,9 @@ function init (payload, responder) {
  */
 function initData () {
   return Promise.all([
-    stores.readInitStores(),
-    apis.readInitApis(),
-    timestamp.readInitTimestamp()
+    stores.read(),
+    apis.read(),
+    timestamp.read()
   ]).then(function (data) {
     return {
       stores: data[0],

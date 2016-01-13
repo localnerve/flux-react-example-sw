@@ -2,14 +2,15 @@
  * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * Various handling for Flux Stores saved in IndexedDB 'init.stores' ObjectStore.
+ * Special handling for Flux Stores saved in IndexedDB 'init.stores' ObjectStore.
  */
 /* global Promise, Response, Blob, JSON */
 'use strict';
 
+var keyName = 'stores';
 var debug = require('../utils/debug')('init.stores');
 var idb = require('../utils/idb');
-var keyName = 'stores';
+var initStores = require('../utils/db').init({ key: keyName });
 
 /**
  * Update IndexedDB init.stores.
@@ -20,26 +21,7 @@ var keyName = 'stores';
 function updateInitStores (stores) {
   debug('Updating init.stores');
   return mergeContent(stores).then(function (merged) {
-    return idb.put(idb.stores.init, keyName, merged);
-  });
-}
-
-/**
- * Read IndexedDB init.stores
- *
- * @return {Promise} A Promise that resolves to the stores Object.
- */
-function readInitStores () {
-  return idb.get(idb.stores.init, keyName).then(function (stores) {
-    return new Promise(function (resolve, reject) {
-      if (stores) {
-        debug('successfully read init.stores');
-        resolve(stores);
-      } else {
-        debug('init.stores not found');
-        reject();
-      }
-    });
+    return initStores.update(merged);
   });
 }
 
@@ -118,7 +100,6 @@ function resourceContentResponse (request) {
 }
 
 module.exports = {
-  readInitStores: readInitStores,
   resourceContentResponse: resourceContentResponse,
   updateInitStores: updateInitStores
 };

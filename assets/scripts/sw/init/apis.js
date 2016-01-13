@@ -7,7 +7,6 @@
 /* global Promise */
 'use strict';
 
-var toolbox = require('sw-toolbox');
 var debug = require('../utils/debug')('init.apis');
 var idb = require('../utils/idb');
 var keyName = 'apis';

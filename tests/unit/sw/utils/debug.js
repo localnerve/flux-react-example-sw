@@ -32,7 +32,7 @@ describe('sw/utils/debug', function () {
   before('setup toolbox and console.log', function () {
     mocks.swToolbox.begin();
     toolbox = require('sw-toolbox');
-    toolbox.updateMockToolbox();
+    toolbox.mockSetup();
     /*
     console.log('@@@');
     console.log(require('util').inspect(toolbox, {depth: null}));
@@ -42,6 +42,7 @@ describe('sw/utils/debug', function () {
   });
 
   after(function () {
+    toolbox.mockTeardown();
     mocks.swToolbox.end();
   });
 

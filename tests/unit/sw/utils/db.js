@@ -9,18 +9,19 @@ var expect = require('chai').expect;
 var mocks = require('../../../mocks');
 
 describe('sw/utils/db', function () {
-  var db;
+  var toolbox, db;
 
   before('setup sw/utils/db', function () {
     mocks.swUtilsDb.begin();
 
-    var toolbox = require('sw-toolbox');
-    toolbox.updateMockToolbox();
+    toolbox = require('sw-toolbox');
+    toolbox.mockSetup();
 
     db = require('../../../../assets/scripts/sw/utils/db');
   });
 
   after(function () {
+    toolbox.mockTeardown();
     mocks.swUtilsDb.end();
   });
 

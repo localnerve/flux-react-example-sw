@@ -1,0 +1,63 @@
+/***
+ * Copyright (c) 2015 Alex Grant (@localnerve), LocalNerve LLC
+ * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
+ */
+/* global after, afterEach, before, describe, it */
+'use strict';
+
+var expect = require('chai').expect;
+var mocks = require('../../../mocks');
+
+describe('sw/utils/idb', function () {
+  var treoMock, idb;
+
+  before('setup sw/utils/idb', function () {
+    mocks.swUtilsIdb.begin();
+
+    idb = require('../../../../assets/scripts/sw/utils/idb');
+    treoMock = require('treo');
+  });
+
+  after(function () {
+    mocks.swUtilsIdb.end();
+  });
+
+  it('should export expected things', function () {
+    expect(idb.stores).to.be.an('object').that.is.not.empty;
+    expect(idb).to.respondTo('all');
+    expect(idb).to.respondTo('batch');
+    expect(idb).to.respondTo('del');
+    expect(idb).to.respondTo('get');
+    expect(idb).to.respondTo('put');
+  });
+
+  describe('method', function () {
+    var method = 'get';
+    var storeName;
+
+    before(function () {
+      storeName = Object.keys(idb.stores)[0];
+    });
+
+    afterEach(function () {
+      expect(treoMock.status.getCloseCount()).to.equal(1);
+    });
+
+    it('should execute successfully', function (done) {
+      idb[method](storeName).then(function (value) {
+        expect(value).to.be.a('string').that.is.not.empty;
+        done();
+      });
+    });
+
+    it('should fail successfully', function (done) {
+      idb[method](storeName, 'emulateError').then(function () {
+        done(new Error('expected failure'));
+      })
+      .catch(function (error) {
+        expect(error.message).to.be.an('string').that.is.not.empty;
+        done();
+      });
+    });
+  });
+});

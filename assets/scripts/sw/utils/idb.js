@@ -69,10 +69,7 @@ function treoWrapper (method, storeName) {
      * callback bridge to Promise resolution
      */
     var cb = function treoCallback (err, res) {
-      if (err) {
-        return reject(err);
-      }
-      resolve(res);
+      err ? reject(err) : resolve(res);
       o.close();
     };
 

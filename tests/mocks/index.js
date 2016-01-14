@@ -21,6 +21,7 @@ var remarkable = require('./remarkable');
 var actionInterface = require('./actionInterface');
 var swToolbox = require('./sw-toolbox');
 var swUtilsDb = require('./sw-utils-db');
+var swUtilsIdb = require('./sw-utils-idb');
 
 function mockModuleBegin (mocks) {
   mocks.forEach(function (mock) {
@@ -218,6 +219,19 @@ function mockSwUtilsDbEnd () {
   }]);
 }
 
+function mockSwUtilsIdbBegin () {
+  mockModuleBegin([{
+    pattern: 'treo',
+    module: swUtilsIdb
+  }]);
+}
+
+function mockSwUtilsIdbEnd () {
+  mockModuleEnd([{
+    pattern: 'treo'
+  }]);
+}
+
 module.exports = {
   serviceData: {
     begin: mockServiceDataBegin,
@@ -266,5 +280,9 @@ module.exports = {
   swUtilsDb: {
     begin: mockSwUtilsDbBegin,
     end: mockSwUtilsDbEnd
+  },
+  swUtilsIdb: {
+    begin: mockSwUtilsIdbBegin,
+    end: mockSwUtilsIdbEnd
   }
 };

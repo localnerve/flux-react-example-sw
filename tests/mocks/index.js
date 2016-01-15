@@ -22,6 +22,7 @@ var actionInterface = require('./actionInterface');
 var swToolbox = require('./sw-toolbox');
 var swUtilsDb = require('./sw-utils-db');
 var swUtilsIdb = require('./sw-utils-idb');
+var swData = require('./sw-data');
 
 function mockModuleBegin (mocks) {
   mocks.forEach(function (mock) {
@@ -43,246 +44,124 @@ function mockModuleEnd (mocks) {
   });
 }
 
-function mockServiceDataBegin () {
-  mockModuleBegin([{
+module.exports = {};
+
+[{
+  name: 'serviceData',
+  mocks: [{
     pattern: './data',
     module: serviceData
-  }]);
-}
-
-function mockServiceDataEnd () {
-  mockModuleEnd([{
-    pattern: './data'
-  }]);
-}
-
-function mockSubsBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'subs',
+  mocks: [{
     pattern: '../data',
     module: serviceData
-  }]);
-}
-
-function mockSubsEnd () {
-  mockModuleEnd([{
-    pattern: '../data'
-  }]);
-}
-
-function mockServiceMailBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'serviceMail',
+  mocks: [{
     pattern: './mail',
     module: serviceMail
-  }]);
-}
-
-function mockServiceMailEnd () {
-  mockModuleEnd([{
-    pattern: './mail'
-  }]);
-}
-
-function mockServiceSubscriptionBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'serviceSubscription',
+  mocks: [{
     pattern: './subs',
     module: serviceSubscription
-  }]);
-}
-
-function mockServiceSubscriptionEnd () {
-  mockModuleEnd([{
-    pattern: './subs'
-  }]);
-}
-
-function mockSuperAgentBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'superAgent',
+  mocks: [{
     pattern: 'superagent',
     module: superAgent
   }, {
     pattern: './cache',
     module: cache
-  }]);
-}
-
-function mockSuperAgentEnd () {
-  mockModuleEnd([{
-    pattern: 'superagent'
-  }, {
-    pattern: './cache'
-  }]);
-}
-
-function mockFetchBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'fetch',
+  mocks: [{
     pattern: './fetch',
     module: fetch
   }, {
     pattern: './cache',
     module: cache
-  }]);
-}
-
-function mockFetchEnd () {
-  mockModuleEnd([{
-    pattern: './fetch'
-  }, {
-    pattern: './cache'
-  }]);
-}
-
-function mockMailBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'mail',
+  mocks: [{
     pattern: './queue',
     module: queue
-  }]);
-}
-
-function mockMailEnd () {
-  mockModuleEnd([{
-    pattern: './queue'
-  }]);
-}
-
-function mockQueueBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'queue',
+  mocks: [{
     pattern: 'amqplib',
     module: amqplib
   }, {
     pattern: './mailer',
     module: mailer
-  }]);
-}
-
-function mockQueueEnd () {
-  mockModuleEnd([{
-    pattern: 'amqplib'
-  }, {
-    pattern: './mailer'
-  }]);
-}
-
-function mockInterfaceBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'interface',
+  mocks: [{
     pattern: './interface',
     module: actionInterface
-  }]);
-}
-
-function mockInterfaceEnd () {
-  mockModuleEnd([{
-    pattern: './interface'
-  }]);
-}
-
-function mockRemarkableBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'remarkable',
+  mocks: [{
     pattern: 'remarkable',
     module: remarkable
-  }]);
-}
-
-function mockRemarkableEnd () {
-  mockModuleEnd([{
-    pattern: 'remarkable'
-  }]);
-}
-
-function mockSwToolboxBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'swToolbox',
+  mocks: [{
     pattern: 'sw-toolbox',
     module: swToolbox
-  }]);
-}
-
-function mockSwToolboxEnd () {
-  mockModuleEnd([{
-    pattern: 'sw-toolbox'
-  }]);
-}
-
-function mockSwUtilsDbBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'swUtilsDb',
+  mocks: [{
     pattern: './idb',
     module: swUtilsDb
   },{
     pattern: 'sw-toolbox',
     module: swToolbox
-  }]);
-}
-
-function mockSwUtilsDbEnd () {
-  mockModuleEnd([{
-    pattern: './idb'
-  }, {
-    pattern: 'sw-toolbox'
-  }]);
-}
-
-function mockSwUtilsIdbBegin () {
-  mockModuleBegin([{
+  }]
+},
+{
+  name: 'swUtilsIdb',
+  mocks: [{
     pattern: 'treo',
     module: swUtilsIdb
-  }]);
-}
-
-function mockSwUtilsIdbEnd () {
-  mockModuleEnd([{
-    pattern: 'treo'
-  }]);
-}
-
-module.exports = {
-  serviceData: {
-    begin: mockServiceDataBegin,
-    end: mockServiceDataEnd
-  },
-  superAgent: {
-    begin: mockSuperAgentBegin,
-    end: mockSuperAgentEnd
-  },
-  fetch: {
-    begin: mockFetchBegin,
-    end: mockFetchEnd
-  },
-  serviceMail: {
-    begin: mockServiceMailBegin,
-    end: mockServiceMailEnd
-  },
-  mail: {
-    begin: mockMailBegin,
-    end: mockMailEnd
-  },
-  queue: {
-    begin: mockQueueBegin,
-    end: mockQueueEnd
-  },
-  interface: {
-    begin: mockInterfaceBegin,
-    end: mockInterfaceEnd
-  },
-  serviceSubscription: {
-    begin: mockServiceSubscriptionBegin,
-    end: mockServiceSubscriptionEnd
-  },
-  subs: {
-    begin: mockSubsBegin,
-    end: mockSubsEnd
-  },
-  remarkable: {
-    begin: mockRemarkableBegin,
-    end: mockRemarkableEnd
-  },
-  swToolbox: {
-    begin: mockSwToolboxBegin,
-    end: mockSwToolboxEnd
-  },
-  swUtilsDb: {
-    begin: mockSwUtilsDbBegin,
-    end: mockSwUtilsDbEnd
-  },
-  swUtilsIdb: {
-    begin: mockSwUtilsIdbBegin,
-    end: mockSwUtilsIdbEnd
-  }
-};
+  }]
+},
+{
+  name: 'swData',
+  mocks: [{
+    pattern: './data',
+    module: swData
+  }]
+}].forEach(function (mockSpec) {
+  module.exports[mockSpec.name] = {
+    begin: function () {
+      mockModuleBegin(mockSpec.mocks);
+    },
+    end: function () {
+      mockModuleEnd(mockSpec.mocks);
+    }
+  };
+});

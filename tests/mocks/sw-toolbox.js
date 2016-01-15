@@ -27,6 +27,7 @@ var teardown = {
   url: false
 };
 
+var cleanOptions;
 var mockCacheObject;
 var mockCacheValue = 'dummy';
 
@@ -77,7 +78,7 @@ function mockUncache (url) {
  * Simplified mock URL constructor for global mock purpose.
  *
  * @param {String} urlString - An absolute or relative url.
- * @param {String|Object} base - if urlString is relative, a string or url
+ * @param {String|Object} [base] - if urlString is relative, a string or url
  * object to resolve the urlString on.
  */
 function MockURL (urlString, base) {
@@ -92,13 +93,14 @@ function MockURL (urlString, base) {
 
   this.href = urlLib.resolve(baseUrlString, urlString);
 
-  var urlObj = urlLib.parse(this.href);
+  var urlObj = urlLib.parse(this.href, true, this.href.indexOf(':') === -1);
+
   this.pathname = urlObj.pathname;
   this.port = urlObj.port;
-  this.protocol = urlObj.protocol;
+  this.protocol = urlObj.protocol || 'http:';
   this.hash = urlObj.hash;
   this.origin =
-    urlObj.protocol + (urlObj.slashes ? '//' : '') + urlObj.host;
+    this.protocol + (urlObj.slashes ? '//' : '') + urlObj.host;
 }
 
 /**
@@ -112,16 +114,15 @@ function setupGlobals (scope) {
   global.self.scope = scope || global.self.scope || 'http://localhost';
 
   // This is required to re-use sw-toolbox/lib/router
-  global.self.location = global.self.location ||
-    (global.URL && new global.URL('/', global.self.scope)) ||
-    new MockURL('/', global.self.scope);
   global.URL = global.URL || (teardown.url = true, MockURL);
+  global.self.location = global.self.location ||
+    new global.URL('/', global.self.scope);
 }
 
 module.exports = {
   /**
-   * Call to setup and configure the sw-toolbox mock.
-   * This must be called at least once to setup the sw-toolbox interface.
+   * Call to setup and configure the sw-toolbox mock interface.
+   * MUST be called at least once to create the sw-toolbox mock interface.
    * Can be called repeatedly to change handler responses, scope, or options.
    *
    * @param {Object} [response] - The response any strategies will resolve to.
@@ -133,7 +134,22 @@ module.exports = {
   mockSetup: function mockSetup (response, scope, options) {
     setupGlobals(scope);
 
-    options = Object.assign(require('sw-toolbox/lib/options'), options || {});
+    // First time only, keep a clean copy of the global, mutable options.
+    if (!cleanOptions) {
+      cleanOptions = JSON.parse(
+        JSON.stringify(require('sw-toolbox/lib/options'))
+      );
+    }
+
+    // Reset the global toolbox options, mixin changes, expose the result
+    var dirtyOptions = require('sw-toolbox/lib/options');
+    options = Object.assign(
+      Object.assign(dirtyOptions, cleanOptions), options || {}
+    );
+
+    // Clear the route map
+    var router = require('sw-toolbox/lib/router');
+    router.routes.clear();
 
     // Clear/create the mockCache
     mockCacheObject = Object.create(null);
@@ -145,17 +161,17 @@ module.exports = {
     this.networkOnly =
     this.fastest =
       mockStrategy.bind(this, response);
-    this.router = require('sw-toolbox/lib/router');
+    this.router = router;
     this.options = options;
-    // This exists because we can't load sw-toolbox main w/o mocking its deps.
+    this.cache = mockCache;
+    this.uncache = mockUncache;
+    // Can't use orig b/c we can't load sw-toolbox main w/o mocking its deps.
     this.precache = function (items) {
       if (!Array.isArray(items)) {
         items = [items];
       }
-      options.preCacheItems = options.preCacheItems.concat(items);
-    },
-    this.cache = mockCache;
-    this.uncache = mockUncache;
+      this.options.preCacheItems = this.options.preCacheItems.concat(items);
+    };
   },
 
   /**
@@ -176,8 +192,8 @@ module.exports = {
    * @param {String|Request} url - The url to use to drive a test.
    * @param {String} [method] - if url is a string, supply this method.
    * Defaults to 'any'.
-   * @returns {Promise|undefined} resolves or rejects as configured. If no
-   * handler is found, returns undefined.
+   * @returns {Promise} resolves or rejects as configured. If no handler is
+   * found, resolves to undefined.
    */
   mockFetch: function mockFetch (url, method) {
     if (!this.router) {
@@ -197,6 +213,6 @@ module.exports = {
       response = this.router.default(request);
     }
 
-    return response;
+    return response || Promise.resolve();
   }
 };

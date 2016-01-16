@@ -145,7 +145,7 @@ describe('sw/utils/requests', function () {
       delete global.Request;
     });
 
-    it('should create a Request from state', function () {
+    it('should create a Request from state', function (done) {
       var state = {
         url: 'https://123.456',
         method: 'GET',
@@ -167,8 +167,11 @@ describe('sw/utils/requests', function () {
       expect(result.method).to.equal(state.method);
       expect(result.url).to.contain(state.url);
       expect(result.url).to.contain(apiInfo.xhrContext._csrf);
-      expect(result.body).to.be.an('object');
       expect(result.credentials).to.equal('include');
+      result.json().then(function (actualBody) {
+        expect(actualBody).to.be.an('object').that.is.not.empty;
+        done();
+      });
     });
   });
 });

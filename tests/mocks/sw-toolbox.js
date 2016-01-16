@@ -1,4 +1,4 @@
-/**
+/***
  * Copyright 2015, Alex Grant, LocalNerve, LLC.
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
@@ -50,25 +50,30 @@ function mockStrategy (response, request, values, options) {
 /**
  * Mock cache implementation.
  *
- * @param {String|Request} url - The item to cache.
+ * @param {String|Request} request - The item to cache.
  * @returns {Promise} Always resolves to undefined.
  */
-function mockCache (url) {
-  mockCacheObject[url] = mockCacheValue;
+function mockCache (request) {
+  var urlString = typeof request === 'string' ? request : request.url;
+
+  mockCacheObject[urlString] = mockCacheValue;
+
   return Promise.resolve();
 }
 
 /**
  * Mock uncache implementation.
  *
- * @param {String|Request} url - The item to delete from cache.
+ * @param {String|Request} request - The item to delete from cache.
  * @returns {Promise} Resolves to true if the item was deleted, false otherwise.
  */
-function mockUncache (url) {
-  var hit = mockCacheObject[url] === mockCacheValue;
+function mockUncache (request) {
+  var urlString = typeof request === 'string' ? request : request.url;
+
+  var hit = mockCacheObject[urlString] === mockCacheValue;
 
   if (hit) {
-    delete mockCacheObject[url];
+    delete mockCacheObject[urlString];
   }
 
   return Promise.resolve(hit);

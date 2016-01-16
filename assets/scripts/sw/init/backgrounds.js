@@ -80,6 +80,13 @@ function precacheBackgrounds (backgroundUrls, request, values, options) {
 
 /**
  * Cache background images for the app
+ *
+ * @param {Object} payload - The stores payload object.
+ * @param {Object} payload.BackgroundStore - The dehydrated BackgroundStore.
+ * @param {Object} payload.BackgroundStore.backgroundUrls - The background urls
+ * object, containing name-values for backgrounds at imageServiceUrl.
+ * @param {String} payload.BackgroundStore.imageServiceUrl - The url to the
+ * image service.
  */
 module.exports = function backgroundHandler (payload) {
   var backgroundStore = payload.BackgroundStore;

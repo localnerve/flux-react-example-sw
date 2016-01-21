@@ -214,6 +214,7 @@ describe('configs', function () {
         before(function () {
           // just in case this is hanging around in a local env
           delete process.env.MANDRILL_USERNAME;
+          delete process.env.MAIL_USERNAME;
         });
 
         afterEach(function () {
@@ -246,6 +247,7 @@ describe('configs', function () {
         before(function () {
           // just in case this is hanging around in a local env
           delete process.env.MANDRILL_APIKEY;
+          delete process.env.MAIL_PASSWORD;
         });
 
         afterEach(function () {

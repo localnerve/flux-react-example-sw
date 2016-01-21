@@ -8,7 +8,6 @@
 require('node-jsx').install({ extension: '.jsx' });
 
 var expect = require('chai').expect;
-var objectAssign = require('lodash/object/assign');
 var testDom = require('../../utils/testdom');
 var jsonToFluxible = require('../../../utils').createFluxibleRouteTransformer({
   actions: require('../../../actions/interface')
@@ -62,19 +61,19 @@ describe('application component', function () {
     testUtils = require('react-addons-test-utils');
 
     routes = {
-      home: objectAssign({}, fluxibleRoutes.home, {
+      home: Object.assign({}, fluxibleRoutes.home, {
         url: '/',
         name: 'home',
         params: {},
         query: {}
       }),
-      about: objectAssign({}, fluxibleRoutes.about, {
+      about: Object.assign({}, fluxibleRoutes.about, {
         url: '/about',
         name: 'about',
         params: {},
         query: {}
       }),
-      contact: objectAssign({}, fluxibleRoutes.contact, {
+      contact: Object.assign({}, fluxibleRoutes.contact, {
         url: '/contact',
         name: 'contact',
         params: {},
@@ -82,7 +81,7 @@ describe('application component', function () {
       })
     };
 
-    settle(100, done);
+    settle(250, done);
   });
 
   after(function () {
@@ -148,7 +147,7 @@ describe('application component', function () {
       // 'Home' content comes from service-data, not the real doc
       expect(components[0].textContent).to.match(/Home/i);
 
-      settle(50, done);
+      settle(250, done);
     });
 
     it('should render home navigation', function (done) {
@@ -161,7 +160,7 @@ describe('application component', function () {
 
       expect(component.textContent).to.match(/Home/i);
 
-      settle(50, done);
+      settle(250, done);
     });
   });
 });

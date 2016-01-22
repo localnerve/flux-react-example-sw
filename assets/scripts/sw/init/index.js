@@ -29,8 +29,8 @@ var debug = require('../utils/debug')('init');
  *
  * What?
  * 1. Updates the init.stores in IndexedDB if the app is online.
- * 2. Installs api request fetch handling.
- * 3. Installs background fetch handling.
+ * 2. Installs background fetch handling.
+ * 3. Installs api request fetch handling.
  * 4. Installs route fetch handling.
  * 5. Precaches/prefetches backgrounds and routes.
  *
@@ -49,9 +49,9 @@ function init (payload, responder) {
 
   return update(payload).then(function (updated) {
     if (updated || payload.startup) {
-      return apiRequests(payload.apis)
+      return backgrounds(payload.stores)
         .then(function () {
-          return backgrounds(payload.stores);
+          return apiRequests(payload.apis);
         })
         .then(function () {
           return routes(payload.stores);

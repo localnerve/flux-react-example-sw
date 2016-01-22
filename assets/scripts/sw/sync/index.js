@@ -78,16 +78,15 @@ function deferRequest (apiPath, request) {
  * Use case: A request succeeds that renders prior deferred requests
  *  illegitimate/unwarranted/dangerous/etc.
  *
- * @param {Request|String} req - ignored.
+ * @param {Request} req - ignored.
  * @param {Response} res - passed through on success.
- * @param {Request|String} reqToCache - A clone of the Request that succeeded
+ * @param {Request} reqToCache - A clone of the Request that succeeded
  * on the network that would be used for caching and contains a fallback object.
  * @returns {Promise} Resolves to the Response on success.
  */
 function maintainRequests (req, res, reqToCache) {
   return idb.all(idb.stores.requests).then(function (dehydratedRequests) {
-    var request = typeof reqCache === 'string' ?
-      new Request(reqToCache) : reqToCache.clone();
+    var request = reqToCache.clone();
 
     return request.json().then(function (body) {
       return serviceable.pruneRequestsByPolicy(

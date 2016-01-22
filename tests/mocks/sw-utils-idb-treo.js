@@ -7,6 +7,7 @@
 'use strict';
 
 var closeCount = 0;
+var mockValue;
 
 function TreoStoreMock () {}
 ['all', 'batch', 'del', 'get', 'put'].forEach(function (method) {
@@ -20,7 +21,7 @@ function TreoStoreMock () {}
       return cb(new Error('mock error'));
     }
 
-    cb(null, 'mock value');
+    cb(null, mockValue || 'mock value');
   };
 });
 
@@ -43,7 +44,10 @@ TreoMock.status = {
   getCloseCount: function () {
     return closeCount;
   }
-},
+};
+TreoMock.setMockValue = function (value) {
+  mockValue = value;
+};
 TreoMock.schema = function treoMockSchema () {
   return {
     version: function () {

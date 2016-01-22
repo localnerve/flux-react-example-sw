@@ -12,14 +12,15 @@ describe('sw/utils/idb', function () {
   var treoMock, idb;
 
   before('setup sw/utils/idb', function () {
-    mocks.swUtilsIdb.begin();
+    mocks.swUtilsIdbTreo.begin();
 
     idb = require('../../../../assets/scripts/sw/utils/idb');
     treoMock = require('treo');
+    treoMock.setMockValue('some value');
   });
 
   after(function () {
-    mocks.swUtilsIdb.end();
+    mocks.swUtilsIdbTreo.end();
   });
 
   it('should export expected things', function () {

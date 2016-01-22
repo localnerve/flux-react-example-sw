@@ -21,7 +21,7 @@ var remarkable = require('./remarkable');
 var actionInterface = require('./actionInterface');
 var swToolbox = require('./sw-toolbox');
 var swUtilsDb = require('./sw-utils-db');
-var swUtilsIdb = require('./sw-utils-idb');
+var swUtilsIdbTreo = require('./sw-utils-idb-treo');
 var swData = require('./sw-data');
 
 function mockModuleBegin (mocks) {
@@ -133,6 +133,16 @@ module.exports = {};
   }]
 },
 {
+  name: 'swSyncIndex',
+  mocks: [{
+    pattern: 'sw-toolbox',
+    module: swToolbox
+  }, {
+    pattern: 'treo',
+    module: swUtilsIdbTreo
+  }]
+},
+{
   name: 'swUtilsDb',
   mocks: [{
     pattern: './idb',
@@ -143,10 +153,10 @@ module.exports = {};
   }]
 },
 {
-  name: 'swUtilsIdb',
+  name: 'swUtilsIdbTreo',
   mocks: [{
     pattern: 'treo',
-    module: swUtilsIdb
+    module: swUtilsIdbTreo
   }]
 },
 {

@@ -168,8 +168,11 @@ describe('sw/utils/requests', function () {
       expect(result.url).to.contain(state.url);
       expect(result.url).to.contain(apiInfo.xhrContext._csrf);
       expect(result.credentials).to.equal('include');
-      result.json().then(function (actualBody) {
-        expect(actualBody).to.be.an('object').that.is.not.empty;
+      result.json().then(function (rawBody) {
+        var body = JSON.parse(rawBody);
+        expect(body).to.be.an('object').that.is.not.empty;
+        expect(body.context).to.be.an('object').that.is.not.empty;
+        expect(body.context._csrf).to.equal('A1B2C3D4');
         done();
       });
     });

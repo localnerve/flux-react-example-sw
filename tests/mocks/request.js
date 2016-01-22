@@ -8,9 +8,17 @@
 'use strict';
 
 function Request (url, options) {
+  options = options || {};
+
+  var body = options.body && options.body.content || options.body;
+
+  if (Object.prototype.toString.call(body) === '[object Array]') {
+    body = body[0];
+  }
+
   this.url = url;
   this.method = options.method;
-  this._body = options.body;
+  this._body = body;
   this.mode = options.mode;
   this.headers = options.headers;
   this.bodyUsed = false;

@@ -101,7 +101,7 @@ function getPushRequests (dehydratedRequests) {
  */
 function getRequests (dehydratedRequests) {
   return getContactRequests(dehydratedRequests).then(function (contacts) {
-    getPushRequests(dehydratedRequests).then(function (pushes) {
+    return getPushRequests(dehydratedRequests).then(function (pushes) {
       return contacts.concat(pushes);
     });
   });

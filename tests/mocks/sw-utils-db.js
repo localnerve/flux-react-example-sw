@@ -15,11 +15,14 @@ module.exports = {
   emulateError: function (error) {
     this.error = error;
   },
+  setValue: function (value) {
+    this.mockValue = value;
+  },
   get: function (storeName, keyName) {
     var testValue;
 
     if (!this.error) {
-      testValue = 'test value';
+      testValue = this.mockValue || 'test value';
     }
 
     return Promise.resolve(testValue);

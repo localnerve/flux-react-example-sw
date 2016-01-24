@@ -16,11 +16,11 @@ var filters = require('./filters');
 var serviceable = require('./serviceable');
 
 /***
- * The maximum number of times a single request can attempt synchronization.
+ * The maximum number of times a single request fail synchronization.
  * This is incremented on a request when a synchronization attempt fails.
  * @see serviceAllRequests
  */
-var MAX_RETRIES = 3;
+var MAX_FAILURES = 3;
 
 /**
  * Defer a request until later by storing it in IndexedDB.
@@ -149,53 +149,69 @@ function removeFallback (options, request) {
  * first failure (Promise.all).
  */
 function serviceAllRequests (options) {
-  var successResponses =
+  options = options = {};
+
+  var apis, allRequests, serviceableRequests, successResponses =
     options.successResponses || toolbox.options.successResponses;
 
-  return initApis.read().then(function (apis) {
-    return idb.all(idb.stores.requests).then(function (storedRequests) {
-      serviceable.getRequests(storedRequests).then(function (requests) {
-        serviceable.pruneRequests(storedRequests, requests).then(function () {
-          return Promise.all(requests.map(function (request) {
-            var req,
-                timestamp = request.timestamp,
-                apiInfo = apis[request.apiPath];
+  return initApis.read()
+  .then(function (results) {
+    apis = results;
+    return idb.all(idb.stores.requests);
+  })
+  .then(function (results) {
+    allRequests = results;
+    return serviceable.getRequests(allRequests);
+  })
+  .then(function (results) {
+    serviceableRequests = results;
+    return serviceable.pruneRequests(allRequests, serviceableRequests);
+  })
+  .then(function () {
+    return Promise.all(serviceableRequests.map(function (dehydratedRequest) {
+      var req,
+          timestamp = dehydratedRequest.timestamp,
+          apiInfo = apis[dehydratedRequest.apiPath];
 
-            // apiInfo found for this request
-            if (apiInfo) {
-              // rehydrate the request with up-to-date CSRF token.
-              req = requestLib.rehydrateRequest(request, apiInfo);
+      // apiInfo found for this request
+      if (apiInfo) {
+        // Rehydrate the request with up-to-date CSRF token.
+        req = requestLib.rehydrateRequest(dehydratedRequest, apiInfo);
 
-              // Make the network request, delete the stored request on success.
-              return fetch(req).then(function (response) {
-                if (successResponses.test(response.status)) {
-                  return idb.del(idb.stores.requests, timestamp);
-                }
-                throw response;
-              }).catch(function (error) {
-                debug('network failure', error);
+        // Make the network request, delete the stored request on success.
+        return fetch(req)
+        .then(function (response) {
+          if (successResponses.test(response.status)) {
+            return idb.del(idb.stores.requests, timestamp);
+          }
+          throw response;
+        }).catch(function (error) {
+          debug('network failure', error);
 
-                // abandonment case, 1 based failureCount - but inc'd after this
-                // so count >= MAX_RETRIES (first is undef).
-                if (request.failureCount &&
-                    request.failureCount >= MAX_RETRIES) {
-                  debug('request ABANDONED after MAX_RETRIES');
+          // Abandonment case, 1 based failureCount - but inc'd after this
+          // so count >= MAX_FAILURES (first is undef).
+          if (dehydratedRequest.failureCount &&
+              dehydratedRequest.failureCount >= MAX_FAILURES) {
+            debug('request ABANDONED after MAX_FAILURES');
 
-                  return idb.del(idb.stores.requests, timestamp);
-                }
+            return idb.del(idb.stores.requests, timestamp).then(function () {
+              // Resolve to the abandoned dehydratedRequest.
+              return dehydratedRequest;
+            });
+          }
 
-                // maintain failure count.
-                request.failureCount = (request.failureCount || 0) + 1;
-                return idb.put(idb.stores.requests, timestamp, request);
-              });
-            }
+          // Maintain failure count.
+          dehydratedRequest.failureCount =
+            (dehydratedRequest.failureCount || 0) + 1;
 
-            // No info found for request.apiPath
-            throw new Error('API Info for '+request.apiPath+' not found');
-          }));
+          // Update the stored dehydratedRequest
+          return idb.put(idb.stores.requests, timestamp, dehydratedRequest);
         });
-      });
-    });
+      }
+
+      // No apiInfo found for dehydratedRequest.apiPath
+      throw new Error('API Info for '+dehydratedRequest.apiPath+' not found');
+    }));
   });
 }
 

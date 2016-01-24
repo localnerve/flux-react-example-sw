@@ -16,7 +16,7 @@ describe('sw/utils/idb', function () {
 
     idb = require('../../../../assets/scripts/sw/utils/idb');
     treoMock = require('treo');
-    treoMock.setMockValue('some value');
+    treoMock.setValue('some value');
   });
 
   after(function () {

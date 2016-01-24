@@ -8,6 +8,7 @@
 
 var closeCount = 0;
 var mockValue;
+var mockReporter;
 
 function TreoStoreMock () {}
 ['all', 'batch', 'del', 'get', 'put'].forEach(function (method) {
@@ -19,6 +20,11 @@ function TreoStoreMock () {}
     // error emulation is a little specific/funky for this
     if (test === 'emulateError') {
       return cb(new Error('mock error'));
+    }
+
+    if (mockReporter) {
+      mockReporter.apply(mockReporter,
+        [method].concat(Array.prototype.slice.call(arguments)));
     }
 
     cb(null, mockValue || 'mock value');
@@ -40,14 +46,6 @@ TreoDBMock.prototype = {
 function TreoMock () {
   return new TreoDBMock();
 }
-TreoMock.status = {
-  getCloseCount: function () {
-    return closeCount;
-  }
-};
-TreoMock.setMockValue = function (value) {
-  mockValue = value;
-};
 TreoMock.schema = function treoMockSchema () {
   return {
     version: function () {
@@ -56,6 +54,24 @@ TreoMock.schema = function treoMockSchema () {
       };
     }
   };
+};
+
+/***
+ * Mock only methods and properties
+ */
+TreoMock.status = {
+  getCloseCount: function () {
+    return closeCount;
+  }
+};
+TreoMock.setValue = function (value) {
+  mockValue = value;
+};
+TreoMock.getValue = function () {
+  return mockValue;
+};
+TreoMock.setReporter = function (reporter) {
+  mockReporter = reporter;
 };
 
 module.exports = TreoMock;

@@ -149,7 +149,7 @@ function removeFallback (options, request) {
  * first failure (Promise.all).
  */
 function serviceAllRequests (options) {
-  options = options = {};
+  options = options || {};
 
   var apis, allRequests, serviceableRequests, successResponses =
     options.successResponses || toolbox.options.successResponses;

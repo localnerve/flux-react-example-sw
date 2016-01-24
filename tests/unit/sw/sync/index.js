@@ -202,6 +202,7 @@ describe('sw/sync/index', function () {
       mockDb.setValue(undefined);
       treoMock.setValue(undefined);
       treoMock.setReporter(undefined);
+      mockFetch.setEmulateError(false);
       self.teardown();
     });
 
@@ -253,7 +254,7 @@ describe('sw/sync/index', function () {
     });
 
     it('should handle bad response', function (done) {
-      var calledPut = 0;
+      var calledTest = false, calledPut = 0;
 
       treoMock.setReporter(function (method, key, dehydratedRequest) {
         if (method === 'put') {
@@ -263,11 +264,15 @@ describe('sw/sync/index', function () {
       });
 
       index.serviceAllRequests({
-        // Change the definition of success to exactly status = 222
-        // That won't match the default 200
-        successResponse: /222/
+        successResponses: {
+          test: function () {
+            calledTest = true;
+            return false;
+          }
+        }
       }).then(function () {
         expect(calledPut).to.equal(1);
+        expect(calledTest).to.be.true;
         done();
       }).catch(function (err) {
         done(err || unexpectedError);

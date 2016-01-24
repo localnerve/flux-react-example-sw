@@ -133,7 +133,7 @@ function removeFallback (options, request) {
  *
  * If a stored request synchronization succeeds, it is removed from storage.
  * If a stored request is deemed not serviceable, it is removed from storage.
- * If a stored request fails to sync more than MAX_RETRIES, it is abandoned.
+ * If a stored request fails to sync more than MAX_FAILURES, it is abandoned.
  *
  * TODO:
  * Run on background-sync and (#15) Init message.

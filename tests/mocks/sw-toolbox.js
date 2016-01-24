@@ -141,9 +141,7 @@ module.exports = {
 
     // First time only, keep a clean copy of the global, mutable options.
     if (!cleanOptions) {
-      cleanOptions = JSON.parse(
-        JSON.stringify(require('sw-toolbox/lib/options'))
-      );
+      cleanOptions = Object.assign({}, require('sw-toolbox/lib/options'));
     }
 
     // Reset the global toolbox options, mixin changes, expose the result

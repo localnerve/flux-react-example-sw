@@ -51,5 +51,5 @@ init.data()
     }
   });
 }).catch(function (error) {
-  debug(toolbox.options, 'startup not running init command');
+  debug('startup not running init command', error);
 });

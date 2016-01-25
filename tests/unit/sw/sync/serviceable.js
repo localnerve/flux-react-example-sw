@@ -282,5 +282,27 @@ describe('sw/sync/serviceable', function () {
         done();
       });
     });
+
+    it('should resolve to undefined if no policy found', function (done) {
+      var calledDel = 0, invalidType = 'invalid';
+
+      expect(Object.keys(syncable.types).indexOf(invalidType)).to.equal(-1);
+
+      // Replace previous reporter to listen for 'del'
+      treoMock.setReporter(function (method, key) {
+        if (method === 'del') {
+          calledDel++;
+        }
+      });
+
+      serviceable.pruneRequestsByPolicy(null, {
+        type: invalidType
+      })
+      .then(function (result) {
+        expect(result).to.be.undefined;
+        expect(calledDel).to.equal(0);
+        done();
+      });
+    });
   });
 });

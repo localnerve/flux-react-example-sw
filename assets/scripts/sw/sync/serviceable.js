@@ -66,7 +66,7 @@ function getPushRequests (dehydratedRequests) {
 
       // [1] add subscribe or unsubscribe
       if (actionableSubscribe || actionableUnsubscribe) {
-        pushRequests.push(requests);
+        pushRequests = pushRequests.concat(requests);
       }
 
       // If not unsubscribing, then if subscribing or just actively subscribed,
@@ -80,7 +80,7 @@ function getPushRequests (dehydratedRequests) {
         );
 
         // [2] add any updateTopics
-        pushRequests.push(updateTopicsRequests);
+        pushRequests = pushRequests.concat(updateTopicsRequests);
       }
 
       debug('getPushRequests', pushRequests);
@@ -182,7 +182,7 @@ function prunePolicyPush (dehydratedRequests) {
   // MAYBE this should only be for subscribe/unsubscribe (not updateTopics).
   // TODO: revisit during implementation of #34 (update subscription).
   var operations = Object.keys(syncable.ops).map(function (key) {
-    syncable.ops[key];
+    return syncable.ops[key];
   });
 
   var redundantPushRequests = filters.match(

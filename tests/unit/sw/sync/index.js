@@ -8,6 +8,7 @@
 var expect = require('chai').expect;
 var mocks = require('../../../mocks');
 var syncable = require('../../../../utils/syncable');
+var Self = require('../../../mocks/self');
 
 describe('sw/sync/index', function () {
   var index, treoMock, toolboxMock;
@@ -45,32 +46,6 @@ describe('sw/sync/index', function () {
       body: body
     });
   });
-
-  function Self () {
-    this.teardownReg = false;
-    this.teardownSelf = false;
-  }
-  Self.prototype = {
-    setup: function () {
-      if (global.self) {
-        global.self.registration = global.self.registration ||
-          (this.teardownReg = true, {});
-      } else {
-        this.teardownSelf = true;
-        global.self = {};
-        global.self.registration = {};
-      }
-    },
-    teardown: function () {
-      if (this.teardownSelf) {
-        delete global.self;
-      } else {
-        if (this.teardownReg) {
-          delete global.self.registration;
-        }
-      }
-    }
-  };
 
   describe('removeFallback', function () {
     it('should remove fallback property', function (done) {

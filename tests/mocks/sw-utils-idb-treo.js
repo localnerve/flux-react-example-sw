@@ -73,5 +73,9 @@ TreoMock.getValue = function () {
 TreoMock.setReporter = function (reporter) {
   mockReporter = reporter;
 };
+// Make it possible to wrap/chain reporters
+TreoMock.getReporter = function () {
+  return mockReporter;
+};
 
 module.exports = TreoMock;

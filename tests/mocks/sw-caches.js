@@ -11,24 +11,29 @@ var Response = require('./response');
 
 function Cache (options) {
   this.options = options || {};
+  this.storage = Object.create(null);
 }
 Cache.prototype = {
   match: function match (req) {
-    var response, found = this.options.found;
+    var res;
 
-    if (found) {
-      response = found[req];
-    } else {
-      if (this.options.default) {
-        response = new Response({
-          test: 'hello'
-        }, {
-          status: 200
-        });
-      }
+    var urlString = typeof req === 'string' ? req : req.url;
+    res = this.storage[urlString];
+
+    if (!res && this.options.default) {
+      res = new Response({
+        test: 'hello'
+      }, {
+        status: 200
+      });
     }
 
-    return Promise.resolve(response);
+    return Promise.resolve(res);
+  },
+  put: function put (req, res) {
+    var urlString = typeof req === 'string' ? req : req.url;
+    this.storage[urlString] = res;
+    return Promise.resolve();
   }
 };
 
@@ -37,13 +42,10 @@ Cache.prototype = {
  *
  * @param {Object} [options] - behavioral options
  * If not supplied a default behavior is supplied.
- * @param {Object} [options.cacheNames] - A map of supported cacheNames.
- * If not supplied, all are supported.
- * @param {Object} [options.cache] - Cache behavior options.
- * If not supplied, the default behavior is supplied.
- * @param {Object} [options.cache.found] - A map of requests and responses to
- * use. If not supplied, depends on options.cache.default.
- * @param {Boolean} [options.cache.default] - true, then return a default
+ * @param {Boolean} [options.openFail] - open should fail.
+ * @param {Object} [options.cacheNames] - A map of supported named caches.
+ * If not supplied, a new one is created.
+ * @param {Boolean} [options.cache.default] - if true, then return a default
  * successful response. If not supplied, cache returns undefined (not found).
  */
 function CacheStorage (options) {
@@ -59,7 +61,8 @@ CacheStorage.prototype = {
       cache = new Cache(this.options.cache);
     }
 
-    return Promise.resolve(cache);
+    return this.options.openFail ? Promise.reject(new Error('mock error')) :
+      Promise.resolve(cache);
   }
 };
 

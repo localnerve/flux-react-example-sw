@@ -182,9 +182,11 @@ module.exports = {
    */
   mockTeardown: function mockTeardown () {
     if (teardown.self) {
+      teardown.self = false;
       delete global.self;
     }
     if (teardown.url) {
+      teardown.url = false;
       delete global.URL;
     }
   },

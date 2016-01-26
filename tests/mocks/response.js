@@ -25,6 +25,10 @@ Response.prototype = {
     this.bodyUsed = true;
     return Promise.resolve(this._body);
   },
+  text: function text () {
+    this.bodyUsed = true;
+    return Promise.resolve(JSON.stringify(this._body));
+  },
   clone: function clone () {
     return new Response(this._body, {
       status: this.status,

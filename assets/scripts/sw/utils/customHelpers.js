@@ -12,13 +12,6 @@ var debug = require('./debug')('customHelpers');
 var jsdiff = require('diff');
 
 /**
- * A simple utility passthrough Function
- */
-function passThru (param) {
-  return param;
-}
-
-/**
  * Fetch and Cache using different versions of the same request.
  * Only caches GET requests, other methods just return response promise.
  *
@@ -200,6 +193,8 @@ function contentRace (reqNet, reqCache, updateHandler, options) {
  * A simple brute-force diff that returns true/false if first and second
  * are n % different.
  *
+ * @private
+ *
  * @param {String} oldstr - The first string to compare.
  * @param {String} newstr - The second string to compare.
  * @param {Number} threshold - The percentage threshold above which defines a
@@ -225,6 +220,8 @@ function nDiff (oldstr, newstr, threshold) {
  * Called to notify the client application that new content is available.
  * This is the default contentUpdate handler for contentRace.
  *
+ * @private
+ *
  * @param {Request} request - The request associated with the content update.
  * @returns {Promise} A promise that resolves when the update handled (no value).
  */
@@ -249,6 +246,5 @@ function defaultContentUpdate (request) {
 
 module.exports = {
   contentRace: contentRace,
-  fetchAndCache: fetchAndCache,
-  passThru: passThru
+  fetchAndCache: fetchAndCache
 };

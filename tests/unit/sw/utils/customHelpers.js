@@ -25,7 +25,7 @@ describe('sw/utils/customHelpers', function () {
 
     globalCacheStorage = require('../../../mocks/sw-caches');
 
-    // so far, not used by module under test
+    // so far, not used by module under test, so keep it here
     GlobalRequest = require('../../../mocks/request');
 
     global.Response = require('../../../mocks/response');
@@ -253,7 +253,8 @@ describe('sw/utils/customHelpers', function () {
   });
 
   describe('contentRace', function () {
-    var calledPostMessage, getReqs, cacheResponse, networkResponse;
+    var calledPostMessage, getReqs, cacheResponse, cacheResponseIdentical,
+        networkResponse;
 
     before('contentRace', function () {
       toolbox.mockSetup();
@@ -282,13 +283,15 @@ describe('sw/utils/customHelpers', function () {
       calledPostMessage = 0;
       getReqs = createRequests('GET');
 
-      // NOTE: there is more than 1% difference in the responses.
+      // NOTE: there must be more than 1% difference in these responses.
       networkResponse = new global.Response({
         some: 'contact-race-network-response'
       }, { status: 200 });
       cacheResponse = new global.Response({
         some: 'content-race-cache-response'
       }, { status: 200 });
+
+      cacheResponseIdentical = networkResponse.clone();
 
       var cacheNames = {};
       cacheNames[toolbox.options.cache.name] = new globalCacheStorage.Cache();
@@ -304,17 +307,23 @@ describe('sw/utils/customHelpers', function () {
       calledPostMessage = 0;
     });
 
-    function testCacheAndNetwork (promise) {
+    function testCacheAndNetwork (promise, options) {
+      options = options || {};
+
       return promise
       .then(function (response) {
-        expect(response).to.eql(cacheResponse);
+        if (!options.ignoreCacheResponse) {
+          expect(response).to.eql(cacheResponse);
+        }
         return global.caches.open(toolbox.options.cache.name);
       })
       .then(function (cache) {
         return cache.match(requestCacheUrl);
       })
       .then(function (response) {
-        expect(response).to.eql(networkResponse);
+        if (!options.ignoreNetworkResponse) {
+          expect(response).to.eql(networkResponse);
+        }
       });
     }
 
@@ -353,6 +362,90 @@ describe('sw/utils/customHelpers', function () {
       })
       .catch(function (error) {
         done(error || unexpectedFlowError);
+      });
+    });
+
+    it('should not call updateHandler if no difference', function (done) {
+      var calledUpdateHandler = 0;
+
+      global.caches.open(toolbox.options.cache.name)
+      .then(function (cache) {
+        // Make previously cached response identical to networkResponse.
+        return cache.put(requestCacheUrl, cacheResponseIdentical);
+      })
+      .then(function () {
+        return testCacheAndNetwork(
+          customHelpers.contentRace(getReqs.reqNet, getReqs.reqCache,
+          function () {
+            calledUpdateHandler++;
+          }), {
+            ignoreCacheResponse: true
+          }
+        );
+      })
+      .then(function () {
+        expect(calledUpdateHandler).to.equal(0);
+        done();
+      })
+      .catch(function (error) {
+        done(error || unexpectedFlowError);
+      });
+    });
+
+    it('should handle no previous cached response, not call updateHandler',
+    function (done) {
+      var calledUpdateHandler = 0;
+
+      global.caches.open(toolbox.options.cache.name)
+      .then(function (cache) {
+        // Remove previously cached response.
+        return cache.put(requestCacheUrl, undefined);
+      })
+      .then(function () {
+        return testCacheAndNetwork(
+          customHelpers.contentRace(getReqs.reqNet, getReqs.reqCache,
+          function () {
+            calledUpdateHandler++;
+          }), {
+            ignoreCacheResponse: true
+          }
+        );
+      })
+      .then(function () {
+        expect(calledUpdateHandler).to.equal(0);
+        done();
+      })
+      .catch(function (error) {
+        done(error || unexpectedFlowError);
+      });
+    });
+
+    it('should handle both no cached response AND bad network response',
+    function (done) {
+      globalFetch.setMockResponse(new global.Response({
+        body: 'bad'
+      }, {
+        status: 400
+      }));
+
+      global.caches.open(toolbox.options.cache.name)
+      .then(function (cache) {
+        // Remove previously cached response.
+        return cache.put(requestCacheUrl, undefined);
+      })
+      .then(function () {
+        return testCacheAndNetwork(
+          customHelpers.contentRace(getReqs.reqNet, getReqs.reqCache), {
+            ignoreCacheResponse: true,
+            ignoreNetworkResponse: true
+          }
+        );
+      })
+      .then(function () {
+        done(unexpectedFlowError);
+      })
+      .catch(function () {
+        done();
       });
     });
   });

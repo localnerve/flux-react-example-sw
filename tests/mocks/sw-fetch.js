@@ -11,17 +11,30 @@ var Response = require('./response');
 
 var mockResponse;
 var emulateError;
+var responseDelay;
 
 function fetch (request) {
-  if (emulateError) {
-    return Promise.reject(new Error('mock error'));
-  }
+  return new Promise(function (resolve, reject) {
+    var response = mockResponse || new Response({
+      mock: 'body'
+    }, {
+      status: 200
+    });
 
-  return Promise.resolve(mockResponse || new Response({
-    mock: 'body'
-  }, {
-    status: 200
-  }));
+    if (emulateError) {
+      if (responseDelay) {
+        setTimeout(reject, responseDelay, new Error('mock error'));
+        return;
+      }
+      return reject(new Error('mock error'));
+    }
+
+    if (responseDelay) {
+      setTimeout(resolve, responseDelay, response);
+      return;
+    }
+    return resolve(response);
+  });
 }
 
 module.exports = {
@@ -31,5 +44,8 @@ module.exports = {
   },
   setEmulateError: function (err) {
     emulateError = err;
+  },
+  setResponseDelay: function (delay) {
+    responseDelay = delay;
   }
 };

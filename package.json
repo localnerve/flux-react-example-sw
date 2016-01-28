@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example-sw",
-  "version": "0.12.5",
+  "version": "0.12.6",
   "description": "An isomorphic flux-react example application with a service worker",
   "main": "./server",
   "scripts": {
@@ -43,7 +43,7 @@
     "url": "https://github.com/localnerve/flux-react-example-sw/issues"
   },
   "engines": {
-    "node": "~4.2.5",
+    "node": "~4.2.4",
     "npm": "~2.14.12"
   },
   "homepage": "https://github.com/localnerve/flux-react-example-sw",
@@ -74,8 +74,7 @@
     "istanbul": "^0.4.0",
     "jscs": "^2.0.0",
     "jscs-jsdoc": "^1.1.0",
-    "jsdom": "~7.2.0",
-    "jshint": "2.8.0",
+    "jsdom": "~8.0.0",
     "jsx-loader": "^0.13.1",
     "mocha": "^2.2.1",
     "mockery": "^1.4.0",
@@ -84,7 +83,7 @@
     "q": "^1.4.1",
     "react-addons-test-utils": "0.14.x",
     "svgo": "0.5.0",
-    "sw-precache": "^2.1.0",
+    "sw-precache": "^2.3.0",
     "wd": "0.3.12",
     "webpack": "^1.12.9",
     "webpack-dev-server": "^1.12.9"
@@ -124,7 +123,7 @@
     "serve-favicon": "^2.2.0",
     "sitemap-xml": "git://github.com/localnerve/sitemap-xml",
     "superagent": "^1.2.0",
-    "sw-toolbox": "^3.0.1",
+    "sw-toolbox": "^3.1.1",
     "treo": "^0.5.0",
     "web-push": "0.0.11"
   }

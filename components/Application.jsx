@@ -92,6 +92,7 @@ var Application = React.createClass({
               right: 'auto',
               bottom: 'auto',
               marginRight: '-50%',
+              overflow: 'visible',
               transform: 'translate(-50%, -50%)',
               background: 'rgba(255, 255, 255, 0.93)'
             }

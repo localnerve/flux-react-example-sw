@@ -192,7 +192,7 @@ function serviceAllRequests (options) {
           // so count >= MAX_FAILURES (first is undef).
           if (dehydratedRequest.failureCount &&
               dehydratedRequest.failureCount >= MAX_FAILURES) {
-            debug('request ABANDONED after MAX_FAILURES');
+            debug('request ABANDONED after MAX_FAILURES', dehydratedRequest);
 
             return idb.del(idb.stores.requests, timestamp).then(function () {
               // Resolve to the abandoned dehydratedRequest.

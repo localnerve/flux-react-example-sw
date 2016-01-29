@@ -101,7 +101,7 @@ function openModal (context, payload, done) {
     })
     .catch(function (error) {
       context.dispatch('MODAL_FAILURE', error);
-      done();
+      done(error);
     });
   }
 }

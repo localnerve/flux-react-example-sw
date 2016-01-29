@@ -11,10 +11,28 @@ var backgrounds = require('./backgrounds');
 var routes = require('./routes');
 var update = require('./update');
 var apiRequests = require('./apiRequests');
+var sync = require('../sync');
 var stores = require('../utils/db').init({ key: 'stores' });
 var apis = require('../utils/db').init({ key: 'apis' });
 var timestamp = require('../utils/db').init({ key: 'timestamp' });
 var debug = require('../utils/debug')('init');
+
+/**
+ * Kick-off the maintenance and synchronization of stored requests.
+ */
+function startRequestSync () {
+  sync.serviceAllRequests()
+  .then(function (results) {
+    results.forEach(function (result) {
+      if (result && result.failureCount) {
+        debug('WOULD manage abandoned request', result);
+      }
+    });
+  })
+  .catch(function (error) {
+    debug('serviceAllRequests failed ', error);
+  });
+}
 
 /**
  * Run the 'init' sequence.
@@ -28,6 +46,7 @@ var debug = require('../utils/debug')('init');
  * So can run multiple times, *must be idempotent*.
  *
  * What?
+ * 0. Synchronizes/Maintains stored requests.
  * 1. Updates the init.stores in IndexedDB if the app is online.
  * 2. Installs background fetch handling.
  * 3. Installs api request fetch handling.
@@ -47,6 +66,11 @@ var debug = require('../utils/debug')('init');
 function init (payload, responder) {
   debug('Running init, payload:', payload);
 
+  // As a side-effect, asynchronously maintain stored requests.
+  // TODO: Move to 'sync' event handler.
+  startRequestSync();
+
+  // Update stores and setup route mappings.
   return update(payload).then(function (updated) {
     if (updated || payload.startup) {
       return backgrounds(payload.stores)

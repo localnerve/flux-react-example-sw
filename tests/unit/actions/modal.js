@@ -2,7 +2,7 @@
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global describe, it, before, after, beforeEach */
+/* global describe, it, before, after, beforeEach, afterEach */
 'use strict';
 
 var expect = require('chai').expect;
@@ -19,10 +19,11 @@ var serviceData = require('../../mocks/service-data');
 var mockActionInterface = require('../../mocks').interface;
 
 describe('modal action', function () {
-  var context, params;
+  var mockActions, calledService, context, params;
 
   before(function () {
     mockActionInterface.begin();
+    mockActions = require('./interface');
   });
 
   after(function () {
@@ -30,17 +31,25 @@ describe('modal action', function () {
   });
 
   beforeEach(function () {
+    calledService = 0;
     params = JSON.parse(JSON.stringify(modelsResponse.Settings));
     context = createMockActionContext({
       stores: [ModalStore, ContentStore]
     });
     context.service = new MockService();
     context.service.setService('page', function (method, params, config, callback) {
+      calledService++;
       serviceData.fetch(params, callback);
     });
   });
 
+  afterEach(function () {
+    delete mockActions.test;
+  });
+
   describe('start', function () {
+    var expectedError = new Error('should have received an error');
+
     it('should update the ModalStore', function (done) {
       context.executeAction(modalStartAction, params, function (err) {
         if (err) {
@@ -76,6 +85,116 @@ describe('modal action', function () {
         expect(models).to.eql(modelsResponse);
 
         done();
+      });
+    });
+
+    it('should not make service call if data in ContentStore', function (done) {
+      var contentStore = context.getStore(ContentStore);
+
+      // make sure content for params.resource is there
+      if (!contentStore.get(params.resource)) {
+        contentStore.receivePageContent({
+          resource: params.resource,
+          data: serviceData.createContent(params.resource)
+        });
+      }
+
+      context.executeAction(modalStartAction, params, function (err) {
+        if (err) {
+          return done(err);
+        }
+
+        var models = contentStore.getCurrentPageModels();
+
+        expect(models).to.eql(modelsResponse);
+        expect(calledService).to.equal(0);
+        done();
+      });
+    });
+
+    it('should handle customAction failure after service call',
+    function (done) {
+      var calledAction = 0,
+          localParams = Object.assign({}, params);
+
+      mockActions.test = function (context, payload, done) {
+        calledAction++;
+        payload.emulateError = true;
+        return mockActions.settings(context, payload, done);
+      };
+      localParams.action = {
+        name: 'test',
+        params: {}
+      };
+
+      context.executeAction(modalStartAction, localParams, function (err) {
+        expect(calledService).to.equal(1);
+        expect(calledAction).to.equal(1);
+
+        if (err) {
+          return done();
+        }
+
+        done(expectedError);
+      });
+    });
+
+    it('should handle customAction failure no service call', function (done) {
+      var calledAction = 0,
+          contentStore = context.getStore(ContentStore);
+
+      // make sure content for params.resource is there
+      if (!contentStore.get(params.resource)) {
+        contentStore.receivePageContent({
+          resource: params.resource,
+          data: serviceData.createContent(params.resource)
+        });
+      }
+
+      var localParams = Object.assign({}, params);
+      mockActions.test = function (context, payload, done) {
+        calledAction++;
+        payload.emulateError = true;
+        return mockActions.settings(context, payload, done);
+      };
+      localParams.action = {
+        name: 'test',
+        params: {}
+      };
+
+      context.executeAction(modalStartAction, localParams, function (err) {
+        expect(calledService).to.equal(0);
+        expect(calledAction).to.equal(1);
+
+        if (err) {
+          return done();
+        }
+
+        done(expectedError);
+      });
+    });
+
+    it('should fail as expected', function (done) {
+      context.executeAction(modalStartAction, {
+        emulateError: true
+      }, function (err) {
+        if (err) {
+          return done();
+        }
+
+        done(expectedError);
+      });
+    });
+
+    it('should fail as expected with no data', function (done) {
+      context.executeAction(modalStartAction, {
+        noData: true
+      }, function (err) {
+        if (err) {
+          return done();
+        }
+
+        done(expectedError);
       });
     });
   });

@@ -15,6 +15,7 @@ var pageAction = require('../../../actions/page');
 var serviceData = require('../../mocks/service-data');
 
 describe('page action', function () {
+  var calledService = 0;
   var context;
   var params = {
     resource: 'home',
@@ -22,11 +23,13 @@ describe('page action', function () {
   };
 
   beforeEach(function () {
+    calledService = 0;
     context = createMockActionContext({
       stores: [ApplicationStore, ContentStore]
     });
     context.service = new MockService();
     context.service.setService('page', function (method, params, config, callback) {
+      calledService++;
       serviceData.fetch(params, callback);
     });
   });
@@ -39,6 +42,7 @@ describe('page action', function () {
 
       var title = context.getStore(ApplicationStore).getCurrentPageTitle();
 
+      expect(calledService).to.equal(1);
       expect(title).to.be.a('string').and.not.be.empty;
       done();
     });
@@ -52,8 +56,53 @@ describe('page action', function () {
 
       var content = context.getStore(ContentStore).getCurrentPageContent();
 
+      expect(calledService).to.equal(1);
       expect(content).to.be.a('string').and.not.be.empty;
       done();
+    });
+  });
+
+  it('should use the ContentStore before making a service call',
+  function (done) {
+    var contentStore = context.getStore(ContentStore);
+
+    // make sure content for params.resource is there
+    if (!contentStore.get(params.resource)) {
+      contentStore.contents[params.resource] =
+        serviceData.createContent(params.resource);
+    }
+
+    context.executeAction(pageAction, params, function (err) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(calledService).to.equal(0);
+      done();
+    });
+  });
+
+  it('should fail as expected', function (done) {
+    context.executeAction(pageAction, {
+      emulateError: true
+    }, function (err) {
+      if (err) {
+        return done();
+      }
+
+      done(new Error('should have received an error'));
+    });
+  });
+
+  it('should fail as expected with no data', function (done) {
+    context.executeAction(pageAction, {
+      noData: true
+    }, function (err) {
+      if (err) {
+        return done();
+      }
+
+      done(new Error('should have received an error'));
     });
   });
 });

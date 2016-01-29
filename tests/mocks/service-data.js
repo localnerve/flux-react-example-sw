@@ -10,14 +10,25 @@
 var routesResponse = require('../fixtures/routes-response');
 var modelsResponse = require('../fixtures/models-response');
 
-var models = modelsResponse;
-
 module.exports = {
+  createContent: function (input) {
+    var content = typeof input === 'string' ? '<h2>'+input+'</h2>'
+      : input;
+
+    return {
+      models: modelsResponse,
+      content: content
+    };
+  },
   fetch: function (params, callback) {
     var result;
 
     if (params.emulateError) {
-      callback(new Error('mock'));
+      return callback(new Error('mock'));
+    }
+
+    if (params.noData) {
+      return callback();
     }
 
     switch (params.resource) {
@@ -28,46 +39,30 @@ module.exports = {
         });
       break;
 
-      case 'business':
-        result = callback(null, 'business fixture goes here');
-      break;
-
       case 'about':
-        result = callback(null, {
-          models: models,
-          content: '<h2>About</h2>'
-        });
+        result = callback(null, this.createContent('About'));
       break;
 
       case 'contact':
-        result = callback(null, {
-          models: models,
-          content: '<h2>Contact</h2>'
-        });
+        result = callback(null, this.createContent('Contact'));
       break;
 
       case 'home':
-        result = callback(null, {
-          models: models,
-          content: '<h2>Home</h2>'
-        });
+        result = callback(null, this.createContent('Home'));
       break;
 
       case 'settings':
-        result = callback(null, {
-          models: models,
-          content: {
-            pushNotifications: {
-              topics: [{
-                label: 'Alerts',
-                tag: 'push-alerts-tag'
-              }, {
-                label: 'Upcoming Events',
-                tag: 'push-upcoming-events-tag'
-              }]
-            }
+        result = callback(null, this.createContent({
+          pushNotifications: {
+            topics: [{
+              label: 'Alerts',
+              tag: 'push-alerts-tag'
+            }, {
+              label: 'Upcoming Events',
+              tag: 'push-upcoming-events-tag'
+            }]
           }
-        });
+        }));
       break;
 
       default:

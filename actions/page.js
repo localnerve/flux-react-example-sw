@@ -38,13 +38,15 @@ function serviceRequest (context, payload, done) {
   debug('Page service request start');
 
   context.service.read('page', payload, {}, function (err, data) {
-    debug('Page service request complete');
+    debug('Page service request complete', data);
 
     if (err) {
       return done(err);
     }
 
     if (!data) {
+      debug('no data found', payload.resource);
+
       var noData = new Error('Page not found');
       noData.statusCode = 404;
       return done(noData);

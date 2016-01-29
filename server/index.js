@@ -83,7 +83,7 @@ app.use(settings.web.baseDir, express.static(
 // Setup security
 app.use(cookieParser({
   httpOnly: true,
-  secure: settings.web.ssl || settings.web.sslRemote
+  secure: settings.web.ssl
 }));
 app.use(bodyParser.json());
 app.use(csrf({ cookie: true }));

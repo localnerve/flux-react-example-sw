@@ -2,7 +2,7 @@
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * Handlers to fulfill service worker message commands.
+ * Init message and data handling.
  */
 /* global Promise */
 'use strict';
@@ -19,41 +19,27 @@ var debug = require('../utils/debug')('init');
 
 /**
  * Kick-off the maintenance and synchronization of stored requests.
+ * TODO: Use in 'sync' message to handle one-offs synchronization requests.
+ * Run here until 'sync' gets more finalized/standardized.
+ *
+ * @returns {Promise} Resolves to undefined when complete.
  */
 function startRequestSync () {
-  sync.serviceAllRequests()
-  .then(function (results) {
-    results.forEach(function (result) {
-      if (result && result.failureCount) {
-        debug('WOULD manage abandoned request', result);
-      }
+  return sync.serviceAllRequests()
+    .then(function (results) {
+      results.forEach(function (result) {
+        if (result && result.failureCount) {
+          debug('TODO: manage abandoned request', result);
+        }
+      });
+    })
+    .catch(function (error) {
+      debug('serviceAllRequests failed ', error);
     });
-  })
-  .catch(function (error) {
-    debug('serviceAllRequests failed ', error);
-  });
 }
 
 /**
- * Run the 'init' sequence.
- *
- * Uses the initial store data sent from the server to setup dynamic request
- * handling, and to keep the store data up-to-date if the app is online.
- *
- * When?
- * 1. Gets executed every new app load (once per session), via message.
- * 2. Gets executed at the beginning of service worker start, via load.
- * So can run multiple times, *must be idempotent*.
- *
- * What?
- * 0. Synchronizes/Maintains stored requests.
- * 1. Updates the init.stores in IndexedDB if the app is online.
- * 2. Installs background fetch handling.
- * 3. Installs api request fetch handling.
- * 4. Installs route fetch handling.
- * 5. Precaches/prefetches backgrounds and routes.
- *
- * TODO: Add sync.serviceAllRequests to maintain deferred api requests (#15).
+ * Update stores and setup sw-toolbox route map.
  *
  * @param {Object} payload - Initial payload
  * @param {Number} payload.timestamp - The timestamp of the payload.
@@ -61,16 +47,8 @@ function startRequestSync () {
  * @param {Object} payload.apis - The api information for the app.
  * @param {Boolean} payload.startup - Indicates the sw started up and memory
  * needs initializing.
- * @param {Function} responder - Function to call to resolve the message
  */
-function init (payload, responder) {
-  debug('Running init, payload:', payload);
-
-  // As a side-effect, asynchronously maintain stored requests.
-  // TODO: Move to 'sync' event handler.
-  startRequestSync();
-
-  // Update stores and setup route mappings.
+function updateAndSetup (payload) {
   return update(payload).then(function (updated) {
     if (updated || payload.startup) {
       return backgrounds(payload.stores)
@@ -82,17 +60,45 @@ function init (payload, responder) {
         });
     } else {
       debug('init skipped');
-      return Promise.resolve();
     }
-  })
+  });
+}
+
+/**
+ * The 'init' message handler, runs the initialization sequence.
+ *
+ * Uses the initial store data sent from the server to setup dynamic request
+ * handling, and to keep the store data up-to-date if the app is online.
+ *
+ * When?
+ * 1. Gets executed every new app load (once per session), via message.
+ * 2. Gets executed at the beginning of service worker start, via load.
+ * So can run multiple times, *must be idempotent*.
+ *
+ * What?
+ * 1. Synchronizes/Maintains stored requests in IndexedDB.
+ * 2. Updates the init.stores in IndexedDB if the app is online.
+ * 3. Installs route handlers for sw-toolbox.
+ * 4. Precaches/prefetches backgrounds and routes.
+ *
+ * @param {Object} payload - Initial payload.
+ * @param {Function} responder - Function to call to resolve the message.
+ */
+function init (payload, responder) {
+  debug('Running init, payload:', payload);
+
+  return Promise.all([
+    startRequestSync(),
+    updateAndSetup(payload)
+  ])
   .then(function () {
-    responder({
+    return responder({
       error: null
     });
   })
   .catch(function (error) {
     debug('init failed', error);
-    responder({
+    return responder({
       error: error.toString()
     });
   });
@@ -108,7 +114,8 @@ function initData () {
     stores.read(),
     apis.read(),
     timestamp.read()
-  ]).then(function (data) {
+  ])
+  .then(function (data) {
     return {
       stores: data[0],
       apis: data[1],

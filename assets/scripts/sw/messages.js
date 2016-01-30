@@ -4,19 +4,15 @@
  *
  * Message handling for the service worker.
  */
-/* global self, clients */
+/* global Promise, self, clients */
 'use strict';
 
 // For now, this only works in dev builds, sw-toolbox issue #31
 var debug = require('./utils/debug')('messages');
 
-/**
+/***
  * Add any new messaging command handlers to this object.
- *
- * Signature: command (payload, responder)
- * All commands must accept arguments payload, responder.
- * The payload is the message payload object, and responder is a function that
- * accepts a single object that contains an optional error property.
+ * All commands must accept arguments payload, responder and return Promise.
  */
 var commands = {
   init: require('./init').command
@@ -29,7 +25,7 @@ var commands = {
  * @param {Function} responder - Function to call to resolve the message
  */
 function unknownCommand (payload, responder) {
-  responder({
+  return responder({
     error: 'Unknown command received by service worker.'
   });
 }
@@ -42,27 +38,33 @@ function unknownCommand (payload, responder) {
  * @param {Object} response - The message response payload.
  */
 function sendResponse (event, response) {
-  var respondTo = event.data.port || event.source;
+  var result,
+      respondTo = event.data.port || event.source;
 
   if (respondTo) {
     respondTo.postMessage(response);
   } else {
     if (self.clients) {
-      clients.matchAll().then(function (clients) {
+      result = clients.matchAll().then(function (clients) {
         for (var i = 0; i < clients.length; i++) {
           clients[i].postMessage(response);
         }
       });
     }
   }
+
+  return result || Promise.resolve();
 }
 
 self.addEventListener('message', function (event) {
-  var command = event.data.command;
-  var payload = event.data.payload;
+  var commandName = event.data.command,
+      payload = event.data.payload,
+      command = commands[commandName] || unknownCommand,
+      handler = 'waitUntil' in event ? event.waitUntil : function () {};
 
-  debug('\'' + command + '\' command received', payload);
+  debug('\'' + commandName + '\' command received', payload);
 
-  var handler = commands[command] || unknownCommand;
-  handler(payload, sendResponse.bind(this, event));
+  handler(
+    command(payload, sendResponse.bind(this, event))
+  );
 });

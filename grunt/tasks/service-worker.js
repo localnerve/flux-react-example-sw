@@ -17,7 +17,7 @@ module.exports = function (grunt) {
   grunt.config('_service_worker', {
     options: {
       // options for sw-precache
-      cacheId: '<%= pkg.name %>/<%= pkg.version %>',
+      cacheId: '<%= pkg.name %>',
       serviceWorkerScript: '<%= project.src.serviceWorker.precache %>',
       directoryIndex: false,
       stripPrefix: '<%= project.dist.baseDir %>',
@@ -36,6 +36,7 @@ module.exports = function (grunt) {
       // options for service worker captureData
       captureData: {
         output: '<%= project.src.serviceWorker.data %>',
+        version: '<%= pkg.version %>',
         assets: [{
           file: '<%= project.src.styles %>/_fonts.scss',
           captures: [{
@@ -93,6 +94,7 @@ module.exports = function (grunt) {
     var output = {
       debug: options.debug ? true : false,
       cacheId: options.cacheId,
+      version: options.captureData.version,
       assets: [] // ,
       // api_paths: []
     };

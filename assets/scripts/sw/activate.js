@@ -19,7 +19,7 @@ var debug = require('./utils/debug')('activate');
  * 1. starts with cacheId
  * 2. contains the current scope.
  * 3. does not end with the 'inactive$$$'.
- * 3. is not exactly the current sw-toolbox cacheName
+ * 4. is not exactly the current sw-toolbox cacheName
  */
 self.addEventListener('activate', function (event) {
   debug('activate event fired, scope: ', toolbox.options.scope);

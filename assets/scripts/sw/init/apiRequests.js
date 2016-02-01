@@ -5,7 +5,12 @@
  * Handling for api requests.
  *
  * NOTE about pre-emptive timeouts:
- *   The pre-emptive timeout shown here is a general use case that doesn't
+ *
+ *   The pre-emptive timeout is only effective in this application for api POST
+ *   requests.
+ *
+ *   For GET:
+ *   The pre-emptive timeout shown here is a use case that doesn't
  *   actually exist for GET requests in this demo application.
  *   This application caches the api GET content in stores (app layer) and never
  *   makes another Request. Flux Store caching is the desired behavior for this
@@ -22,11 +27,6 @@
  *   response come in under the wire, satisfy the request, and win the race -
  *   resulting in api content being displayed anyway. Pretty robust.
  *
- *   Who knows, maybe you'll need an api that is not cached in the
- *   app layer? If so, cache in the service worker as demonstrated here, and
- *   never timeout.
- *
- *   The pre-emptive timeout is effective for api POST requests.
  */
 /* global Promise, Request */
 'use strict';
@@ -123,7 +123,6 @@ function passThruRequest (request) {
  *  Network first, fallback to defer request.
  *  When a post request succeeds, clear appropriate deferred requests.
  *  When a post request fails, defer the request for later processing.
- *  (More to come)
  *
  *  @see sw/sync.js
  *

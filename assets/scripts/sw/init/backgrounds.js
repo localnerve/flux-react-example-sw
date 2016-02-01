@@ -3,8 +3,6 @@
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
  * Handling for background image requests.
- * NOTE: Not really idempotent, because toolbox router Map will have old routes in it.
- * TODO: Handle that little issue.
  */
 /* global Promise, Request, caches */
 'use strict';

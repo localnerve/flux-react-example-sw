@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example-sw",
-  "version": "0.12.6",
+  "version": "0.13.0",
   "description": "An isomorphic flux-react example application with a service worker",
   "main": "./server",
   "scripts": {
@@ -123,7 +123,7 @@
     "serve-favicon": "^2.2.0",
     "sitemap-xml": "git://github.com/localnerve/sitemap-xml",
     "superagent": "^1.2.0",
-    "sw-toolbox": "^3.1.1",
+    "sw-toolbox": "~3.1.1",
     "treo": "^0.5.0",
     "web-push": "0.0.11"
   }

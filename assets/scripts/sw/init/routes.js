@@ -2,11 +2,10 @@
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
- * Handling for dynamic routes.
+ * Handling for dynamic app routes.
  *
- * NOTE: idempotent? toolbox router Map will have old routes in it.
- * TODO: Investigate/Handle that little issue
- *   (exists for apiRequests and Backgrounds also).
+ * Uses a custom 'fastest' sw-toolbox route handler and a higher level TTL cache
+ * to keep requests down and response as fast as possible.
  */
 /* global Promise, Request, URL, location */
 'use strict';
@@ -18,6 +17,9 @@ var fastest = require('../utils/customFastest');
 var idb = require('../utils/idb');
 var requestLib = require('../utils/requests');
 
+// Recent Route Lifespan (after this, it is re-fetched and cached)
+var routeTTL = 1000 * 60 * 20;
+
 /**
  * Create a request for network use.
  * Adds a parameter to tell the server to skip rendering.
@@ -27,6 +29,8 @@ var requestLib = require('../utils/requests');
  * of the application should be done.
  * This reduces the load on the server. The rendered application markup is not
  * required in this case, since the main app bundle is already cached.
+ *
+ * @private
  *
  * @param {Object|String} request - The Request from sw-toolbox router, or a string.
  * @returns String of the new request url.
@@ -53,6 +57,8 @@ function networkRequest (request) {
  * Response from Google:
  * https://github.com/GoogleChrome/sw-toolbox/issues/35
  *
+ * @private
+ *
  * @param {Object} request - A Request object from sw-toolbox.
  * @returns A string of the modified request url to be used in caching.
  */
@@ -62,39 +68,44 @@ function cacheRequest (request) {
 
 /**
  * Add the given successful request url and timestamp to init.routes IDB store.
- * This handler stores the request as a side effect and just returns the response.
+ * This is a fetchAndCache successHandler that stores the request times
+ * as a side effect and just returns the response.
+ *
+ * @private
  *
  * @param {Request} request - The request of the successful network fetch.
  * @param {Response} response - The response of the successful network fetch.
  * @returns {Promise} A Promise resolving to the input response.
  */
-function addSkipRoute (request, response) {
-  return idb.put(idb.stores.init, 'skipRoute', {
-    url: request.url,
-    timestamp: Date.now()
-  }).then(function () {
-    return response;
+function addRecentRoute (request, response) {
+  return idb.get(idb.stores.init, 'routes').then(function (routes) {
+    routes = routes || {};
+
+    routes[(new URL(request.url, location.origin)).pathname] = Date.now();
+
+    return idb.put(idb.stores.init, 'routes', routes).then(function () {
+      return response;
+    });
   });
 }
 
 /**
- * Look up the given url in skipRoute to see if fetchAndCache should be skipped.
+ * Look up the given url in 'init.routes' to see if
+ * fetchAndCache should be skipped.
+ *
+ * @private
  *
  * @param {String} url - The url pathname to test.
  * @returns {Promise} Promise resolves to Boolean, true if cache should be skipped.
  */
-function getSkipRoute (url) {
-  // Anything older than this and its like it didn't happen
-  var maxAge = 1000 * 10;
+function getRecentRoute (url) {
+  return idb.get(idb.stores.init, 'routes').then(function (routes) {
+    var age;
 
-  return idb.get(idb.stores.init, 'skipRoute').then(function (skipRoute) {
-    var age, skipUrl;
+    if (routes && routes[url]) {
+      age = Date.now() - routes[url];
 
-    if (skipRoute) {
-      age = Date.now() - skipRoute.timestamp;
-      skipUrl = (new URL(skipRoute.url, location.origin)).pathname;
-
-      if (age < maxAge && url === skipUrl) {
+      if (age < routeTTL) {
         debug('skipping fetchAndCache for '+url);
         return true;
       }
@@ -105,8 +116,10 @@ function getSkipRoute (url) {
 }
 
 /**
- * Install a read-thru cache handler for the given route url.
+ * Install a fastest handler for the given route url.
  * Also, try to precache the route.
+ *
+ * @private
  *
  * @param {String} url - The url to cache and install.
  * @returns {Promise} A Promise resolving on success (no sig value).
@@ -118,17 +131,21 @@ function cacheAndInstallRoute (url) {
   installRouteGetHandler(url);
 
   // Must handle errors here, precache error is irrelevant beyond here.
-  return helpers.contentRace(networkRequest(url), url)
+  return helpers.contentRace(networkRequest(url), url, null, {
+    successHandler: addRecentRoute
+  })
   .catch(function (error) {
     debug('failed to precache ' + url);
   });
 }
 
 /**
- * Install a read-thru cache handler for the given route url.
+ * Install a 'fastest' cache handler for the given route url.
+ *
+ * @private
  *
  * @param {String} url - The url to install route GET handler on.
- * @returns {Promise} A Promise resolving on success (no sig value).
+ * @returns {Promise} Resolves to undefined when complete.
  */
 function installRouteGetHandler (url) {
   debug('install route GET handler on', url);
@@ -137,7 +154,7 @@ function installRouteGetHandler (url) {
     networkRequest, cacheRequest
   ), {
     debug: toolbox.options.debug,
-    successHandler: addSkipRoute
+    successHandler: addRecentRoute
   });
 
   return Promise.resolve();
@@ -152,13 +169,13 @@ function installRouteGetHandler (url) {
  * the application. It will be fetched and cached from the network, unless offline.
  * The page returned, if it has new data from the server, will cause an 'init'
  * command to execute.
- * So, to prevent a route from being fetched and cached twice, a skipRoute
- * lookaside scheme is used to keep track of routes recently fetched and cached
- * from the route GET handler.
+ * So, to prevent a route from being fetched and cached twice, a lookaside
+ * TTL scheme (add/getRecentRoute) is used to keep track of routes recently
+ * fetched and cached from the route GET handler.
  *
  * @param {Object} payload - The payload of the init message.
  * @param {Object} payload.RouteStore.routes - The routes of the application.
- * @returns {Promise} A Promise with all aggregate route results.
+ * @returns {Promise} Resolves to array of all installed route promises.
  */
 module.exports = function cacheRoutes (payload) {
   var routes = payload.RouteStore.routes;
@@ -169,13 +186,13 @@ module.exports = function cacheRoutes (payload) {
     if (routes[route].mainNav) {
       var url = routes[route].path;
 
-      return getSkipRoute(url).then(function (skipCache) {
+      return getRecentRoute(url).then(function (skipCache) {
         if (skipCache) {
           return installRouteGetHandler(url);
         }
         return cacheAndInstallRoute(url);
       }).catch(function (error) {
-        debug('failed to get skipRoute', error);
+        debug('failed to get recentRoute', error);
         return cacheAndInstallRoute(url);
       });
     }

@@ -3,6 +3,11 @@
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  *
  * Install activate message handler for this code's concerns.
+ *
+ * TODO: maintain IndexedDB too.
+ * This is tricky because:
+ * 1. sw/index uses idb immediately to setup routes on startup.
+ * 2. activate will occur after startup.
  */
 /* global self, Promise, caches */
 'use strict';

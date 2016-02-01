@@ -41,6 +41,8 @@ function startRequestSync () {
 /**
  * Update stores and setup sw-toolbox route map.
  *
+ * TODO: clear sw-toolbox router map if setup will occur.
+ *
  * @param {Object} payload - Initial payload
  * @param {Number} payload.timestamp - The timestamp of the payload.
  * @param {Object} payload.stores - The flux stores for the app.
@@ -125,7 +127,7 @@ function initData () {
 }
 
 /**
- * Expose the init command and public storage access for init things.
+ * Expose the init command and storage access for relevant init keys.
  */
 module.exports = {
   command: init,

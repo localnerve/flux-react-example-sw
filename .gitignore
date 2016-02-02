@@ -2,9 +2,9 @@
 .validate.json
 dist
 reports
+tmp
 node_modules
 npm-debug.log
-/tmp
 /configs/settings/assets.json
 /assets/scripts/sw/precache.js
 /assets/scripts/sw/data.js

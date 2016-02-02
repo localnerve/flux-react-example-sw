@@ -8,7 +8,7 @@
 'use strict';
 
 var webpack = require('webpack');
-var merge = require('lodash/object/merge');
+var merge = require('lodash/merge');
 
 /**
  * Generate the webpack assets config

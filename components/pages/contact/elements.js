@@ -7,7 +7,7 @@
 var React = require('react');
 var Input = require('./Input.jsx');
 var Result = require('./Result.jsx');
-var merge = require('lodash/object/merge');
+var merge = require('lodash/merge');
 
 var classes = {
   name: Input,

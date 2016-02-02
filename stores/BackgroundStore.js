@@ -4,7 +4,7 @@
  */
 'use strict';
 var createStore = require('fluxible/addons').createStore;
-var debounce = require('lodash/function/debounce');
+var debounce = require('lodash/debounce');
 var buildImageUrl = require('../utils/imageServiceUrls');
 
 var BackgroundStore = createStore({

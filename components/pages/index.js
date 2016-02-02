@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var merge = require('lodash/object/merge');
+var merge = require('lodash/merge');
 var conformErrorStatus = require('../../utils').conformErrorStatus;
 var Spinner = require('./Spinner.jsx');
 

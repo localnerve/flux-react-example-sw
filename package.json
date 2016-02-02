@@ -43,8 +43,8 @@
     "url": "https://github.com/localnerve/flux-react-example-sw/issues"
   },
   "engines": {
-    "node": "~4.2.4",
-    "npm": "~2.14.12"
+    "node": "4.2.4",
+    "npm": "2.14.12"
   },
   "homepage": "https://github.com/localnerve/flux-react-example-sw",
   "devDependencies": {

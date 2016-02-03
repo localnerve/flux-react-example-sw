@@ -66,7 +66,7 @@ Data 'new-ness' is determined by a timestamp set by the server when the state is
 
   + Install fetch handlers for the main navigation routes of the application. These routes are fetched and cached so that the server does not re-render the application (In other words, the app behaves like a client-side SPA at that point). After the app is rendered to the client, server-side rendering work is no longer required. More Features:
     + The route fetch handlers allow the application to be started at any of the main application routes while the app is offline.
-    + A 20 minute TTL is placed on cached routes so they aren't overly updated.
-    + When application routes are fetched (and TTL has expired), they are first served from cache AND also fetched from the network in the background. If the app route response is significantly different from what was served from cache, the cache is updated and a message is sent to tell the user that newer content is available upon refresh.
+    + A 20 minute TTL is placed on cached routes so they aren't overly fetched and cached.
+    + When application routes are fetched, they are first served from cache AND also fetched from the network in the background. If the app route response is significantly different from what was served from cache, the cache is updated and a message is sent to tell the user that newer content is available upon refresh.
 
     + See [routes](/assets/scripts/sw/init/routes.js) for more information.

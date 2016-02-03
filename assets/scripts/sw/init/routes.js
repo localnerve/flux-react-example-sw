@@ -167,10 +167,11 @@ function installRouteGetHandler (url) {
  *
  * The route GET handler will be the start of a main navigation entry point for
  * the application. It will be fetched and cached from the network, unless offline.
- * The page returned, if it has new data from the server, will cause an 'init'
- * command to execute.
- * So, to prevent a route from being fetched and cached twice, a lookaside
- * TTL scheme (add/getRecentRoute) is used to keep track of routes recently
+ * The page returned, will cause an 'init' command to execute again, along with
+ * this method.
+ *
+ * So, to prevent a route from being fetched and cached twice, a TTL scheme
+ * (add/getRecentRoute) is used to keep track of routes recently
  * fetched and cached from the route GET handler.
  *
  * @param {Object} payload - The payload of the init message.

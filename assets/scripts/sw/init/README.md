@@ -54,11 +54,13 @@ Data 'new-ness' is determined by a timestamp set by the server when the state is
 #### Setup
   If the app state is new, or the service worker process is starting the following setup is performed:
   + Install API fetch handlers for every api endpoint defined in the init payload. Uses Yahoo Fetchr conventions. Sets up content synthesis fallback for GETs and request deferral fallback for POSTs.
+
     - See [apiRequests](/assets/scripts/sw/init/apiRequests.js) for more information.
 
 
   + Install a background image fetch handler for on the specified image service (example uses Cloudinary).
-  The fetch handler is precaching/prefetching - meaning - when the app requests a background image, not only it is fetched and cached, but ALSO all other application background image service requests are also fetched and cached at that time (if they are not already in the cache). This happens any time the app is resized and newly sized backgrounds are needed. Happens in the background and fails silently.
+  The fetch handler is precaching/prefetching. When the app requests a background image, not only it is fetched and cached, but ALSO all other application background image service requests are also fetched and cached at that time (if they are not already in the cache). This happens any time the app is resized and newly sized backgrounds are needed. Happens in the background and fails silently.
+
     - See [backgrounds](/assets/scripts/sw/init/backgrounds.js) for more information.
 
 

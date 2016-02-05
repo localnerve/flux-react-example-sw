@@ -27,9 +27,10 @@ The worker and registration source is located at [assets/scripts/sw](/assets/scr
 There is currently no hosted app. So, the best way to demo capabilities and have a look around at things is `git clone` and `npm install`.
 
 #### Build Environment Prerequisites
-1. Globally (nvm ok) installed Node. Node >= 4.1.2 required.
+1. Node ~4.2 required.
   * Globally installed grunt-cli `npm install -g grunt-cli`
-2. Globally (rvm/chruby ok) installed Compass >= 1.0.1 `gem install compass`
+2. Ruby required.
+  * Globally (rvm/chruby ok) installed Compass >= 1.0.1 `gem install compass`
 
 #### How to Run a Demo
 1. Clone this repo and run `npm install`.

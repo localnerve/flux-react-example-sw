@@ -1,6 +1,6 @@
 {
   "name": "flux-react-example-sw",
-  "version": "0.13.1",
+  "version": "0.13.3",
   "description": "An isomorphic flux-react example application with a service worker",
   "main": "./server",
   "scripts": {
@@ -43,8 +43,7 @@
     "url": "https://github.com/localnerve/flux-react-example-sw/issues"
   },
   "engines": {
-    "node": "4.2.4",
-    "npm": "2.14.12"
+    "node": "~4.2.4"
   },
   "homepage": "https://github.com/localnerve/flux-react-example-sw",
   "devDependencies": {

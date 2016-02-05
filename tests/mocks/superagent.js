@@ -26,13 +26,24 @@ SuperAgent.prototype = {
     return this;
   },
   end: function (cb) {
-    var response = responses[this.url] || defaultResponse;
+    var body;
 
-    var body = {
-      content: response
-    };
+    if (!this.noData) {
+      body = {
+        content: responses[this.url] || defaultResponse
+      };
+    }
 
-    cb(null, { body: body });
+    cb(this.emulateError ? new Error('mock error') : null, { body: body });
+  },
+  /***
+   * Mock control only
+   */
+  setEmulateError: function (value) {
+    this.emulateError = value;
+  },
+  setNoData: function (value) {
+    this.noData = value;
   }
 };
 

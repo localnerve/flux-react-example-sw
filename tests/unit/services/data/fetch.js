@@ -2,7 +2,7 @@
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
- /* global before, after, describe, it */
+ /* global before, beforeEach, after, describe, it */
 'use strict';
 
 var expect = require('chai').expect;
@@ -22,6 +22,11 @@ describe('data/fetch', function () {
 
   after(function () {
     mocks.superAgent.end();
+  });
+
+  beforeEach(function () {
+    request.setEmulateError(false);
+    request.setNoData(false);
   });
 
   describe('fetchOne', function () {
@@ -49,6 +54,30 @@ describe('data/fetch', function () {
         expect(request.url).to.contain(supplied);
 
         done();
+      });
+    });
+
+    it('should fail if no data', function (done) {
+      request.setNoData(true);
+
+      fetch.fetchOne({ resource: 'test' }, function (err, res) {
+        if (err) {
+          return done();
+        }
+
+        done(new Error('Expected error'));
+      });
+    });
+
+    it('should fail if network fails', function (done) {
+      request.setEmulateError(true);
+
+      fetch.fetchOne({ resource: 'test' }, function (err, res) {
+        if (err) {
+          return done();
+        }
+
+        done(new Error('Expected error'));
       });
     });
   });
@@ -85,6 +114,18 @@ describe('data/fetch', function () {
         }
 
         done();
+      });
+    });
+
+    it('should fail if network fails', function (done) {
+      request.setEmulateError(true);
+
+      fetch.fetchAll(function (err, res) {
+        if (err) {
+          return done();
+        }
+
+        done(new Error('Expected error'));
       });
     });
   });

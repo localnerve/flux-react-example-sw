@@ -20,12 +20,12 @@
  */
 var mailHeaders = {
   development: {
-    mailTo: 'fred@localnerve.com',
-    mailFrom: 'flux-react-example@localnerve.com'
+    mailTo: 'fred-sw-dev@localnerve.com',
+    mailFrom: 'flux-react-example-sw-dev@localnerve.com'
   },
   production: {
-    mailTo: 'fred@localnerve.com',
-    mailFrom: 'flux-react-example@localnerve.com'
+    mailTo: 'fred-sw-prod@localnerve.com',
+    mailFrom: 'flux-react-example-sw-prod@localnerve.com'
   }
 };
 

@@ -283,12 +283,70 @@ describe('configs', function () {
         });
       });
 
-      describe.skip('mailTo', function () {
-        // TODO
+      describe('mailTo', function () {
+        var theMailTo = 'this@that';
+
+        before(function () {
+          // just in case this is hanging around in a local env
+          delete process.env.MAIL_TO;
+        });
+
+        afterEach(function () {
+          delete process.env.MAIL_TO;
+        });
+
+        it('should give different defaults based on NODE_ENV', function () {
+          var contact;
+          contact = configLib.create({ NODE_ENV: 'development' }).contact;
+          var defaultDev = contact.mail.to();
+
+          contact = configLib.create({ NODE_ENV: 'production' }).contact;
+          var defaultProd = contact.mail.to();
+
+          expect(defaultDev).to.be.a('string').that.is.not.empty;
+          expect(defaultProd).to.be.a('string').that.is.not.empty;
+          expect(defaultDev).to.not.equal(defaultProd);
+        });
+
+        it('should return MAIL_TO if defined', function () {
+          process.env.MAIL_TO = theMailTo;
+          var contact = configLib.create({ NODE_ENV: 'development' }).contact;
+
+          expect(contact.mail.to()).to.equal(theMailTo);
+        });
       });
 
-      describe.skip('mailFrom', function () {
-        // TODO
+      describe('mailFrom', function () {
+        var theMailFrom = 'this@that';
+
+        before(function () {
+          // just in case this is hanging around in a local env
+          delete process.env.MAIL_FROM;
+        });
+
+        afterEach(function () {
+          delete process.env.MAIL_FROM;
+        });
+
+        it('should give different defaults based on NODE_ENV', function () {
+          var contact;
+          contact = configLib.create({ NODE_ENV: 'development' }).contact;
+          var defaultDev = contact.mail.from();
+
+          contact = configLib.create({ NODE_ENV: 'production' }).contact;
+          var defaultProd = contact.mail.from();
+
+          expect(defaultDev).to.be.a('string').that.is.not.empty;
+          expect(defaultProd).to.be.a('string').that.is.not.empty;
+          expect(defaultDev).to.not.equal(defaultProd);
+        });
+
+        it('should return MAIL_FROM if defined', function () {
+          process.env.MAIL_FROM = theMailFrom;
+          var contact = configLib.create({ NODE_ENV: 'development' }).contact;
+
+          expect(contact.mail.from()).to.equal(theMailFrom);
+        });
       });
     });
 
@@ -375,6 +433,43 @@ describe('configs', function () {
 
         expect(decoration1).to.not.equal(decoration2);
       });
+    });
+  });
+
+  describe('push', function () {
+    var theApiKey = 'A1S2D3F4G5H6J7K8L9';
+
+    before(function () {
+      // just in case this is hanging around in the local env
+      delete process.env.PUSH_API_KEY;
+      delete process.env.GCM_API_KEY;
+    });
+
+    afterEach(function () {
+      delete process.env.PUSH_API_KEY;
+      delete process.env.GCM_API_KEY;
+    });
+
+    function getApiKey () {
+      return configLib.create().push.service.apiKey();
+    }
+
+    it('should return undefined if no env vars', function () {
+      expect(getApiKey()).to.be.undefined;
+    });
+
+    it('should return a value for PUSH_API_KEY first', function () {
+      process.env.PUSH_API_KEY = theApiKey;
+      process.env.GCM_API_KEY = 'thisisbad';
+
+      expect(getApiKey()).to.equal(theApiKey);
+    });
+
+    it('should return GCM_API_KEY if PUSH_API_KEY not defined', function () {
+      process.env.GCM_API_KEY = theApiKey;
+
+      assert.isUndefined(process.env.PUSH_API_KEY);
+      expect(getApiKey()).to.equal(theApiKey);
     });
   });
 });

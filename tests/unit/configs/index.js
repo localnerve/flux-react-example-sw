@@ -88,19 +88,30 @@ describe('configs', function () {
             }
           });
 
-      function testAssetScript (script) {
+      function testAssetScript (script, map) {
         expect(script).to.be.a('string').that.is.not.empty;
         expect(script).to.contain(config.settings.web.scripts);
-        expect(script).to.match(/\.js$/);
+        if (map) {
+          expect(script).to.match(/\.map$/);
+        } else {
+          expect(script).to.match(/\.js$/);
+        }
       }
 
       function testAssetScripts () {
         var main = config.settings.web.assets.mainScript();
         var swReg = config.settings.web.assets.swRegScript();
         var sw = config.settings.web.assets.swMainScript();
+        var swMapName = config.settings.web.assets.swMainScriptMap(true);
+        var swMapFull = config.settings.web.assets.swMainScriptMap();
+
         testAssetScript(main);
         testAssetScript(swReg);
         testAssetScript(sw);
+        testAssetScript(swMapFull, true);
+        expect(swMapName).to.be.a('string').that.is.not.empty;
+        expect(swMapName).to.match(/\.map$/);
+
         done();
       }
 

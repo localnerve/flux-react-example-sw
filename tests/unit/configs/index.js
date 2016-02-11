@@ -77,13 +77,16 @@ describe('configs', function () {
           assetsJsonData = JSON.stringify({
             assets: {
               main: [
-                'main.js'
+                'main.js',
+                'main.js.map'
               ],
               sw: [
-                'sw.js'
+                'sw.js',
+                'sw.js.map'
               ],
               swReg: [
-                'swReg.js'
+                'swReg.js',
+                'swReg.js.map'
               ]
             }
           });

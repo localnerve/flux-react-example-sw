@@ -6,6 +6,25 @@
 'use strict';
 
 /**
+ * PushManager mock
+ */
+function PushManager (options) {
+  this.options = options;
+}
+PushManager.prototype = {
+  getSubscription: function () {
+    if (this.options.subReject) {
+      return Promise.reject('mock error');
+    }
+    return Promise.resolve(this.options.subscribed ||
+      typeof this.options.subscribed === 'undefined');
+  },
+  _updateOptions: function (options) {
+    this.options = options;
+  }
+};
+
+/**
  * Create the pushManager in registration for self.
  *
  * @param {Object} options - creation options.
@@ -13,16 +32,7 @@
  * @param {Boolean} options.subscribed - pushManager.getSubscription should resolve to true.
  */
 function createPushManager (options) {
-  return {
-    getSubscription: function () {
-      if (options.subReject) {
-        return Promise.reject(new Error('mock error'));
-      }
-
-      return Promise.resolve(options.subscribed ||
-        typeof options.subscribed === 'undefined');
-    }
-  };
+  return new PushManager(options);
 }
 
 /**
@@ -30,6 +40,7 @@ function createPushManager (options) {
  */
 function Self () {
   this.teardownReg = this.teardownSelf = this.teardownPush = false;
+  this.events = {};
 }
 Self.prototype = {
   /**
@@ -45,11 +56,17 @@ Self.prototype = {
       global.self.registration = global.self.registration ||
         (this.teardownReg = true, {});
 
-      if (options.pushManager && !global.self.registration.pushManager) {
-        this.teardownPush = true;
-        global.self.registration.pushManager = createPushManager(
-          options.pushManager
-        );
+      if (options.pushManager) {
+        if (!global.self.registration.pushManager) {
+          this.teardownPush = true;
+          global.self.registration.pushManager = createPushManager(
+            options.pushManager
+          );
+        } else {
+          global.self.registration.pushManager._updateOptions(
+            options.pushManager
+          );
+        }
       }
     } else {
       this.teardownSelf = true;
@@ -62,7 +79,23 @@ Self.prototype = {
         );
       }
     }
+
+    if (options.showNotificationFn) {
+      global.self.registration.showNotification = options.showNotificationFn;
+    } else {
+      global.self.registration.showNotification = function () {};
+    }
+
+    if (!global.self.addEventListener) {
+      global.self.addEventListener = function (name, func) {
+        this.events[name] = func;
+      }.bind(this);
+    }
   },
+
+  /**
+   * teardown the self mock
+   */
   teardown: function () {
     if (this.teardownSelf) {
       delete global.self;

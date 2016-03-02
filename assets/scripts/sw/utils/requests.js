@@ -88,6 +88,11 @@ function dehydrateRequest (request, bodyType) {
  * @private
  *
  * @param {Object} state - The dehydrated request state.
+ * @param {String} state.url - The request url.
+ * @param {String} state.method - The request method.
+ * @param {String} state.bodyType - Must be 'json'.
+ * @param {Object} state.body - The request body.
+ * @param {Object} [state.body.context] - The request body context.
  * @param {Object} [apiInfo] - contains timeout, cors, and CSRF token to use.
  * If specified, any existing csrf value in the request state url is replaced,
  * or a new key/value is added to the end of the url.

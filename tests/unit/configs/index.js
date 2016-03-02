@@ -111,9 +111,12 @@ describe('configs', function () {
         testAssetScript(main);
         testAssetScript(swReg);
         testAssetScript(sw);
-        testAssetScript(swMapFull, true);
-        expect(swMapName).to.be.a('string').that.is.not.empty;
-        expect(swMapName).to.match(/\.map$/);
+
+        if (swMapName) {
+          testAssetScript(swMapFull, true);
+          expect(swMapName).to.be.a('string').that.is.not.empty;
+          expect(swMapName).to.match(/\.map$/);
+        }
 
         done();
       }

@@ -27,7 +27,12 @@ function TreoStoreMock () {}
         [method].concat(Array.prototype.slice.call(arguments)));
     }
 
-    cb(null, mockValue || 'mock value');
+    // allow purposed falsy flow, default is undefined for mock value.
+    if (typeof mockValue === 'undefined') {
+      return cb(null, 'mock value');
+    }
+
+    cb(null, mockValue);
   };
 });
 

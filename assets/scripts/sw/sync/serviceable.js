@@ -4,8 +4,6 @@
  *
  * Module to contain methods to manage serviceable requests.
  * Handles push and contact requests.
- *
- * TODO: #34 Add support for servicing deferred subscription update requests.
  */
 /* global Promise, self */
 'use strict';
@@ -289,8 +287,6 @@ function pruneRequestsByPolicy (dehydratedRequests, fallback, body) {
 
 /**
  * Update all deferred push requests to use the given subscriptionId.
- *
- * TODO: test.
  *
  * @param {String} subscriptionId - The subscriptionId to update to.
  *  If falsy, no update is performed.

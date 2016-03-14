@@ -488,7 +488,7 @@ describe('sw/sync/serviceable', function () {
         done();
       })
       .catch(function (error) {
-        done(error || new Error('unexpected error'));
+        done(error || unexpectedFlowError);
       });
     });
 
@@ -515,38 +515,51 @@ describe('sw/sync/serviceable', function () {
           done();
         })
         .catch(function (error) {
-          done(error || new Error('unexpected error'));
+          done(error || unexpectedFlowError);
         });
       });
     });
 
     it('should update if params and subscriptionId found in request',
     function (done) {
-      var calledPut = 0;
+      var property = require('../../../../utils/property');
+      var calledPut = 0, putParams;
+      var testObject = syncable.push({
+        params: {
+          subscriptionId: subscriptionId
+        }
+      }, subscriptionId, syncable.ops.subscribe);
+
+      var preUpdateTestObject = Object.assign({}, testObject);
+      preUpdateTestObject.params = {
+        subscriptionId: subscriptionId + '-offbyone'
+      };
 
       createDehydratedRequests([
-        syncable.push({
-          params: {
-            subscriptionId: subscriptionId
-          }
-        }, subscriptionId, syncable.ops.subscribe)
+        preUpdateTestObject
       ]).then(function () {
         treoMock.setValue(dehydratedRequests);
 
         // Replace previous reporter to listen for 'put'
-        treoMock.setReporter(function (method) {
+        treoMock.setReporter(function (method, key, value) {
           if (method === 'put') {
             calledPut++;
+            putParams = property.find('params', value);
           }
         });
+
+        // Make sure params are different as a precondition
+        var preParams = property.find('params', dehydratedRequests[0]);
+        expect(preParams).to.exist.and.not.eql(testObject.params);
 
         serviceable.updatePushSubscription(subscriptionId)
         .then(function () {
           expect(calledPut).to.equal(1);
+          expect(putParams).to.eql(testObject.params);
           done();
         })
         .catch(function (error) {
-          done(error || new Error('unexpected error'));
+          done(error || unexpectedFlowError);
         });
       });
     });

@@ -35,10 +35,7 @@ function getContactRequests (dehydratedRequests) {
 
 /**
  * Get the serviceable (latest, unqiue) push requests.
- *
- * TODO: Support subscription id updates (#34). This assumes there will be only
- * one unique subscriptionId stored. This can continue to be true, but #34 has
- * to be addressed.
+ * Adds the push requests in order to be serviced. (order important)
  *
  * @private
  *
@@ -51,35 +48,44 @@ function getPushRequests (dehydratedRequests) {
   if ('pushManager' in self.registration) {
     return self.registration.pushManager.getSubscription()
     .then(function (subscribed) {
-      var requests = filters.latest(dehydratedRequests, syncable.types.push, [
-        syncable.ops.subscribe,
-        syncable.ops.unsubscribe
-      ]);
+      var
+        updateTopicsRequests,
+        updateSubRequests = filters.latest(
+          dehydratedRequests, syncable.types.push, [
+          syncable.ops.updateSubscription
+        ]),
+        subUnsubRequests = filters.latest(
+          dehydratedRequests, syncable.types.push, [
+          syncable.ops.subscribe,
+          syncable.ops.unsubscribe
+        ]),
+        actionableSubscribe = subUnsubRequests.length > 0 &&
+          subUnsubRequests[0].fallback.operation === syncable.ops.subscribe &&
+          !subscribed,
+        actionableUnsubscribe = subUnsubRequests.length > 0 &&
+          subUnsubRequests[0].fallback.operation === syncable.ops.unsubscribe &&
+          subscribed
+        ;
 
-      var actionableSubscribe = requests.length > 0 &&
-        requests[0].fallback.operation === syncable.ops.subscribe &&
-        !subscribed;
+      // [1] unconditionally add updateSubscription requests
+      pushRequests = pushRequests.concat(updateSubRequests);
 
-      var actionableUnsubscribe = requests.length > 0 &&
-        requests[0].fallback.operation === syncable.ops.unsubscribe &&
-        subscribed;
-
-      // [1] add subscribe or unsubscribe
+      // [2] add subscribe or unsubscribe
       if (actionableSubscribe || actionableUnsubscribe) {
-        pushRequests = pushRequests.concat(requests);
+        pushRequests = pushRequests.concat(subUnsubRequests);
       }
 
       // If not unsubscribing, then if subscribing or just actively subscribed,
       // add the latest topicUpdates unqiue by tag topic tag value.
       if (!actionableUnsubscribe && (actionableSubscribe || subscribed)) {
-        var updateTopicsRequests = filters.latest(
+        updateTopicsRequests = filters.latest(
           dehydratedRequests,
           syncable.types.push,
           [syncable.ops.updateTopics],
           'tag'
         );
 
-        // [2] add any updateTopics
+        // [3] add any updateTopics
         pushRequests = pushRequests.concat(updateTopicsRequests);
       }
 
@@ -139,6 +145,7 @@ prunePolicies[syncable.types.contact] =
  * Prune policy for contact requests.
  * Policy: Remove any prior contact requests that match fallback.key.
  *
+ * @see pruneRequestsByPolicy
  * @private
  *
  * @param {Array} dehydratedRequests - All stored dehydrated requests.
@@ -165,31 +172,81 @@ function prunePolicyContact (dehydratedRequests, fallback) {
 prunePolicies[syncable.types.push] =
 /**
  * Prune policy for push requests.
- * For now, just removes all push requests (given fallback is ignored).
+ * Policy: Remove all push requests, except updateSubscription.
  *
- * TODO:
- * There are subtleties with updateTopics and updateSubscription (#34) that
- * have not been addressed.
+ * Called when a push operation succeeds to remove redundantPushRequests.
+ * Possible success (fallback) operations: sub, unsub, updateTopics, demo.
+ * Some truths/rules:
+ * 0. Never remove demo operation.
+ * 0.1. Never remove updateSubscription. Remember the other ops can succeed with
+ * the old subscription still in place. The succcess operation (the fallback)
+ * will never be updateSubscription (to this method).
+ * 1. A successful unsub or sub op can allow for the deletion of all other ops -
+ * except updateSub, because user does not initiate updateSub (browser does).
+ * 2. A successful updateTopics means UI is in subscribed state. Prune unsub,
+ * and updateTopics of same tag property.
  *
+ * @see pruneRequestsByPolicy
  * @private
  *
  * @param {Array} dehydratedRequests - All stored dehydrated requests.
+ * @param {Object} fallback - The fallback object of request that succeeded.
+ * @param {String} fallback.operation - The operation that succeeded.
+ * @param {Object} body - The body of the request that succeeded.
  * @returns {Promise} Resolves when all matched push requests are removed
  * from idb.
  */
-function prunePolicyPush (dehydratedRequests) {
-  // All operations, but used with push type to restrict to push only.
-  // MAYBE this should only be for subscribe/unsubscribe (not updateTopics).
-  // TODO: revisit during implementation of #34 (update subscription).
-  var operations = Object.keys(syncable.ops).map(function (key) {
-    return syncable.ops[key];
-  });
+function prunePolicyPush (dehydratedRequests, fallback, body) {
+  var succeededOperation = fallback.operation;
+  var redundantPushRequests = [];
 
-  var redundantPushRequests = filters.match(
-    dehydratedRequests, syncable.types.push, operations
-  );
+  // 1.
+  // If the sub/unsub succeeded, all possible redundant ops should be pruned.
+  if (succeededOperation === syncable.ops.subscribe ||
+      succeededOperation === syncable.ops.unsubscribe) {
+    Array.prototype.push.apply(redundantPushRequests,
+      filters.match(
+        dehydratedRequests,
+        syncable.types.push,
+        Object.keys(syncable.ops)
+        .filter(function (key) {
+          // Filter out 'push' type operations that cannot be redundant.
+          return (syncable.ops[key] !== syncable.ops.demo &&
+                  syncable.ops[key] !== syncable.ops.updateSubscription);
+        })
+        .map(function (key) {
+          return syncable.ops[key];
+        })
+      )
+    );
+  }
 
-  debug('prunePushRequests', redundantPushRequests);
+  // 2.
+  // If updateTopics succeeded, remove unsub and updateTopics of the same tag.
+  else if (succeededOperation === syncable.ops.updateTopics) {
+    var successfulUpdateTopic = filters.getPropertyByName('tag', body);
+
+    // Unsubscribes are redundant.
+    Array.prototype.push.apply(redundantPushRequests,
+      filters.match(
+        dehydratedRequests, syncable.types.push, [syncable.ops.unsubscribe]
+      )
+    );
+
+    // Duplicate topic updates are redundant.
+    Array.prototype.push.apply(redundantPushRequests,
+      filters.match(
+        dehydratedRequests, syncable.types.push, [syncable.ops.updateTopics]
+      ).filter(function (dehydratedTopicRequest) {
+        var deferredUpdateTopic = filters.getPropertyByName(
+          'tag', dehydratedTopicRequest
+        );
+        return deferredUpdateTopic === successfulUpdateTopic;
+      })
+    );
+  }
+
+  debug('prunePushRequests, pruning requests: ', redundantPushRequests);
 
   return Promise.all(redundantPushRequests.map(function (request) {
     return idb.del(idb.stores.requests, request.timestamp);
@@ -201,17 +258,24 @@ function prunePolicyPush (dehydratedRequests) {
  * Uses a fallback object to identify requests that might be affected.
  * Unexpected syncable types are ignored.
  *
+ * This is called when a request succeeds. It is used to trim deferred requests
+ * depending on what request succeeded (success indicated in fallback).
+ *
+ * @see ./index.js, maintainRequests
+ *
  * @param {Array} dehydratedRequests - All stored dehydrated requests.
- * @param {Object} fallback - A fallback object.
+ * @param {Object} fallback - The fallback object of the successful request.
+ * @param {Object} body - The body object of successful request.
  * @returns {Promise} Resolves after prune complete.
  */
-function pruneRequestsByPolicy (dehydratedRequests, fallback) {
+function pruneRequestsByPolicy (dehydratedRequests, fallback, body) {
   debug('prune fallback requests from database ', fallback);
 
   if (fallback.type in prunePolicies) {
     return prunePolicies[fallback.type].apply(prunePolicies, [
         dehydratedRequests,
-        fallback
+        fallback,
+        body
       ]
     );
   }
@@ -223,8 +287,42 @@ function pruneRequestsByPolicy (dehydratedRequests, fallback) {
   return Promise.resolve();
 }
 
+/**
+ * Update all deferred push requests to use the given subscriptionId.
+ *
+ * TODO: test.
+ *
+ * @param {String} subscriptionId - The subscriptionId to update to.
+ *  If falsy, no update is performed.
+ * @returns {Promise} resolves to undefined when operation successfully complete.
+ */
+function updatePushSubscription (subscriptionId) {
+  if (subscriptionId) {
+    return idb.all(idb.stores.requests)
+    .then(function (dehydratedRequests) {
+      var allPushRequests = filters.match(
+        dehydratedRequests,
+        syncable.types.push, Object.keys(syncable.ops).map(function (key) {
+          return syncable.ops[key];
+        }));
+
+      return Promise.all(allPushRequests.map(function (request) {
+        var params = filters.getPropertyByName('params', request);
+
+        if (params && params.subscriptionId) {
+          params.subscriptionId = subscriptionId;
+          return idb.put(idb.stores.requests, request.timestamp, request);
+        }
+        return Promise.resolve();
+      }));
+    });
+  }
+  return Promise.resolve();
+}
+
 module.exports = {
   getRequests: getRequests,
   pruneRequests: pruneRequests,
-  pruneRequestsByPolicy: pruneRequestsByPolicy
+  pruneRequestsByPolicy: pruneRequestsByPolicy,
+  updatePushSubscription: updatePushSubscription
 };

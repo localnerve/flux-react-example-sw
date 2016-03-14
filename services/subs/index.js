@@ -101,14 +101,26 @@ function read (subscriptionId, callback) {
  * @param {String} subscriptionId - The subscription ID of a user.
  * @param {Array} [updateTopics] - The topics to update subscription of.
  * @param {String} [endpoint] - Optional endpoint to update the subscriber to.
+ * @param {String} [newId] - Optional new subscription ID to update to.
  * @param {Function} callback - Called on completion.
  */
-function update (subscriptionId, updateTopics, endpoint, callback) {
+function update (subscriptionId, updateTopics, endpoint, newId, callback) {
   var subscription = subscriptions[subscriptionId];
 
   if (!subscription) {
     debug('update: No subscription found for '+subscriptionId);
     return callback(new Error('No subscription found for '+subscriptionId));
+  }
+
+  if (newId) {
+    if (subscriptions[newId]) {
+      debug('update: newId already exists, cannot update');
+      return callback(new Error('newId already exists for '+newId));
+    }
+    delete subscriptions[subscriptionId];
+    subscriptions[newId] = subscription;
+    subscription.subscriptionId = newId;
+    debug('update: updated subscriptionId from '+subscriptionId+' to '+newId);
   }
 
   subscription.endpoint = endpoint || subscription.endpoint;

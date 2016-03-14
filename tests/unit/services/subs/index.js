@@ -72,10 +72,67 @@ describe('subs/index', function () {
     });
   });
 
+  // NOTE: Relies on 'create' to be run first to supply subscriptionTopics.
   describe('update', function () {
+    var newId = subscriptionId + '-001';
+
     it('should error with bad subscriptionId', function (done) {
-      subs.update(null, subscriptionTopics, endpoint, function (err) {
+      subs.update(null, subscriptionTopics, endpoint, null, function (err) {
         expect(err).to.be.an('Error');
+        done();
+      });
+    });
+
+    it('should update a subscriptionId', function (done) {
+      var updates,
+          theSubs = subs.getSubscriptions();
+
+      subs.update(subscriptionId, null, null, newId, function(err) {
+        if (err) {
+          done(err);
+        }
+
+        updates = Object.keys(theSubs).filter(function (key) {
+          return key === newId;
+        });
+
+        expect(updates.length).to.equal(1);
+        expect(updates[0]).to.equal(newId);
+        expect(theSubs[newId].subscriptionId).to.equal(newId);
+
+        // set the subscriptionId back
+        subs.update(newId, null, null, subscriptionId, function (err) {
+          if (err) {
+            done(err);
+          }
+
+          updates = Object.keys(theSubs).filter(function (key) {
+            return key === subscriptionId;
+          });
+
+          expect(updates.length).to.equal(1);
+          expect(updates[0]).to.equal(subscriptionId);
+          expect(theSubs[subscriptionId].subscriptionId).to.equal(subscriptionId);
+
+          done();
+        });
+      });
+    });
+
+    it('should fail to update a subscriptionId if newId exists', function (done) {
+      var theSubs = subs.getSubscriptions();
+
+      // Add the duplicate.
+      theSubs[newId] = {
+        subscriptionId: newId,
+        endpoint: 'testendpoint'
+      };
+
+      subs.update(subscriptionId, null, null, newId, function (err) {
+        if (!err) {
+          done(new Error('did not get expected duplicate error'));
+        }
+        delete theSubs[newId];
         done();
       });
     });
@@ -96,7 +153,7 @@ describe('subs/index', function () {
       expect(updates).to.have.length(1);
       updates[0].subscribed = true;
 
-      subs.update(subscriptionId, updates, endpoint, function (err, data) {
+      subs.update(subscriptionId, updates, endpoint, null, function (err, data) {
         var updated = data.filter(function (topic) {
           return topic.tag === topicUpdateTag;
         });

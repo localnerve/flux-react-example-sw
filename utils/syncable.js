@@ -18,6 +18,7 @@ var propertyName = '_fallback';
 var OPERATIONS = {
   subscribe: 'subscribe',
   unsubscribe: 'unsubscribe',
+  updateSubscription: 'updateSubscription',
   updateTopics: 'updateTopics',
   contact: 'submit',
   demo: 'demo'

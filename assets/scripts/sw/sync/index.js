@@ -91,7 +91,8 @@ function maintainRequests (req, res, reqToCache) {
     return request.json().then(function (body) {
       return serviceable.pruneRequestsByPolicy(
         dehydratedRequests,
-        filters.getFallback(body)
+        filters.getFallback(body),
+        body
       );
     });
   }).then(function () {

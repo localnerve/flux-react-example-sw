@@ -2,7 +2,7 @@
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global Promise, after, before, describe, it */
+/* global Promise, after, before, beforeEach, describe, it */
 'use strict';
 
 var expect = require('chai').expect;
@@ -13,7 +13,9 @@ var Self = require('../../../mocks/self');
 
 describe('sw/sync/serviceable', function () {
   var index, treoMock, toolboxMock, self = new Self(),
-      subscriptionId = '123456789';
+      subscriptionId = '123456789',
+      unexpectedFlowError = new Error('unexpected flow');
+
   var serviceable;
   var dehydratedRequests;
 
@@ -239,32 +241,43 @@ describe('sw/sync/serviceable', function () {
       });
     });
 
-    it('should remove prior push requests', function (done) {
-      var calledDel = 0,
+    describe('push requests', function () {
+      var calledDel,
           pushTime = 1001,
           pushTimesToDelete = [
             pushTime,
-            pushTime + 1
-          ];
+            pushTime + 1,
+            pushTime + 2,
+            pushTime + 3,
+            pushTime + 4
+          ],
+          pushTimesToIgnore = [
+            pushTime + 5,
+            pushTime + 6,
+            pushTime + 7,
+            pushTime + 8,
+            pushTime + 9
+          ],
+          pushTimeSuccess = pushTime + 10;
 
-      createDehydratedRequests([
-        syncable.push({
-          some1: 'body1',
-          timestamp: pushTimesToDelete[0]
-        }, subscriptionId, syncable.ops.updateTopics),
-        syncable.push({
-          some2: 'body2',
-          timestamp: pushTimesToDelete[1]
-        }, subscriptionId, syncable.ops.unsubscribe),
-        syncable.push({
-          some3: 'body3',
-          timestamp: pushTime + 2 // 'successful'
-        }, subscriptionId, syncable.ops.subscribe)
-      ])
-      .then(function () {
-        return removeMatchingDehydratedRequest(pushTime + 2);
-      })
-      .then(function (reqPush) {
+      beforeEach(function () {
+        calledDel = 0;
+      });
+
+      /**
+       * Verify that all dehydratedRequests are removed by pruneRequestsByPolicy.
+       *
+       * @param {Number} timestamp - The key of the successful dehydrated
+       * request to remove from the dehydratedRequests collection to use as the
+       * successful request.
+       * @param {function} done - done callback.
+       * @param {Number} [deleted] - The expected number of deletes (removals).
+       * If falsy, then defaults to all.
+       * @returns {Promise} resolves to undefined on completion.
+       */
+      function shouldRemove (timestamp, done, deleted) {
+        var reqPush = removeMatchingDehydratedRequest(timestamp);
+
         // Replace previous reporter to listen for 'del'
         treoMock.setReporter(function (method, key) {
           if (method === 'del') {
@@ -274,12 +287,159 @@ describe('sw/sync/serviceable', function () {
         });
 
         return serviceable.pruneRequestsByPolicy(
-          dehydratedRequests, reqPush.fallback
-        );
-      })
-      .then(function () {
-        expect(calledDel).to.equal(dehydratedRequests.length);
-        done();
+          dehydratedRequests, reqPush.fallback, reqPush
+        )
+        .then(function () {
+          expect(calledDel).to.equal(deleted || dehydratedRequests.length);
+          done();
+        })
+        .catch(function (error) {
+          done(error || unexpectedFlowError);
+        });
+      }
+
+      it('successful subscribe should remove all', function (done) {
+        createDehydratedRequests([
+          syncable.push({
+            some1: 'body1',
+            timestamp: pushTimesToDelete[0]
+          }, subscriptionId, syncable.ops.updateTopics),
+          syncable.push({
+            some2: 'body2',
+            timestamp: pushTimesToDelete[1]
+          }, subscriptionId, syncable.ops.unsubscribe),
+          syncable.push({
+            some3: 'body3',
+            timestamp: pushTimeSuccess
+          }, subscriptionId, syncable.ops.subscribe)
+        ]).then(function () {
+          shouldRemove(pushTimeSuccess, done);
+        });
+      });
+
+      it('successful unsubscribe should remove all', function (done) {
+        createDehydratedRequests([
+          syncable.push({
+            some1: 'body1',
+            timestamp: pushTimesToDelete[0]
+          }, subscriptionId, syncable.ops.updateTopics),
+          syncable.push({
+            some2: 'body2',
+            timestamp: pushTimesToDelete[1]
+          }, subscriptionId, syncable.ops.subscribe),
+          syncable.push({
+            some3: 'body3',
+            timestamp: pushTimeSuccess
+          }, subscriptionId, syncable.ops.unsubscribe)
+        ])
+        .then(function () {
+          shouldRemove(pushTimeSuccess, done);
+        });
+      });
+
+      it('successful subscribe should remove all except updateSubscription',
+      function (done) {
+        createDehydratedRequests([
+          syncable.push({
+            some1: 'body1',
+            timestamp: pushTimesToDelete[0]
+          }, subscriptionId, syncable.ops.updateTopics),
+          syncable.push({
+            some2: 'body2',
+            timestamp: pushTimesToIgnore[0]
+          }, subscriptionId, syncable.ops.updateSubscription),
+          syncable.push({
+            some3: 'body3',
+            timestamp: pushTimeSuccess
+          }, subscriptionId, syncable.ops.subscribe)
+        ]).then(function () {
+          shouldRemove(pushTimeSuccess, done, 1);
+        });
+      });
+
+      it('successful updateTopics should remove unsub and updateTopics with same tag',
+      function (done) {
+        var updateTopicsTag = 'push-update-topic';
+
+        createDehydratedRequests([
+          syncable.push({
+            body: {
+              context: {},
+              requests: {
+                g0: {
+                  body: {
+                    topics: [{
+                      subscribed: true,
+                      tag: updateTopicsTag,
+                      label: 'blah'
+                    }]
+                  },
+                  params: {
+                    subscriptionId: '123'
+                  },
+                  resource: 'blah'
+                }
+              }
+            },
+            timestamp: pushTimesToDelete[0]
+          }, subscriptionId, syncable.ops.updateTopics),
+          syncable.push({
+            body: {
+              context: {},
+              requests: {
+                g0: {
+                  body: {
+                    topics: [{
+                      subscribed: true,
+                      tag: 'push-update-topic-2',
+                      label: 'blah'
+                    }]
+                  },
+                  params: {
+                    subscriptionId: '123'
+                  },
+                  resource: 'blah'
+                }
+              }
+            },
+            timestamp: pushTimesToIgnore[0]
+          }, subscriptionId, syncable.ops.updateTopics),
+          syncable.push({
+            some2: 'body2',
+            timestamp: pushTimesToIgnore[1]
+          }, subscriptionId, syncable.ops.updateSubscription),
+          syncable.push({
+            some3: 'body3',
+            timestamp: pushTimesToIgnore[2]
+          }, subscriptionId, syncable.ops.subscribe),
+          syncable.push({
+            some3: 'body3',
+            timestamp: pushTimesToDelete[1]
+          }, subscriptionId, syncable.ops.unsubscribe),
+          syncable.push({
+            body: {
+              context: {},
+              requests: {
+                g0: {
+                  body: {
+                    topics: [{
+                      subscribed: true,
+                      tag: updateTopicsTag,
+                      label: 'blah'
+                    }]
+                  },
+                  params: {
+                    subscriptionId: '123'
+                  },
+                  resource: 'blah'
+                }
+              }
+            },
+            timestamp: pushTimeSuccess
+          }, subscriptionId, syncable.ops.updateTopics)
+        ]).then(function () {
+          shouldRemove(pushTimeSuccess, done, 2);
+        });
       });
     });
 
@@ -302,6 +462,92 @@ describe('sw/sync/serviceable', function () {
         expect(result).to.be.undefined;
         expect(calledDel).to.equal(0);
         done();
+      });
+    });
+  });
+
+  describe('updatePushSubscription', function () {
+    beforeEach(function () {
+      treoMock.setReporter(null);
+      treoMock.setValue(null);
+    });
+
+    it('should do nothing if falsy subscriptionId supplied', function (done) {
+      var calledAll = 0;
+
+      // Replace previous reporter to listen for 'all'
+      treoMock.setReporter(function (method) {
+        if (method === 'all') {
+          calledAll++;
+        }
+      });
+
+      serviceable.updatePushSubscription(false)
+      .then(function () {
+        expect(calledAll).to.equal(0);
+        done();
+      })
+      .catch(function (error) {
+        done(error || new Error('unexpected error'));
+      });
+    });
+
+    it('should not update if params not found in request', function (done) {
+      var calledPut = 0;
+
+      createDehydratedRequests([
+        syncable.push({
+          subscriptionId: subscriptionId
+        }, subscriptionId, syncable.ops.subscribe)
+      ]).then(function () {
+        treoMock.setValue(dehydratedRequests);
+
+        // Replace previous reporter to listen for 'put'
+        treoMock.setReporter(function (method) {
+          if (method === 'put') {
+            calledPut++;
+          }
+        });
+
+        serviceable.updatePushSubscription(subscriptionId)
+        .then(function () {
+          expect(calledPut).to.equal(0);
+          done();
+        })
+        .catch(function (error) {
+          done(error || new Error('unexpected error'));
+        });
+      });
+    });
+
+    it('should update if params and subscriptionId found in request',
+    function (done) {
+      var calledPut = 0;
+
+      createDehydratedRequests([
+        syncable.push({
+          params: {
+            subscriptionId: subscriptionId
+          }
+        }, subscriptionId, syncable.ops.subscribe)
+      ]).then(function () {
+        treoMock.setValue(dehydratedRequests);
+
+        // Replace previous reporter to listen for 'put'
+        treoMock.setReporter(function (method) {
+          if (method === 'put') {
+            calledPut++;
+          }
+        });
+
+        serviceable.updatePushSubscription(subscriptionId)
+        .then(function () {
+          expect(calledPut).to.equal(1);
+          done();
+        })
+        .catch(function (error) {
+          done(error || new Error('unexpected error'));
+        });
       });
     });
   });

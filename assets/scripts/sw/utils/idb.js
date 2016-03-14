@@ -17,7 +17,8 @@ var IDB_NAME = 'service-worker';
 // To add a new ObjectStore to the schema, add it here.
 var IDB_STORES = {
   init: 'init',
-  requests: 'requests'
+  requests: 'requests',
+  subscription: 'subscription'
 };
 
 /**

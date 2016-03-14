@@ -55,8 +55,12 @@ module.exports = {
    *
    * @param {Object} req - Not used.
    * @param {String} resource - Not used.
-   * @param {Object} params - subscriptionId, endpoint.
-   * @param {Object} body - topics.
+   * @param {Object} params - Request parameters.
+   * @param {String} params.subscriptionId - The subscriptionId to update.
+   * @param {String} params.endpoint - The subscription endpoint.
+   * @param {String} [params.newId] - The new subscriptionId.
+   * @param {Object} body - Request body.
+   * @param {Array} [body.topics] - subscription topics.
    * @param {Object} config - Not used.
    * @param {Function} callback - The callback to execute on completion.
    */
@@ -65,6 +69,7 @@ module.exports = {
       params.subscriptionId,
       body.topics,
       params.endpoint,
+      params.newId,
       function (err, data) {
         callback(error(err), data);
       }

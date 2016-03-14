@@ -11,7 +11,7 @@ module.exports = {
   read: function (subscriptionId, callback) {
     callback();
   },
-  update: function (subscriptionId, topics, endpoint, callback) {
+  update: function (subscriptionId, topics, endpoint, newId, callback) {
     callback();
   },
   delete: function (subscriptionId, callback) {

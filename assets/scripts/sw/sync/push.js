@@ -57,7 +57,7 @@ function synchronizePushSubscription (subscriptionId) {
   })
   .then(function () {
     if (apiInfo) {
-      // TODO: see if you can create the body using fetchr itself.
+      // Would be great to create the body using fetchr itself.
       requestState = {
         url: apiInfo.xhrPath,
         method: 'POST',

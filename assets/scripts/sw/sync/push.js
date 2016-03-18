@@ -17,6 +17,47 @@ var syncable = require('../../../../utils/syncable');
 var subscriptionService = '/_api';
 
 /**
+ * Get the existing subscriptionId and apiInfo for the subscription service.
+ *
+ * 1. Initializes the subscription.id store.key if never established.
+ * 2. Sets the subscription.id to false if given subscriptionId is falsy.
+ * 3. Determines if the existingId is an id and different than
+ *    the given suscriptionId.
+ * 4. If the existingId is an id and different, gets the apiInfo for the
+ *    subscriptionService.
+ *
+ * @private
+ *
+ * @param {String} subscriptionId - The new or existing subscriptionId.
+ * @returns {Promise} resolves to object containing:
+ *  {String} existingId - The existing subscriptionId, falsy if none found.
+ *  {Object} apiInfo - The apiInfo for the subscription service, falsy if an
+ *  api call should not be made.
+ */
+function getSubscriptionInfo (subscriptionId) {
+  var result = {};
+
+  return idb.get(idb.stores.state, 'subscriptionId')
+  .then(function (existingId) {
+    result.existingId = existingId;
+
+    if (existingId && subscriptionId !== existingId) {
+      debug('reading init.apis');
+      return idb.get(idb.stores.init, 'apis');
+    }
+  })
+  .then(function (apis) {
+    if (apis) {
+      result.apiInfo = apis[subscriptionService];
+      if (!result.apiInfo) {
+        throw new Error('subscription service api info not found');
+      }
+    }
+    return result;
+  });
+}
+
+/**
  * Synchronize the given subscriptionId with IndexedDB and subscription
  * service.
  *
@@ -35,26 +76,14 @@ function synchronizePushSubscription (subscriptionId) {
   debug('synchronize push subscription', subscriptionId);
 
   if (!subscriptionId) {
-    return idb.del(idb.stores.subscriptionId, 'id');
+    return idb.del(idb.stores.state, 'subscriptionId');
   }
 
-  return idb.get(idb.stores.subscription, 'id')
-  .then(function (existingSubscriptionId) {
-    existingId = existingSubscriptionId;
+  return getSubscriptionInfo(subscriptionId)
+  .then(function (result) {
+    apiInfo = result.apiInfo;
+    existingId = result.existingId;
 
-    if (existingId && subscriptionId !== existingId) {
-      debug('reading init.apis');
-
-      return idb.get(idb.stores.init, 'apis').then(function (apis) {
-        apiInfo = apis[subscriptionService];
-        if (apiInfo) {
-          return apiInfo;
-        }
-        throw new Error('subscription service api info not found');
-      });
-    }
-  })
-  .then(function () {
     if (apiInfo) {
       // Would be great to create the body using fetchr itself.
       requestState = {
@@ -89,7 +118,7 @@ function synchronizePushSubscription (subscriptionId) {
     if (updateSubscriptionId) {
       return Promise.all([
         serviceable.updatePushSubscription(response.ok && subscriptionId),
-        idb.put(idb.stores.subscription, 'id', subscriptionId)
+        idb.put(idb.stores.state, 'subscriptionId', subscriptionId)
       ])
       .then(function () {
         debug('successfully updated subscriptionId');

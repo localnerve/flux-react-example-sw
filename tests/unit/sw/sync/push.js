@@ -51,7 +51,7 @@ describe('sw/sync/push', function () {
 
       beforeEach(function () {
         treoMock.setReporter(function (method, key) {
-          if (method === 'del' && key === 'id') {
+          if (method === 'del' && key === 'subscriptionId') {
             calledDel++;
           }
         });
@@ -75,9 +75,9 @@ describe('sw/sync/push', function () {
 
       beforeEach(function () {
         treoMock.setReporter(function (method, key, value) {
-          if (method === 'get' && key === 'id') {
+          if (method === 'get' && key === 'subscriptionId') {
             calledGetId++;
-          } else if (method === 'put' && key === 'id') {
+          } else if (method === 'put' && key === 'subscriptionId') {
             calledPutId++;
             putIdValue = value;
           } else {
@@ -107,7 +107,7 @@ describe('sw/sync/push', function () {
       beforeEach(function () {
         treoMock.setValue(subscriptionId);
         treoMock.setReporter(function (method, key) {
-          if (method === 'get' && key === 'id') {
+          if (method === 'get' && key === 'subscriptionId') {
             calledGetId++;
           } else {
             calledOther++;
@@ -155,7 +155,7 @@ describe('sw/sync/push', function () {
         treoMock.setValue(subscriptionId + '-01');
         treoMock.setReporter(function (method, key) {
           if (method === 'get') {
-            if (key === 'id') {
+            if (key === 'subscriptionId') {
               calledGetId++;
             } else if (key === 'apis') {
               calledGetApis++;
@@ -168,7 +168,7 @@ describe('sw/sync/push', function () {
                 }
               });
             }
-          } else if (method === 'put' && key === 'id') {
+          } else if (method === 'put' && key === 'subscriptionId') {
             calledPutId++;
           } else if (method === 'all') {
             treoMock.setValue([]);

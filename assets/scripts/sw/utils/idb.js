@@ -18,7 +18,7 @@ var IDB_NAME = 'service-worker';
 var IDB_STORES = {
   init: 'init',
   requests: 'requests',
-  subscription: 'subscription'
+  state: 'state'
 };
 
 /**

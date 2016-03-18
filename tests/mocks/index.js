@@ -23,6 +23,7 @@ var swToolbox = require('./sw-toolbox');
 var swUtilsDb = require('./sw-utils-db');
 var swUtilsIdbTreo = require('./sw-utils-idb-treo');
 var swData = require('./sw-data');
+var swSyncPush = require('./sw-sync-push');
 
 function mockModuleBegin (mocks) {
   mocks.forEach(function (mock) {
@@ -167,6 +168,13 @@ module.exports = {};
   mocks: [{
     pattern: './data',
     module: swData
+  }]
+},
+{
+  name: 'swSyncPush',
+  mocks: [{
+    pattern: './sync/push',
+    module: swSyncPush
   }]
 }].forEach(function (mockSpec) {
   module.exports[mockSpec.name] = {

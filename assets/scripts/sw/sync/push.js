@@ -25,19 +25,18 @@ var subscriptionService = '/_api';
  *   subscription service.
  * If no change, no action performed.
  *
- * TODO: implement callers. Idea:
- * immediately call from message handler.
- * call message handler from utils/push.getSubscriptionId w/context
- * messenger.
- * call message handler from onpushsubscriptionchange.
- *
  * @param {String} subscriptionId - The new or existing subscriptionId.
- * @returns {Promise}
+ * If falsy, then deletes the existing subscriptionId from IndexedDB.
+ * @returns {Promise} Resolves to undefined for del, Response, or false if no request was/will be made.
  */
 function synchronizePushSubscription (subscriptionId) {
   var apiInfo, requestState, existingId;
 
   debug('synchronize push subscription', subscriptionId);
+
+  if (!subscriptionId) {
+    return idb.del(idb.stores.subscriptionId, 'id');
+  }
 
   return idb.get(idb.stores.subscription, 'id')
   .then(function (existingSubscriptionId) {
@@ -94,6 +93,7 @@ function synchronizePushSubscription (subscriptionId) {
       ])
       .then(function () {
         debug('successfully updated subscriptionId');
+        return resp ? response : false;
       });
     }
 
@@ -112,12 +112,6 @@ function synchronizePushSubscription (subscriptionId) {
         requestLib.rehydrateRequest(requestState, apiInfo)
       );
     }
-  })
-  .catch(function (error) {
-    debug('synchronize failed', error);
-    // TODO: What should really happen here, if anything?
-    // (think about the source callers - onpushsubscriptionchange and getSubscriptionId)
-    throw error;
   });
 }
 

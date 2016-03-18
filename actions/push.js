@@ -1,8 +1,6 @@
 /**
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
- *
- * TODO: finish...
  */
 /* global process, window */
 'use strict';
@@ -10,6 +8,7 @@
 var debug = require('debug')('Example:PushAction');
 var getSubscriptionId = require('../utils/push').getSubscriptionId;
 var syncable = require('../utils/syncable');
+var messages = require('../utils/messages');
 var __DEV__ = process.env.NODE_ENV !== 'production';
 
 /**
@@ -81,12 +80,33 @@ function subscribe (context, payload, done) {
         params.emulateError = payload && payload.emulateError;
       }
 
-      context.service.create('subscription',
-        syncable.push(params, params.subscriptionId, syncable.ops.subscribe),
-        {}, {}, function (err, data) {
-        complete(err, subscription, data);
+      return messages.workerSendMessage({
+        command: 'pushSync',
+        payload: {
+          subscriptionId: params.subscriptionId
+        }
+      })
+      .then(function () {
+        context.service.create('subscription',
+          syncable.push(params, params.subscriptionId, syncable.ops.subscribe),
+          {}, {}, function (err, data) {
+          if (err) {
+            messages.workerSendMessage({
+              command: 'pushSync',
+              payload: {
+                subscriptionId: false
+              }
+            });
+          }
+          complete(err, subscription, data);
+        });
+      })
+      .catch(function (error) {
+        debug('pushSync message failed ', error);
+        complete(error, null, null);
       });
-    }).catch(function (error) {
+    })
+    .catch(function (error) {
       var settingsStore = context.getStore('SettingsStore'),
           hasPermissions = settingsStore.getHasPermissions();
 
@@ -94,16 +114,19 @@ function subscribe (context, payload, done) {
         window.navigator.permissions.query({
           name: 'push',
           userVisibleOnly: true
-        }).then(function (permissionState) {
+        })
+        .then(function (permissionState) {
           debug('subscribe error', error, ' push permissions state ', permissionState);
           if (permissionState.state === 'prompt') {
             error = new Error('Must accept the permission prompt');
           } else if (permissionState.state === 'denied') {
             error = new Error('User blocked notifications');
           }
-        }).catch(function (error2) {
+        })
+        .catch(function (error2) {
           debug('subscribe error', error, ' permissions error ', error2);
-        }).then(function () {
+        })
+        .then(function () {
           complete(error, null, null);
         });
       } else {
@@ -181,12 +204,39 @@ function unsubscribe (context, payload, done) {
           params.emulateError = payload && payload.emulateError;
         }
 
-        context.service.delete('subscription',
-          syncable.push(params, params.subscriptionId, syncable.ops.unsubscribe),
-          {},
-          complete
-        );
-      }).catch(function (error) {
+        return messages.workerSendMessage({
+          command: 'pushSync',
+          payload: {
+            subscriptionId: false
+          }
+        })
+        .then(function () {
+          context.service.delete('subscription',
+            syncable.push(
+              params,
+              params.subscriptionId,
+              syncable.ops.unsubscribe
+            ), {}, function (err) {
+              if (err) {
+                // Restore the subscription
+                messages.workerSendMessage({
+                  command: 'pushSync',
+                  payload: {
+                    subscriptionId: params.subscriptionId
+                  }
+                });
+              }
+              complete(err);
+            }
+          );
+        })
+        .catch(function (error) {
+          debug('pushSync message failed ', error);
+          error.message = 'pushSync message failed: ' + error.message;
+          complete(error);
+        });
+      })
+      .catch(function (error) {
         error.message = 'Unsubscribe failed: ' + error.message;
         complete(error);
       });

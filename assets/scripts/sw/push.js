@@ -9,6 +9,7 @@
 
 var debug = require('./utils/debug')('push');
 var requests = require('./utils/requests');
+var pushSync = require('./sync/push');
 var pushUtil = require('../../../utils/push');
 
 var pushUrl = '/_api/push';
@@ -99,6 +100,26 @@ self.addEventListener('notificationclick', function (event) {
       } else {
         return clients.openWindow(url);
       }
+    })
+  );
+});
+
+/**
+ * Handle push subscription change event.
+ */
+self.addEventListener('pushsubscriptionchange', function (event) {
+  event.waitUntil(
+    self.registration.pushManager.getSubscription()
+    .then(function (subscription) {
+      var subscriptionId = pushUtil.getSubscriptionId(subscription);
+      if (subscriptionId) {
+        return pushSync.synchronize(subscriptionId);
+      }
+      throw new Error('could not getSubscriptionId');
+    })
+    .catch(function (error) {
+      // catch here and just log for now
+      debug('pushsubscriptionchange failed: ', error);
     })
   );
 });

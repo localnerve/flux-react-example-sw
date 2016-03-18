@@ -15,15 +15,16 @@ function getSubscriptionId (subscription) {
     return null;
   }
 
-  var subscriptionId = subscription.subscriptionId;
+  var subscriptionId = null;
 
-  if (!subscriptionId && typeof subscription.getKey === 'function') {
-    subscriptionId = subscription.getKey();
-  }
-
-  if (!subscriptionId) {
+  if (subscription.endpoint) {
     var endpointSections = subscription.endpoint.split('/');
     subscriptionId = endpointSections[endpointSections.length - 1];
+  }
+
+  if (!subscriptionId && typeof subscription.getKey === 'function') {
+    // This should be unique enough to act like an id for purpose.
+    subscriptionId = subscription.getKey();
   }
 
   return subscriptionId;

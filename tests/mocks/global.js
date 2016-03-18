@@ -53,6 +53,8 @@ function setupPermissions (options) {
  * @param {Boolean} [options.rejectUnsub] - reject the unsubscribe.
  * @param {Boolean} [options.rejectSubcribe] - reject the subscribe.
  * @param {Boolean} [options.rejectGetSub] - reject the getSubscription.
+ * @param {Number} [options.countPostMessage] - count postMessage invocations.
+ * @param {Boolean} [options.postMessageFail] - postMessage to return failure.
  */
 function setupPushManager (options) {
   options = options || {};
@@ -83,7 +85,32 @@ function setupPushManager (options) {
           return Promise.resolve(subscription);
         }
       }
-    })
+    }),
+    controller: {
+      postMessage: function () {
+        var event = {
+          data: {
+            text: 'hello world'
+          }
+        };
+
+        if (options.postMessageFail) {
+          event.data.error = new Error('mock postmessage error');
+        }
+
+        if (options.countPostMessage >= 0) {
+          options.countPostMessage++;
+        } else {
+          options.countPostMessage = 1;
+        }
+
+        var onmessage = global.navigator.serviceWorker.onmessage || this.onmessage;
+
+        if (typeof onmessage === 'function') {
+          onmessage(event);
+        }
+      }
+    }
   };
 
   return subscription;

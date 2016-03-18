@@ -96,7 +96,10 @@ describe('push action', function () {
 
     describe('subscribe', function () {
       it('should create a subscription', function (done) {
-        var sub = setupPushManager();
+        var pushOptions = {
+          countPostMessage: 0
+        };
+        var sub = setupPushManager(pushOptions);
 
         context.executeAction(pushAction.subscribe, {}, function (err) {
           if (err) {
@@ -107,12 +110,38 @@ describe('push action', function () {
           expect(fields.pushSubscriptionError).to.be.null;
           expect(fields.pushSubscription).to.eql(sub);
           expect(fields.pushTopics).to.eql(subscription.topics);
+          expect(pushOptions.countPostMessage).to.equal(1);
           done();
         });
       });
 
-      it('should handle subscription service error', function (done) {
-        setupPushManager();
+      // This is a pretty ugly case. I'm not sure I like the result state yet.
+      it('should handle postMessage error', function (done) {
+        var pushOptions = {
+          countPostMessage: 0,
+          postMessageFail: true
+        };
+
+        setupPushManager(pushOptions);
+
+        context.executeAction(pushAction.subscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(err).to.be.an('Error');
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(fields.pushSubscription).to.be.null;
+          expect(fields.pushTopics).to.be.null;
+          expect(pushOptions.countPostMessage).to.equal(1);
+          expect(err.toString().toLowerCase()).to.contain('postmessage');
+          done();
+        });
+      });
+
+      it('should handle a service error', function (done) {
+        var pushOptions = {
+          countPostMessage: 0
+        };
+
+        setupPushManager(pushOptions);
 
         context.executeAction(pushAction.subscribe, {
           emulateError: true
@@ -121,15 +150,19 @@ describe('push action', function () {
           expect(err).to.be.an('Error');
           expect(fields.pushSubscriptionError).to.not.be.null;
           expect(fields.pushTopics).to.be.null;
+          expect(pushOptions.countPostMessage).to.equal(2);
           done();
         });
       });
 
       // I'm not sure this case makes sense.
       it('should handle subscription reject without permissions or notifications', function (done) {
-        setupPushManager({
+        var pushOptions = {
+          countPostMessage: 0,
           rejectSubcribe: true
-        });
+        };
+
+        setupPushManager(pushOptions);
 
         context.executeAction(pushAction.subscribe, {}, function (err) {
           var fields = getSettingsFields(context, SettingsStore);
@@ -137,14 +170,18 @@ describe('push action', function () {
           expect(fields.pushSubscriptionError).to.not.be.null;
           expect(fields.pushSubscription).to.be.null;
           expect(fields.pushTopics).to.be.null;
+          expect(pushOptions.countPostMessage).to.equal(0);
           done();
         });
       });
 
       it('should handle subscription reject with notification, denied', function (done) {
-        setupPushManager({
+        var pushOptions = {
+          countPostMessage: 0,
           rejectSubcribe: true
-        });
+        };
+
+        setupPushManager(pushOptions);
         setupNotification({
           permission: 'denied'
         });
@@ -158,14 +195,18 @@ describe('push action', function () {
           expect(fields.pushSubscriptionError).to.not.be.null;
           expect(fields.pushSubscription).to.be.null;
           expect(fields.pushTopics).to.be.null;
+          expect(pushOptions.countPostMessage).to.equal(0);
           done();
         });
       });
 
       it('should handle subscription reject with permissions, prompt', function (done) {
-        setupPushManager({
+        var pushOptions = {
+          countPostMessage: 0,
           rejectSubcribe: true
-        });
+        };
+
+        setupPushManager(pushOptions);
         setupPermissions({
           state: 'prompt'
         });
@@ -179,14 +220,18 @@ describe('push action', function () {
           expect(fields.pushSubscriptionError).to.not.be.null;
           expect(fields.pushSubscription).to.be.null;
           expect(fields.pushTopics).to.be.null;
+          expect(pushOptions.countPostMessage).to.equal(0);
           done();
         });
       });
 
       it('should handle subscription reject with permissions, denied', function (done) {
-        setupPushManager({
+        var pushOptions = {
+          countPostMessage: 0,
           rejectSubcribe: true
-        });
+        };
+
+        setupPushManager(pushOptions);
         setupPermissions({
           state: 'denied'
         });
@@ -200,14 +245,18 @@ describe('push action', function () {
           expect(fields.pushSubscriptionError).to.not.be.null;
           expect(fields.pushSubscription).to.be.null;
           expect(fields.pushTopics).to.be.null;
+          expect(pushOptions.countPostMessage).to.equal(0);
           done();
         });
       });
 
       it('should handle subscription reject with permission reject', function (done) {
-        setupPushManager({
+        var pushOptions = {
+          countPostMessage: 0,
           rejectSubcribe: true
-        });
+        };
+
+        setupPushManager(pushOptions);
         setupPermissions({
           rejectQuery: true
         });
@@ -221,6 +270,7 @@ describe('push action', function () {
           expect(fields.pushSubscriptionError).to.not.be.null;
           expect(fields.pushSubscription).to.be.null;
           expect(fields.pushTopics).to.be.null;
+          expect(pushOptions.countPostMessage).to.equal(0);
           done();
         });
       });
@@ -228,9 +278,12 @@ describe('push action', function () {
 
     describe('unsubscribe', function () {
       it('should unsubcribe a subscription', function (done) {
-        setupPushManager({
+        var pushOptions = {
+          countPostMessage: 0,
           succeedUnsub: true
-        });
+        };
+
+        setupPushManager(pushOptions);
 
         context.executeAction(pushAction.unsubscribe, {}, function (err) {
           if (err) {
@@ -241,27 +294,57 @@ describe('push action', function () {
           expect(fields.pushSubscription).to.be.null;
           expect(fields.pushTopics).to.be.null;
           expect(fields.pushSubscriptionError).to.be.null;
+          expect(pushOptions.countPostMessage).to.equal(1);
+          done();
+        });
+      });
+
+      // This is an ugly case. I'm not sure this is really handled.
+      it('should handle postMessage error', function (done) {
+        var pushOptions = {
+          countPostMessage: 0,
+          postMessageFail: true,
+          succeedUnsub: true
+        };
+
+        setupPushManager(pushOptions);
+
+        context.executeAction(pushAction.unsubscribe, {}, function (err) {
+          var fields = getSettingsFields(context, SettingsStore);
+          expect(err).to.be.an('Error');
+          expect(fields.pushSubscription).to.be.null;
+          expect(fields.pushTopics).to.be.null;
+          expect(fields.pushSubscriptionError).to.not.be.null;
+          expect(pushOptions.countPostMessage).to.equal(1);
+          expect(err.toString().toLowerCase()).to.contain('postmessage');
           done();
         });
       });
 
       it('should handle an unsubscribe failure', function (done) {
-        setupPushManager({
+        var pushOptions = {
+          countPostMessage: 0,
           succeedUnsub: false
-        });
+        };
+
+        setupPushManager(pushOptions);
 
         context.executeAction(pushAction.unsubscribe, {}, function (err) {
           var fields = getSettingsFields(context, SettingsStore);
           expect(fields.pushSubscriptionError).to.not.be.null;
           expect(err).to.be.an('Error');
+          expect(pushOptions.countPostMessage).to.equal(0);
           done();
         });
       });
 
-      it('should handle an service error', function (done) {
-        setupPushManager({
+      it('should handle a service error', function (done) {
+        var pushOptions = {
+          countPostMessage: 0,
           succeedUnsub: true
-        });
+        };
+
+        setupPushManager(pushOptions);
 
         context.executeAction(pushAction.unsubscribe, {
           emulateError: true
@@ -269,6 +352,7 @@ describe('push action', function () {
           var fields = getSettingsFields(context, SettingsStore);
           expect(fields.pushSubscriptionError).to.not.be.null;
           expect(err).to.be.an('Error');
+          expect(pushOptions.countPostMessage).to.equal(2);
           done();
         });
       });

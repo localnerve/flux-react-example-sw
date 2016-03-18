@@ -18,6 +18,7 @@ describe('sw/push', function () {
 
   before('setup sw/push', function () {
     mocks.swToolbox.begin();
+    mocks.swSyncPush.begin();
 
     selfMock = new Self();
     toolbox = require('sw-toolbox');
@@ -59,6 +60,7 @@ describe('sw/push', function () {
     delete global.fetch;
     toolbox.mockTeardown();
     selfMock.teardown();
+    mocks.swSyncPush.end();
     mocks.swToolbox.end();
   });
 
@@ -71,7 +73,7 @@ describe('sw/push', function () {
         pushManager: {
           subReject: false,
           subscribed: {
-            subscriptionId: 123456
+            endpoint: 'url/123456'
           }
         }
       });
@@ -234,6 +236,92 @@ describe('sw/push', function () {
     });
   });
 
-  describe.skip('pushsubscriptionchange event', function () {
+  describe('pushsubscriptionchange event', function () {
+    var syncPush;
+
+    before(function () {
+      syncPush = require('./sync/push');
+    });
+
+    beforeEach(function () {
+      selfMock.setup({
+        showNotificationFn: null,
+        pushManager: {
+          subReject: false,
+          subscribed: {
+            endpoint: 'url/123456'
+          }
+        }
+      });
+      syncPush.setEmulateError(false);
+      syncPush.setValue(false);
+    });
+
+    function createPushSubChangeEvent (successHandler, done) {
+      return {
+        waitUntil: function (promise) {
+          promise.then(function (value) {
+            successHandler(value);
+            done();
+          })
+          .catch(function (error) {
+            done(error || unexpectedFlowError);
+          });
+        }
+      };
+    }
+
+    it('should handle getsub failure', function (done) {
+      selfMock.setup({
+        pushManager: {
+          subReject: true
+        }
+      });
+
+      selfMock.events.pushsubscriptionchange(
+        createPushSubChangeEvent(function () {}, done)
+      );
+    });
+
+    it('should handle sync push failure', function (done) {
+      syncPush.setEmulateError(true);
+
+      selfMock.events.pushsubscriptionchange(
+        createPushSubChangeEvent(function () {}, done)
+      );
+    });
+
+    it('should handle bad subscription failure', function (done) {
+      selfMock.setup({
+        pushManager: {
+          subReject: false,
+          subscribed: {
+          }
+        }
+      });
+      selfMock.events.pushsubscriptionchange(
+        createPushSubChangeEvent(function () {
+        }, done)
+      );
+    });
+
+    it('should handle sync push success, false result', function (done) {
+      selfMock.events.pushsubscriptionchange(
+        createPushSubChangeEvent(function (value) {
+          expect(value).to.be.false;
+        }, done)
+      );
+    });
+
+    it('should handle sync push success, other result', function (done) {
+      var other = { test: 'yeppers' };
+      syncPush.setValue(other);
+
+      selfMock.events.pushsubscriptionchange(
+        createPushSubChangeEvent(function (value) {
+          expect(value).to.eql(other);
+        }, done)
+      );
+    });
   });
 });

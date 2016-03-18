@@ -46,6 +46,29 @@ describe('sw/sync/push', function () {
       globalFetch.setEmulateError(false);
     });
 
+    describe('falsy input', function () {
+      var calledDel = 0;
+
+      beforeEach(function () {
+        treoMock.setReporter(function (method, key) {
+          if (method === 'del' && key === 'id') {
+            calledDel++;
+          }
+        });
+      });
+
+      it('should delete id', function (done) {
+        push.synchronize()
+        .then(function () {
+          expect(calledDel).to.equal(1);
+          done();
+        })
+        .catch(function (error) {
+          done(error || unexpectedFlowError);
+        });
+      });
+    });
+
     describe('no prexisting subscriptionId', function () {
       var calledOther = 0, calledGetId = 0, calledPutId = 0,
           putIdValue;

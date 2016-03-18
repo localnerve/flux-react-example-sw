@@ -23,17 +23,22 @@ describe('push', function () {
       expect(push.getSubscriptionId()).to.be.null;
     });
 
-    it('should return subscriptionId if subscription has one', function () {
-      expect(push.getSubscriptionId({
-        subscriptionId: subId,
-        endpoint: endpoint
-      })).to.equal(subId);
+    it('should return null if no endpoint or getKey', function () {
+      expect(push.getSubscriptionId({})).to.be.null;
     });
 
-    it('should return subscriptionId from endpoint if no subId', function () {
+    it('should return subscriptionId from endpoint', function () {
       expect(push.getSubscriptionId({
         endpoint: endpoint
       })).to.equal(subId2);
+    });
+
+    it('should use getKey if no endpoint', function () {
+      expect(push.getSubscriptionId({
+        getKey: function () {
+          return subId;
+        }
+      })).to.equal(subId);
     });
   });
 });

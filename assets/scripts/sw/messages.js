@@ -7,15 +7,40 @@
 /* global Promise, self, clients */
 'use strict';
 
-// For now, this only works in dev builds, sw-toolbox issue #31
 var debug = require('./utils/debug')('messages');
+var push = require('./sync/push');
 
 /***
  * Add any new messaging command handlers to this object.
- * All commands must accept arguments payload, responder and return Promise.
+ *
+ * Format of all commands:
+ * @param {Object} payload - The message payload.
+ * @param {Function} responder - The sendResponse function with event prebound.
+ * @returns {Promise} Resolves when complete.
  */
 var commands = {
-  init: require('./init').command
+  /***
+   * Handle init messages
+   */
+  init: require('./init').command,
+
+  /**
+   * Handle pushSync messages
+   */
+  pushSync: function (payload, responder) {
+    return push.synchronize(payload.subscriptionId)
+    .then(function () {
+      return responder({
+        error: null
+      });
+    })
+    .catch(function (error) {
+      debug('pushSync failed', error);
+      return responder({
+        error: error.toString()
+      });
+    });
+  }
 };
 
 /**

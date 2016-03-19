@@ -19,12 +19,10 @@ var subscriptionService = '/_api';
 /**
  * Get the existing subscriptionId and apiInfo for the subscription service.
  *
- * 1. Initializes the subscription.id store.key if never established.
- * 2. Sets the subscription.id to false if given subscriptionId is falsy.
- * 3. Determines if the existingId is an id and different than
- *    the given suscriptionId.
- * 4. If the existingId is an id and different, gets the apiInfo for the
- *    subscriptionService.
+ * Determines if the existingId is an id and different than
+ * the given suscriptionId.
+ * If the existingId is an id and different, gets the apiInfo for the
+ * subscriptionService.
  *
  * @private
  *

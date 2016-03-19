@@ -14,10 +14,12 @@
 // ribbon styles
 // -------------------------
 .ribbon {
-  margin: 0.5rem 0 0.25rem;
+  margin: 0.25rem 0;
+  padding-top: 0.2rem;
   overflow-y: hidden;
   @include breakpoint(medium) {
     margin: 1rem 0;
+    padding-top: 0;
   }
 }
 .ribbon span {

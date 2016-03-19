@@ -18,28 +18,36 @@
  * @returns {Object} A promise to be resolved.
  */
 function workerSendMessage (message, worker) {
-  var serviceWorkerContainer = window.navigator.serviceWorker;
-  var defaultTargetWorker =
-    serviceWorkerContainer && serviceWorkerContainer.controller;
+  var serviceWorkerContainer, workerPromise;
 
-  worker = worker || defaultTargetWorker;
+  if (worker) {
+    workerPromise = Promise.resolve(worker);
+  } else if ('serviceWorker' in window.navigator) {
+    serviceWorkerContainer = window.navigator.serviceWorker;
+    workerPromise = serviceWorkerContainer.ready.then(function (registration) {
+      return registration.active;
+    });
+  } else {
+    workerPromise = Promise.reject('No target worker specified');
+  }
 
-  /**
-   * Send a message to worker and return a Promise.
-   */
-  return new Promise(function workerSendMessageExecutor (resolve, reject) {
+  return workerPromise
+  .then(function (workerAsPromised) {
     /**
-     * A rudimentary message handler to resolve the promise.
+     * Send a message to worker and return a Promise.
      */
-    var messageHandler = function workerMessageHandler (event) {
-      if (event.data.error) {
-        reject(event.data.error);
-      } else {
-        resolve(event.data);
-      }
-    };
+    return new Promise(function workerSendMessageExecutor (resolve, reject) {
+      /**
+       * A rudimentary message handler to resolve the promise.
+       */
+      var messageHandler = function workerMessageHandler (event) {
+        if (event.data.error) {
+          reject(event.data.error);
+        } else {
+          resolve(event.data);
+        }
+      };
 
-    if (worker) {
       var transfer, messageChannel;
 
       if (window.MessageChannel) {
@@ -48,10 +56,10 @@ function workerSendMessage (message, worker) {
         message.port = messageChannel.port2;
         transfer = [messageChannel.port2];
       } else {
-        if ('onmessage' in worker) {
-          worker.onmessage = messageHandler;
+        if ('onmessage' in workerAsPromised) {
+          workerAsPromised.onmessage = messageHandler;
         } else {
-          if (worker === defaultTargetWorker) {
+          if (serviceWorkerContainer) {
             serviceWorkerContainer.onmessage = messageHandler;
           } else {
             reject('Message response not supported');
@@ -59,10 +67,8 @@ function workerSendMessage (message, worker) {
         }
       }
 
-      worker.postMessage(message, transfer);
-    } else {
-      reject('No target worker specified');
-    }
+      workerAsPromised.postMessage(message, transfer);
+    });
   });
 }
 

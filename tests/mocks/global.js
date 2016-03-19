@@ -59,6 +59,34 @@ function setupPermissions (options) {
 function setupPushManager (options) {
   options = options || {};
 
+  /**
+   * A simple postMessage mock.
+   */
+  function postMessage () {
+    var event = {
+      data: {
+        text: 'hello world'
+      }
+    };
+
+    if (options.postMessageFail) {
+      event.data.error = new Error('mock postmessage error');
+    }
+
+    if (options.countPostMessage >= 0) {
+      options.countPostMessage++;
+    } else {
+      options.countPostMessage = 1;
+    }
+
+    var onmessage = global.navigator.serviceWorker.onmessage ||
+      global.navigator.serviceWorker.controller.onmessage;
+
+    if (typeof onmessage === 'function') {
+      onmessage(event);
+    }
+  }
+
   var subscription = {
     endpoint: 'https://service.dom/push/123456789',
     unsubscribe: function () {
@@ -84,32 +112,13 @@ function setupPushManager (options) {
           }
           return Promise.resolve(subscription);
         }
+      },
+      active: {
+        postMessage: postMessage
       }
     }),
     controller: {
-      postMessage: function () {
-        var event = {
-          data: {
-            text: 'hello world'
-          }
-        };
-
-        if (options.postMessageFail) {
-          event.data.error = new Error('mock postmessage error');
-        }
-
-        if (options.countPostMessage >= 0) {
-          options.countPostMessage++;
-        } else {
-          options.countPostMessage = 1;
-        }
-
-        var onmessage = global.navigator.serviceWorker.onmessage || this.onmessage;
-
-        if (typeof onmessage === 'function') {
-          onmessage(event);
-        }
-      }
+      postMessage: postMessage
     }
   };
 

@@ -15,6 +15,8 @@ var IDB_VERSION = 1;
 var IDB_NAME = 'service-worker';
 
 // To add a new ObjectStore to the schema, add it here.
+// Also, MUST update IDB_VERSION (no floats allowed),
+// and override the treo schema callback to perform the upgrade details.
 var IDB_STORES = {
   init: 'init',
   requests: 'requests',

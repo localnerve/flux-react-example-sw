@@ -27,7 +27,7 @@ new window.FontFaceObserver('Source Sans Pro', {})
 // --------------------------------------------------
 // Load non-critical stylesheets
 //
-var i, loadCss = require('fg-loadcss'),
+var i, loadCss = require('fg-loadcss').loadCSS,
     cssHrefs = document.querySelectorAll('meta[content$=".css"]');
 
 for (i = 0; i < cssHrefs.length; i++) {

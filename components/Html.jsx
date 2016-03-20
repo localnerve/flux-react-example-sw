@@ -27,7 +27,8 @@ var Html = React.createClass({
   },
   render: function () {
     var asyncStyleImports = this.props.otherStyles.map(function (otherStyle, i) {
-      // return <link rel="import" type="text/css" href={otherStyle} async />;
+      // considering:
+      // return <link rel="preload" as="style" href={otherStyle} />;
       return <meta key={'otherStyle-'+i} itemProp="stylesheet" content={otherStyle} />;
     });
 

@@ -2,118 +2,89 @@
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global after, before, beforeEach, describe, it */
+/* global before, beforeEach, after, describe, it */
 'use strict';
 
 var expect = require('chai').expect;
 var mocks = require('../../../mocks');
 
 describe('sw/utils/debug', function () {
-  var toolbox,
-      consoleLog, consoleLogArgs, consoleLogCalled,
-      debugFn, debugName, debug,
-      testMessage = 'test message';
+  var debugLib, treoMock;
+  var debugKey = 'debug';
+  var mockValue = 'mock value';
+  var unexpectedFlowError = new Error('unexpected flow');
 
-  function mockConsoleLog () {
-    consoleLogCalled = false;
-    consoleLogArgs = [];
-    consoleLog = global.console.log;
+  before('setup debug', function () {
+    mocks.swUtilsIdbTreo.begin();
+    treoMock = require('treo');
+    debugLib = require('../../../../assets/scripts/sw/utils/debug');
 
-    global.console.log = function () {
-      consoleLogArgs = arguments;
-      consoleLogCalled = true;
-    };
-  }
-
-  function unmockConsoleLog () {
-    global.console.log = consoleLog;
-  }
-
-  before('setup toolbox and console.log', function () {
-    mocks.swToolbox.begin();
-    toolbox = require('sw-toolbox');
-    toolbox.mockSetup();
-    /*
-    console.log('@@@');
-    console.log(require('util').inspect(toolbox, {depth: null}));
-    console.log('@@@');
-    */
-    debugFn = require('../../../../assets/scripts/sw/utils/debug');
+    treoMock.setValue(mockValue);
   });
 
   after(function () {
-    toolbox.mockTeardown();
-    mocks.swToolbox.end();
+    mocks.swUtilsIdbTreo.end();
   });
 
-  beforeEach(function () {
-    var debugLog = debugFn(debugName);
-    debug = function () {
-      mockConsoleLog();
-      debugLog.apply(debugLog, arguments);
-      unmockConsoleLog();
-    };
-  });
+  describe('load', function () {
+    var calledGet;
 
-  describe('global toolbox debug option', function () {
-    it('should not output anything if toolbox debug false', function () {
-      toolbox.options.debug = false;
-
-      debug(testMessage);
-
-      expect(consoleLogCalled).to.be.false;
+    beforeEach(function () {
+      calledGet = 0;
+      treoMock.setReporter(function (method, key) {
+        if (method === 'get' && key === debugKey) {
+          calledGet++;
+        }
+      });
     });
 
-    it('should output something if toolbox debug true', function () {
-      toolbox.options.debug = true;
-
-      debug(testMessage);
-
-      expect(consoleLogCalled).to.be.true;
-      expect(consoleLogArgs.length).to.equal(2);
-      expect(consoleLogArgs[0]).to.contain(debugName);
-      expect(consoleLogArgs[1]).to.equal(testMessage);
-    });
-
-    it('should output multiple args', function () {
-      var anotherArg = {
-        testProp: 0
-      };
-
-      toolbox.options.debug = true;
-
-      debug(testMessage, anotherArg);
-
-      expect(consoleLogCalled).to.be.true;
-      expect(consoleLogArgs.length).to.equal(3);
-      expect(consoleLogArgs[0]).to.contain(debugName);
-      expect(consoleLogArgs[1]).to.equal(testMessage);
-      expect(consoleLogArgs[2]).to.equal(anotherArg);
+    it('should call idb get', function (done) {
+      debugLib.load().then(function (namespace) {
+        expect(namespace).to.equal(mockValue);
+        expect(calledGet).to.equal(1);
+        done();
+      })
+      .catch(function (error) {
+        done (error || unexpectedFlowError);
+      });
     });
   });
 
-  describe('local toolbox debug option', function () {
-    it('should not output anything if debug option false', function () {
-      toolbox.options.debug = false;
+  describe('save', function () {
+    var calledDel, calledPut;
 
-      debug({
-        debug: false
-      }, testMessage);
-
-      expect(consoleLogCalled).to.be.false;
+    beforeEach(function () {
+      calledDel = calledPut = 0;
+      treoMock.setReporter(function (method, key) {
+        if (method === 'del' && key === debugKey) {
+          calledDel++;
+        }
+        if (method === 'put' && key === debugKey) {
+          calledPut++;
+        }
+      });
     });
 
-    it('should output something if debug option true', function () {
-      toolbox.options.debug = false;
+    it('should call del if input undefined', function (done) {
+      debugLib.save().then(function () {
+        expect(calledDel).to.equal(1);
+        expect(calledPut).to.equal(0);
+        done();
+      })
+      .catch(function (error) {
+        done(error || unexpectedFlowError);
+      });
+    });
 
-      debug({
-        debug: true
-      }, testMessage);
-
-      expect(consoleLogCalled).to.be.true;
-      expect(consoleLogArgs.length).to.equal(2);
-      expect(consoleLogArgs[0]).to.contain(debugName);
-      expect(consoleLogArgs[1]).to.equal(testMessage);
+    it('should call put if input non-null', function (done) {
+      debugLib.save('*').then(function () {
+        expect(calledPut).to.equal(1);
+        expect(calledDel).to.equal(0);
+        done();
+      })
+      .catch(function (error) {
+        done(error || unexpectedFlowError);
+      });
     });
   });
 });

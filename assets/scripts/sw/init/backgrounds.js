@@ -27,7 +27,7 @@ function regexEscape(s) {
  */
 function precacheBackground (options, req, res) {
   if (!res) {
-    debug(options, 'precaching background', req);
+    debug('precaching background', req);
     return toolbox.cache(req.clone(), options);
   }
   return Promise.resolve();

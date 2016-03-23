@@ -91,7 +91,7 @@ function routeHandlerFactory (fetchRequest, cacheRequest, cacheFallback) {
           // Only participate in the race for resolve (not reject).
           var timeoutPromise = new Promise(function (resolve) {
             timeoutId = setTimeout(function () {
-              debug(options, 'preemptive network timeout, fallback to cache');
+              debug('preemptive network timeout, fallback to cache');
               getCachedResponse().then(function (response) {
                 // Only resolve if there's a valid cached or fallback response.
                 if (response) {
@@ -114,7 +114,7 @@ function routeHandlerFactory (fetchRequest, cacheRequest, cacheFallback) {
           if (timeoutId) {
             clearTimeout(timeoutId);
           }
-          debug(options, 'network req failed, fallback to cache', error);
+          debug('network req failed, fallback to cache', error);
           return getCachedResponse();
         });
         promises.push(networkPromise);

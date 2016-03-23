@@ -21,7 +21,13 @@ var m = toolbox.options.cache.name.match(/([^\$]+)\${3}$/);
 toolbox.options.scope = m && m[1];
 toolbox.options.cache.name = data.cacheId + '-' + toolbox.options.cache.name;
 
-var debug = require('./utils/debug')('index');
+// Setup debugging
+var debugLib = require('./utils/debug');
+if (data.debug) {
+  debugLib.enable('*');
+}
+var debug = debugLib('index');
+
 var init = require('./init');
 var assets = require('./assets');
 

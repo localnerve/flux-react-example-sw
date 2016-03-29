@@ -21,6 +21,7 @@ var debug = require('../utils/debug')('init');
  * Kick-off the maintenance and synchronization of stored requests.
  * TODO: Use in 'sync' message to handle one-offs synchronization requests.
  * Run here until 'sync' gets more finalized/standardized.
+ * => Figure out how to get updated apiInfo for one-off sync.
  *
  * @returns {Promise} Resolves to undefined when complete.
  */
@@ -78,8 +79,9 @@ function updateAndSetup (payload) {
  * So can run multiple times, *must be idempotent*.
  *
  * What?
- * 1. Synchronizes/Maintains stored requests in IndexedDB.
- * 2. Updates the init.stores in IndexedDB if the app is online.
+ * 1. Updates the init.stores in IndexedDB if the app is online
+ *    Including updated apiInfos, required for sync.
+ * 2. Synchronizes/Maintains stored requests in IndexedDB.
  * 3. Installs route handlers for sw-toolbox.
  * 4. Precaches/prefetches backgrounds and routes.
  *
@@ -89,10 +91,10 @@ function updateAndSetup (payload) {
 function init (payload, responder) {
   debug('Running init, payload:', payload);
 
-  return Promise.all([
-    startRequestSync(),
-    updateAndSetup(payload)
-  ])
+  return updateAndSetup(payload)
+  .then(function () {
+    return startRequestSync();
+  })
   .then(function () {
     return responder({
       error: null

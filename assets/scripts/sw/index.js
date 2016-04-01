@@ -48,14 +48,45 @@ assets.setupAssetRequests();
 
 // If all init.data exists (and service-worker is starting), run the init command.
 // The init message may never come if service-worker was restarted by the system.
-init.data()
+var initPromise = init.data()
 .then(function (payload) {
   payload.startup = true;
-  init.command(payload, function (res) {
+  return init.command(payload, function (res) {
     if (res.error) {
       console.error('startup init command failed', res.error);
     }
   });
-}).catch(function (error) {
+})
+.catch(function (error) {
   debug('startup not running init command', error);
+})
+.then(function () {
+  // Successful or not, we're done and don't want to impede other fetch
+  // handlers.
+  toolbox.router.default = null;
 });
+
+// #43, Setup a temporary default handler for async startup needs.
+toolbox.router.default =
+/**
+ * The toolbox routes are not setup until the init command installs
+ * the dynamic routes. Setup a default handler until init completes.
+ *
+ * @param {Request} request - The fetch event request object.
+ * @returns {Promise} Resolves to a Response or a Network Error.
+ */
+function defaultHandler (request) {
+  return initPromise.then(function () {
+    debug('defaultHandler request ', request.url);
+
+    // Since init complete, get the handler.
+    var handler = toolbox.router.match(request);
+    if (handler) {
+      debug('defaultHandler successfully handled ', request.url);
+      return handler(request);
+    }
+
+    debug('defaultHandler could not handle ', request);
+    throw new Error('defaultHandler could not handle ' + request.url);
+  });
+};

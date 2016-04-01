@@ -4,7 +4,7 @@
  *
  * Init message and data handling.
  */
-/* global Promise */
+/* global Promise, self */
 'use strict';
 
 var backgrounds = require('./backgrounds');
@@ -19,14 +19,18 @@ var debug = require('../utils/debug')('init');
 
 /**
  * Kick-off the maintenance and synchronization of stored requests.
- * TODO: Use in 'sync' message to handle one-offs synchronization requests.
- * Run here until 'sync' gets more finalized/standardized.
- * => Figure out how to get updated apiInfo for one-off sync.
+ * Does nothing if run at startup and worker has one-off sync capability.
  *
+ * @param {Object} payload - The message payload.
+ * @param {Boolean} payload.startup - True if run at worker startup.
  * @returns {Promise} Resolves to undefined when complete.
  */
-function startRequestSync () {
-  return sync.serviceAllRequests()
+function startRequestSync (payload) {
+  // If this is run at worker startup and has sync capability, don't run.
+  var shouldRun = !payload.startup || !self.registration.sync;
+
+  if (shouldRun) {
+    return sync.serviceAllRequests()
     .then(function (results) {
       results.forEach(function (result) {
         if (result && result.failureCount) {
@@ -37,6 +41,9 @@ function startRequestSync () {
     .catch(function (error) {
       debug('serviceAllRequests failed ', error);
     });
+  }
+
+  return Promise.resolve();
 }
 
 /**
@@ -81,7 +88,7 @@ function updateAndSetup (payload) {
  * What?
  * 1. Updates the init.stores in IndexedDB if the app is online
  *    Including updated apiInfos, required for sync.
- * 2. Synchronizes/Maintains stored requests in IndexedDB.
+ * 2. Conditinally synchronizes and maintains deferred requests in IndexedDB.
  * 3. Installs route handlers for sw-toolbox.
  * 4. Precaches/prefetches backgrounds and routes.
  *
@@ -93,7 +100,7 @@ function init (payload, responder) {
 
   return updateAndSetup(payload)
   .then(function () {
-    return startRequestSync();
+    return startRequestSync(payload);
   })
   .then(function () {
     return responder({

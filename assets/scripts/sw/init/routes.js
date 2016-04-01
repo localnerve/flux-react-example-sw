@@ -90,8 +90,8 @@ function addRecentRoute (request, response) {
 }
 
 /**
- * Look up the given url in 'init.routes' to see if
- * fetchAndCache should be skipped.
+ * Look up the given url in 'init.routes' to see if fetchAndCache should be
+ * skipped. If age is less than TTL and already cached, skip.
  *
  * @private
  *
@@ -106,8 +106,13 @@ function getRecentRoute (url) {
       age = Date.now() - routes[url];
 
       if (age < routeTTL) {
-        debug('skipping fetchAndCache for '+url);
-        return true;
+        return toolbox.cacheOnly(new Request(url)).then(function (response) {
+          if (response) {
+            debug('skipping fetchAndCache for '+url);
+            return true;
+          }
+          return false;
+        });
       }
     }
 

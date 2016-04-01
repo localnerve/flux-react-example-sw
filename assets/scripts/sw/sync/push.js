@@ -12,6 +12,7 @@ var serviceable = require('./serviceable');
 var debug = require('../utils/debug')('sync.push');
 var idb = require('../utils/idb');
 var requestLib = require('../utils/requests');
+var apiHelpers = require('../utils/api');
 var syncable = require('../../../../utils/syncable');
 
 var subscriptionService = '/_api';
@@ -83,25 +84,19 @@ function synchronizePushSubscription (subscriptionId) {
     existingId = result.existingId;
 
     if (apiInfo) {
-      // Would be great to create the body using fetchr itself.
       requestState = {
         url: apiInfo.xhrPath,
         method: 'POST',
         bodyType: 'json',
-        body: {
-          context: apiInfo.xhrContext,
-          requests: {
-            g0: {
-              body: {},
-              operation: 'update',
-              params: {
-                subscriptionId: existingId,
-                newId: subscriptionId
-              },
-              resource: 'subscription'
-            }
-          }
-        }
+        body: apiHelpers.createRequestBody(apiInfo.xhrContext, {
+          body: {},
+          operation: 'update',
+          params: {
+            subscriptionId: existingId,
+            newId: subscriptionId
+          },
+          resource: 'subscription'
+        })
       };
 
       return fetch(requestLib.rehydrateRequest(requestState, apiInfo));

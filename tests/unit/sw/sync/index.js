@@ -2,20 +2,28 @@
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
-/* global after, afterEach, before, beforeEach, describe, it */
+/* global after, afterEach, before, beforeEach, describe, it, Promise */
 'use strict';
 
 var expect = require('chai').expect;
 var mocks = require('../../../mocks');
-var syncable = require('../../../../utils/syncable');
 var Self = require('../../../mocks/self');
+var syncable = require('../../../../utils/syncable');
+var apiHelpers = require('../../../../assets/scripts/sw/utils/api');
 
 describe('sw/sync/index', function () {
-  var index, treoMock, toolboxMock;
-  var request, url = 'http://someurl', apiPath = '/api';
+  var index, treoMock, toolboxMock, fetchMock;
+  var self = new Self();
+  var unexpectedError = new Error('unexpected error');
+  var requestReplayable, requestNonReplayable,
+  url = 'http://someurl', apiPath = '/api';
 
   before('sw/sync/index setup', function () {
     mocks.swSyncIndex.begin();
+    self.setup();
+
+    // setup for fetchMock is local to suites below
+    fetchMock = fetchMock = require('../../../mocks/sw-fetch');
 
     index = require('../../../../assets/scripts/sw/sync');
     treoMock = require('treo');
@@ -29,27 +37,38 @@ describe('sw/sync/index', function () {
   });
 
   after('sw/sync/index teardown', function () {
-    toolboxMock.mockTeardown();
-    mocks.swSyncIndex.end();
-    delete global.Request;
     delete global.Blob;
+    delete global.Request;
+
+    toolboxMock.mockTeardown();
+    self.teardown();
+    mocks.swSyncIndex.end();
   });
 
   beforeEach(function () {
+    var nonReplayable = syncable.push({
+      some: 'body'
+    }, '123456789', syncable.ops.updateTopics);
+
     // mock a js body with a _fallback property.
-    var body = syncable.contact({
+    var userReplayable = syncable.contact({
       some: 'body'
     }, 'test@email');
 
-    request = new global.Request(url, {
+    requestReplayable = new global.Request(url, {
       credentials: 'notgood',
-      body: body
+      body: userReplayable
+    });
+
+    requestNonReplayable = new global.Request(url, {
+      credentials: 'notgood',
+      body: nonReplayable
     });
   });
 
   describe('removeFallback', function () {
     it('should remove fallback property', function (done) {
-      index.removeFallback({}, request)
+      index.removeFallback({}, requestReplayable)
       .then(function (req) {
         return req.json();
       })
@@ -64,7 +83,7 @@ describe('sw/sync/index', function () {
 
       index.removeFallback({
         credentials: credInclude
-      }, request).then(function (req) {
+      }, requestReplayable).then(function (req) {
         expect(req.credentials).to.equal(credInclude);
         done();
       });
@@ -77,7 +96,7 @@ describe('sw/sync/index', function () {
         test: 'response'
       };
 
-      index.maintainRequests({}, response, request)
+      index.maintainRequests({}, response, requestReplayable)
       .then(function (result) {
         expect(result).to.eql(response);
         done();
@@ -102,11 +121,6 @@ describe('sw/sync/index', function () {
     beforeEach(function () {
       reporterCalled = false;
       treoMock.setReporter(function (method) {
-        /*
-        console.log('@@@');
-        console.log(require('util').inspect(arguments));
-        console.log('@@@');
-        */
         reporterCalled = true;
         expect(method).to.equal('put');
       });
@@ -117,80 +131,131 @@ describe('sw/sync/index', function () {
     });
 
     it('should return a deferred response', function (done) {
-      index.deferRequest(apiPath, request)
+      index.deferRequest(apiPath, requestNonReplayable)
       .then(function (response) {
-        return response.json();
-      })
-      .then(function (body) {
-        expect(body).to.equal('deferred');
+        expect(response.statusText).to.equal('deferred');
         done();
+      });
+    });
+
+    it('should return a failed response', function (done) {
+      index.deferRequest(apiPath, requestReplayable)
+      .then(function (response) {
+        expect(response.statusText).to.equal('failed');
+        done();
+      });
+    });
+
+    describe('sync.register', function () {
+      var calledSyncRegister;
+
+      before(function () {
+        self.setup({
+          syncRegisterFn: function () {
+            calledSyncRegister++;
+            return Promise.resolve();
+          }
+        });
+      });
+
+      after(function () {
+        self.setup();
+      });
+
+      beforeEach(function () {
+        calledSyncRegister = 0;
+      });
+
+      function testSyncRegister (request, done) {
+        index.deferRequest(apiPath, request)
+        .then(function (response) {
+          expect(response.statusText).to.equal('deferred');
+          expect(calledSyncRegister).to.equal(1);
+          done();
+        })
+        .catch(function (err) {
+          done(err || unexpectedError);
+        });
+      }
+
+      it('should register for replayable request', function (done) {
+        testSyncRegister(requestReplayable, done);
+      });
+
+      it('should register for nonReplayable request', function (done) {
+        testSyncRegister(requestNonReplayable, done);
       });
     });
   });
 
   describe('serviceAllRequests', function () {
-    var self = new Self(), mockDb, mockFetch,
-        unexpectedError = new Error('unexpected error');
+    var mockApis = {},
+        calledDel, calledPut;
 
     before('serviceAllRequests setup', function () {
-      mockDb = require('./idb');
-      mockFetch = require('../../../mocks/sw-fetch');
-
       global.Response = require('../../../mocks/response');
-      global.fetch = mockFetch.fetch;
+      global.fetch = fetchMock.fetch;
     });
 
     after('serviceAllRequests teardown', function () {
-      delete global.Response;
       delete global.fetch;
+      delete global.Response;
     });
 
     beforeEach(function (done) {
-      var mockApis = {};
+      var dehydratedRequests;
       mockApis[apiPath] = {
         xhrContext: {}
       };
 
-      self.setup();
-      mockDb.setValue(mockApis);
+      fetchMock.reset();
 
-      // capture the dehydratedRequest from deferRequest and use it for
-      // to represent a dehydratedRequests collection from treo.
+      // Called repeatedly from serviceAllRequests when underlying
+      // treo layer is called.
       treoMock.setReporter(function (method, key, dehydratedRequest) {
+        if (method === 'del') {
+          calledDel++;
+        }
+
+        // 1.
+        // capture the dehydratedRequest from deferRequest and use it for
+        // to represent a dehydratedRequests collection from treo.
         if (method === 'put') {
+          calledPut++;
           treoMock.setValue([
             dehydratedRequest
           ]);
         }
+
+        // 2.
+        // save the dehydratedRequest from 'put', use mockApis for now.
+        if (method === 'get' && key === 'apis') {
+          dehydratedRequests = treoMock.getValue();
+          treoMock.setValue(mockApis);
+        }
+
+        // 3.
+        // restore saved dehydratedRequest
+        if (method === 'all') {
+          treoMock.setValue(dehydratedRequests);
+        }
       });
 
-      index.deferRequest(apiPath, request).then(function () {
+      // evil, foolish, or genius? Whatever. Create a dehydratedRequest.
+      index.deferRequest(apiPath, requestReplayable).then(function () {
+        calledDel = calledPut = 0;
         done();
       }).catch(function (err) {
-        console.log('@@@');
-        console.log('error setup serviceAllRequests = ' + require('util').inspect(err));
-        console.log('@@@');
+        done(err || unexpectedError);
       });
     });
 
     afterEach(function () {
-      mockDb.setValue(undefined);
       treoMock.setValue(undefined);
       treoMock.setReporter(undefined);
-      mockFetch.setEmulateError(false);
-      self.teardown();
     });
 
     it('should read requests, fetch, and maintain storage', function (done) {
-      var calledDel = 0;
-
-      // Capture idb.del
-      treoMock.setReporter(function (method) {
-        if (method === 'del') {
-          calledDel++;
-        }
-      });
-
       index.serviceAllRequests().then(function () {
         expect(calledDel).to.equal(1);
         done();
@@ -199,26 +264,57 @@ describe('sw/sync/index', function () {
       });
     });
 
-    it('should throw when no api found failure', function (done) {
-      mockDb.setValue({});
+    it('should throw when apis not in idb', function (done) {
+      var reporter = treoMock.getReporter();
+
+      treoMock.setReporter(function (method, key) {
+        if (method === 'get' && key === 'apis') {
+          treoMock.setValue(null);
+        } else {
+          reporter.apply(null, arguments);
+        }
+      });
 
       index.serviceAllRequests().catch(function (error) {
-        expect(error.toString()).to.be.a('string').that.is.not.empty;
+        expect(error.toString().toLowerCase()).to.be.a('string')
+          .that.contains('apis');
+        done();
+      });
+    });
+
+    it('should throw when no api found failure', function (done) {
+      var dehydratedRequests, reporter = treoMock.getReporter();
+
+      treoMock.setReporter(function (method, key) {
+        if (method === 'get' && key === 'apis') {
+          dehydratedRequests = treoMock.getValue();
+          treoMock.setValue({});
+        } else if (method === 'all') {
+          treoMock.setValue(dehydratedRequests);
+        } else {
+          reporter.apply(null, arguments);
+        }
+      });
+
+      index.serviceAllRequests().catch(function (error) {
+        expect(error.toString().toLowerCase()).to.be.a('string')
+          .that.contains('api');
         done();
       });
     });
 
     it('should handle fetch failure', function (done) {
-      var calledPut = 0;
-
+      var reporter = treoMock.getReporter();
       treoMock.setReporter(function (method, key, dehydratedRequest) {
         if (method === 'put') {
           calledPut++;
           expect(dehydratedRequest.failureCount).to.equal(1);
+        } else {
+          reporter(method, key, dehydratedRequest);
         }
       });
 
-      mockFetch.setEmulateError(true);
+      fetchMock.setEmulateError(true);
 
       index.serviceAllRequests().then(function () {
         expect(calledPut).to.equal(1);
@@ -229,12 +325,14 @@ describe('sw/sync/index', function () {
     });
 
     it('should handle bad response', function (done) {
-      var calledTest = false, calledPut = 0;
+      var calledTest = false, reporter = treoMock.getReporter();
 
       treoMock.setReporter(function (method, key, dehydratedRequest) {
         if (method === 'put') {
           calledPut++;
           expect(dehydratedRequest.failureCount).to.equal(1);
+        } else {
+          reporter(method, key, dehydratedRequest);
         }
       });
 
@@ -255,19 +353,10 @@ describe('sw/sync/index', function () {
     });
 
     it('should handle max failures', function (done) {
-      var calledDel = 0;
-
       // Set failureCount beyond limit
-      treoMock.getValue()[0].failureCount = 3;
+      treoMock.getValue()[0].failureCount = index.MAX_FAILURES;
 
-      // Capture idb.del
-      treoMock.setReporter(function (method) {
-        if (method === 'del') {
-          calledDel++;
-        }
-      });
-
-      mockFetch.setEmulateError(true);
+      fetchMock.setEmulateError(true);
 
       index.serviceAllRequests().then(function (results) {
         expect(calledDel).to.equal(1);
@@ -276,6 +365,174 @@ describe('sw/sync/index', function () {
       }).catch(function (err) {
         done(err || unexpectedError);
       });
+    });
+  });
+
+  describe('sync event', function () {
+    var calledDel, testTimestamp = '12345678901';
+
+    before('sync event', function () {
+      global.Response = require('../../../mocks/response');
+      global.fetch = fetchMock.fetch;
+    });
+
+    after('sync event', function () {
+      delete global.fetch;
+      delete global.Response;
+    });
+
+    beforeEach(function (done) {
+      var dehydratedRequests, mockApis = {};
+
+      mockApis[apiPath] = {
+        xhrContext: {}
+      };
+
+      fetchMock.reset();
+
+      treoMock.setValue(undefined);
+      treoMock.setReporter(function (method, key, dehydratedRequest) {
+        if (method === 'get' && key === 'apis') {
+          dehydratedRequests = treoMock.getValue();
+          treoMock.setValue(mockApis);
+        } else if (method === 'get' && key === testTimestamp) {
+          dehydratedRequests[0].timestamp = testTimestamp;
+          treoMock.setValue(dehydratedRequests[0]);
+        } else if (method === 'put') {
+          dehydratedRequests = [
+            dehydratedRequest
+          ];
+        } else if (method === 'del' && key === testTimestamp) {
+          calledDel++;
+        }
+      });
+
+      index.deferRequest(apiPath, requestReplayable).then(function () {
+        calledDel = 0;
+        done();
+      }).catch(function (error) {
+        done(error || unexpectedError);
+      });
+    });
+
+    function setupSuccessfulFirstFetch () {
+      var body = {};
+      body[apiHelpers.CSRFTokenPropertyName] = 'ABCD1234';
+
+      fetchMock.setMockResponse(new global.Response(body, {
+        status: 200
+      }));
+    }
+
+    function createSyncEvent (success, failure) {
+      return {
+        tag: testTimestamp,
+        waitUntil: function (promise) {
+          promise
+          .then(success)
+          .catch(failure);
+        }
+      };
+    }
+
+    it('should fail if no deferred request found', function (done) {
+      treoMock.setValue(null);
+      treoMock.setReporter(undefined);
+      self.events.sync(createSyncEvent(
+        function () {
+          done(unexpectedError);
+        },
+        function () {
+          done();
+        }
+      ));
+    });
+
+    it('should fail if first fetch error', function (done) {
+      fetchMock.setEmulateError(true);
+      self.events.sync(createSyncEvent(
+        function () {
+          done(unexpectedError);
+        },
+        function () {
+          done();
+        }
+      ));
+    });
+
+    it('should fail if first fetch bad response', function (done) {
+      fetchMock.setMockResponse(new global.Response(null, {
+        status: 500
+      }));
+      self.events.sync(createSyncEvent(
+        function () {
+          done(unexpectedError);
+        },
+        function () {
+          done();
+        }
+      ));
+    });
+
+    it('should fail if no csrf token found in response text', function (done) {
+      // no token exists in first default response
+      self.events.sync(createSyncEvent(
+        function () {
+          done(unexpectedError);
+        },
+        function (error) {
+          expect(error.toString().toLowerCase()).to.be.a('string')
+            .that.contains('csrf');
+          done();
+        }
+      ));
+    });
+
+    it('should fail if second fetch error', function (done) {
+      setupSuccessfulFirstFetch();
+      fetchMock.setEmulateError(true, 1);
+
+      self.events.sync(createSyncEvent(
+        function () {
+          done(unexpectedError);
+        },
+        function () {
+          done();
+        }
+      ));
+    });
+
+    it('should fail if second fetch bad response', function (done) {
+      setupSuccessfulFirstFetch();
+      fetchMock.setMockResponse(new global.Response(null, {
+        status: 500
+      }), 1);
+
+      self.events.sync(createSyncEvent(
+        function () {
+          done(unexpectedError);
+        },
+        function () {
+          done();
+        }
+      ));
+    });
+
+    it('should succeed if everything just right', function (done) {
+      setupSuccessfulFirstFetch();
+      fetchMock.setMockResponse(new global.Response(null, {
+        status: 200
+      }), 1);
+
+      self.events.sync(createSyncEvent(
+        function () {
+          expect(calledDel).to.equal(1);
+          done();
+        },
+        function (error) {
+          done(error || unexpectedError);
+        }
+      ));
     });
   });
 });

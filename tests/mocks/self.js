@@ -86,6 +86,14 @@ Self.prototype = {
       global.self.registration.showNotification = function () {};
     }
 
+    if (options.syncRegisterFn) {
+      global.self.registration.sync = {
+        register: options.syncRegisterFn
+      };
+    } else {
+      global.self.registration.sync = null;
+    }
+
     if (!global.self.addEventListener) {
       global.self.addEventListener = function (name, func) {
         this.events[name] = func;

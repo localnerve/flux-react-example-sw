@@ -7,16 +7,19 @@
 
 var expect = require('chai').expect;
 var mocks = require('../../../mocks');
+var Self = require('../../../mocks/self');
 
 describe('sw/sync/push', function () {
   var globalFetch, treoMock, toolboxMock,
       push,
+      self,
       subscriptionId = '1234567890',
       unexpectedFlowError = new Error('unexpected flow error');
 
   before('sw/sync/push setup', function () {
     mocks.swToolbox.begin();
     mocks.swUtilsIdbTreo.begin();
+    self = new Self();
 
     treoMock = require('treo');
     toolboxMock = require('sw-toolbox');
@@ -26,10 +29,12 @@ describe('sw/sync/push', function () {
     globalFetch = require('../../../mocks/sw-fetch');
     global.fetch = globalFetch.fetch;
 
+    self.setup();
     push = require('../../../../assets/scripts/sw/sync/push');
   });
 
   after('sw/sync/push teardown', function () {
+    self.teardown();
     delete global.fetch;
     toolboxMock.mockTeardown();
 
@@ -130,11 +135,8 @@ describe('sw/sync/push', function () {
 
     describe('subscriptionId changed', function () {
       var calledGetId, calledGetApis, calledPutId;
-      var self, SelfMock = require('../../../mocks/self');
 
       before(function () {
-        self = new SelfMock();
-
         self.setup();
         global.Blob = require('../../../mocks/blob');
         global.Request = require('../../../mocks/request');
@@ -233,7 +235,7 @@ describe('sw/sync/push', function () {
         push.synchronize(subscriptionId)
         .then(function (response) {
           expect(response.status).to.equal(203);
-          expect(response._body).to.equal('deferred');
+          expect(response.statusText).to.equal('deferred');
           done();
         })
         .catch(function (error) {

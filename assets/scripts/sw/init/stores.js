@@ -10,7 +10,7 @@
 var keyName = 'stores';
 var debug = require('../utils/debug')('init.stores');
 var idb = require('../utils/idb');
-var initStores = require('../utils/db').init({ key: keyName });
+var apiHelpers = require('../utils/api');
 
 /**
  * Update IndexedDB init.stores.
@@ -21,7 +21,7 @@ var initStores = require('../utils/db').init({ key: keyName });
 function updateInitStores (stores) {
   debug('Updating init.stores');
   return mergeContent(stores).then(function (merged) {
-    return initStores.update(merged);
+    return idb.put(idb.stores.init, keyName, merged);
   });
 }
 
@@ -35,6 +35,8 @@ function updateInitStores (stores) {
  * TODO: Add IndexedDB purge to activate.
  *
  * @param {Object} newStores - The newer version of Flux Store data.
+ * @param {Object} newStores.ContentStore.contents - The new contents
+ * (will be merged with old content)
  * @return {Promise} A Promise that resolves to the new data merged with old content.
  */
 function mergeContent (newStores) {
@@ -79,13 +81,12 @@ function resourceContentResponse (request) {
 
       return new Promise(function (resolve, reject) {
         if (content) {
-          // Fetchr special format requirement: GH/yahoo/fetchr/issues/127
-          var fetchrFormat = {
-            data: content
-          };
-          var blob = new Blob([JSON.stringify(fetchrFormat)], {
+          var blob = new Blob([JSON.stringify(
+            apiHelpers.createContentResponse(content)
+          )], {
             type: 'application/json'
           });
+
           resolve(new Response(blob));
         } else {
           reject(new Error('Content not found for resource: ' + resource));

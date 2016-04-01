@@ -141,9 +141,6 @@ module.exports = {};
   }, {
     pattern: 'treo',
     module: swUtilsIdbTreo
-  }, {
-    pattern: './idb',
-    module: swUtilsDb
   }]
 },
 {

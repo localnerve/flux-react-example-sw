@@ -12,7 +12,7 @@ var syncable = require('../../../../utils/syncable');
 var Self = require('../../../mocks/self');
 
 describe('sw/sync/serviceable', function () {
-  var index, treoMock, toolboxMock, self = new Self(),
+  var index, treoMock, toolboxMock, self,
       subscriptionId = '123456789',
       unexpectedFlowError = new Error('unexpected flow');
 
@@ -22,18 +22,20 @@ describe('sw/sync/serviceable', function () {
   before('sw/sync/serviceable setup', function () {
     mocks.swSyncIndex.begin();
 
-    index = require('../../../../assets/scripts/sw/sync');
-    treoMock = require('treo');
-    toolboxMock = require('sw-toolbox');
-
-    toolboxMock.mockSetup();
-    treoMock.setValue([]);
+    self = new Self();
     self.setup({
       pushManager: {
         subReject: false,
         subscribed: true
       }
     });
+
+    index = require('../../../../assets/scripts/sw/sync');
+    treoMock = require('treo');
+    toolboxMock = require('sw-toolbox');
+
+    toolboxMock.mockSetup();
+    treoMock.setValue([]);
 
     global.Request = require('../../../mocks/request');
     global.Response = require('../../../mocks/response');
@@ -46,8 +48,9 @@ describe('sw/sync/serviceable', function () {
     delete global.Request;
     delete global.Response;
     delete global.Blob;
-    self.teardown();
+
     toolboxMock.mockTeardown();
+    self.teardown();
     mocks.swSyncIndex.end();
   });
 

@@ -11,7 +11,7 @@ var toolbox = require('sw-toolbox');
 var idb = require('../utils/idb');
 var debug = require('../utils/debug')('sync');
 var requestLib = require('../utils/requests');
-var initApis = require('../utils/db').init({ key: 'apis' });
+var apiHelpers = require('../utils/api');
 var filters = require('./filters');
 var serviceable = require('./serviceable');
 
@@ -30,18 +30,18 @@ var MAX_FAILURES = 3;
  * 1. Stores the old csrf token in the url. Replaced when serviced later.
  * @see serviceAllRequests
  *
- * @param {String} apiPath - The key used to service the requets in proper xhrContext.
+ * @param {String} apiPath - The key used to service the requests in proper xhrContext.
  * @param {Object} request - A Request object to use to make the post request.
  * @returns {Promise} Resolves to a Response with a status of 203 or 400.
  */
 function deferRequest (apiPath, request) {
-  // TODO: Update this test to ensure permissions have been obtained.
   var hasSync = !!self.registration.sync;
 
   return requestLib.dehydrateRequest(request, 'json')
   .then(function (dehydratedRequest) {
-    var timestamp = Date.now().toString();
-    var fallback = filters.getFallback(dehydratedRequest.body, true) || {};
+    // This is THE source of the deferred request timestamp.
+    var timestamp = Date.now().toString(),
+        fallback = filters.getFallback(dehydratedRequest.body, true) || {};
 
     // Store the timestamp with the value for easier management in serviceAllRequests.
     dehydratedRequest.timestamp = timestamp;
@@ -56,11 +56,33 @@ function deferRequest (apiPath, request) {
     // Add it to IndexedDB.
     return idb.put(idb.stores.requests, timestamp, dehydratedRequest)
     .then(function () {
-      return new Response('deferred', {
-        // If no sync and user replayable, show user 400 failure.
-        //   TODO (#15): However, replay request on next init.
-        status: hasSync || !fallback.userReplayable ? 203 : 400
-        // Remember, the user can replay their own requests, too.
+      // If no sync and user replayable, show user a failure.
+      var shouldSucceed = hasSync || !fallback.userReplayable,
+          status = {
+            code: 400,
+            text: 'failed'
+          };
+
+      // Otherwise, it should succeed.
+      // So, defer and register for a one-off background-sync if possible.
+      if (shouldSucceed) {
+        status.code = 203;
+        status.text = 'deferred';
+
+        if (hasSync) {
+          return self.registration.sync.register(timestamp)
+          .then(function () {
+            return status;
+          });
+        }
+      }
+
+      return status;
+    })
+    .then(function (status) {
+      return new Response(null, {
+        status: status.code,
+        statusText: status.text
       });
     });
   });
@@ -130,18 +152,84 @@ function removeFallback (options, request) {
 }
 
 /**
+ * Service (synchronize, replay, etc.) one deferred request.
+ *
+ * Throws exception if apiInfo not found in supplied apis object.
+ * If a deferred request synchronization succeeds, it is removed from storage.
+ * If a deferred request fails to sync more than MAX_FAILURES, it is abandoned.
+ *
+ * @param {Object} dehydratedRequest - A dehydrated request.
+ * @param {Number|String} dehydratedRequest.timestamp - The request timestamp.
+ * @param {String} dehydratedRequest.apiPath - The api path for the request.
+ * @param {Object} apis - An object of apiInfos, keyed by apiPath.
+ * @param {Object} [options] - Options object.
+ * @param {RegExp} [options.successResponses] - Custom definition of http
+ * success status.
+ * @param {Boolean} [options.noManage] - If truthy, don't manage fetch failure.
+ * @returns {Promise} Resolves to undefined on success or continued deferral.
+ * Resolves to the dehydratedRequest with updated failureCount on abandonment.
+ */
+function serviceOneRequest (dehydratedRequest, apis, options) {
+  options = options || {};
+
+  var req,
+      timestamp = dehydratedRequest.timestamp,
+      apiInfo = apis[dehydratedRequest.apiPath],
+      successResponses =
+        options.successResponses || toolbox.options.successResponses;
+
+  // apiInfo found for this request
+  if (apiInfo) {
+    // Rehydrate the request with up-to-date CSRF token.
+    req = requestLib.rehydrateRequest(dehydratedRequest, apiInfo);
+
+    // Make the network request, delete the stored request on success.
+    return fetch(req)
+    .then(function (response) {
+      if (successResponses.test(response.status)) {
+        return idb.del(idb.stores.requests, timestamp);
+      }
+      throw response;
+    })
+    .catch(function (error) {
+      if (options.noManage) {
+        return Promise.reject(error);
+      }
+
+      debug('network failure', error);
+
+      // Abandonment case, 1 based failureCount - but inc'd after this
+      // so count >= MAX_FAILURES (first is undef).
+      if (dehydratedRequest.failureCount &&
+          dehydratedRequest.failureCount >= MAX_FAILURES) {
+        debug('request ABANDONED after MAX_FAILURES', dehydratedRequest);
+
+        return idb.del(idb.stores.requests, timestamp).then(function () {
+          // Resolve to the abandoned dehydratedRequest.
+          return dehydratedRequest;
+        });
+      }
+
+      // Maintain failure count.
+      dehydratedRequest.failureCount =
+        (dehydratedRequest.failureCount || 0) + 1;
+
+      // Update the stored dehydratedRequest (continue deferral)
+      return idb.put(idb.stores.requests, timestamp, dehydratedRequest);
+    });
+  }
+
+  // No apiInfo found for dehydratedRequest.apiPath
+  throw new Error('API Info for '+dehydratedRequest.apiPath+' not found');
+}
+
+/**
  * Service all servicable deferred requests stored in IndexedDB requests.
  *
- * If a stored request synchronization succeeds, it is removed from storage.
- * If a stored request is deemed not serviceable, it is removed from storage.
- * If a stored request fails to sync more than MAX_FAILURES, it is abandoned.
+ * If a deferred request is deemed not serviceable, it is removed from storage.
  *
- * TODO:
- * Run on background-sync and (#15) Init message.
- * Ideally would just run on one-off sync, one scheduled on each deferral.
- * However, can also run on init - but this is not inevitable
- * like background-sync. Until background-sync gets more traction/implementation,
- * only run on init message for this example.
+ * Ideally would just run one-off syncs, one scheduled on each deferral.
+ * However, runs from init message - in case sync not supported.
  *
  * @param {Object} [options] - Options object.
  * @param {RegExp} [options.successResponses] - Custom definition of http
@@ -152,11 +240,15 @@ function removeFallback (options, request) {
 function serviceAllRequests (options) {
   options = options || {};
 
-  var apis, allRequests, serviceableRequests, successResponses =
-    options.successResponses || toolbox.options.successResponses;
+  var apis, allRequests, serviceableRequests;
 
-  return initApis.read()
+  return idb.get(idb.stores.init, 'apis')
   .then(function (results) {
+    if (!results) {
+      var msg = 'apis not found in ' + idb.stores.init;
+      debug(msg);
+      throw new Error(msg);
+    }
     apis = results;
     return idb.all(idb.stores.requests);
   })
@@ -170,55 +262,66 @@ function serviceAllRequests (options) {
   })
   .then(function () {
     return Promise.all(serviceableRequests.map(function (dehydratedRequest) {
-      var req,
-          timestamp = dehydratedRequest.timestamp,
-          apiInfo = apis[dehydratedRequest.apiPath];
-
-      // apiInfo found for this request
-      if (apiInfo) {
-        // Rehydrate the request with up-to-date CSRF token.
-        req = requestLib.rehydrateRequest(dehydratedRequest, apiInfo);
-
-        // Make the network request, delete the stored request on success.
-        return fetch(req)
-        .then(function (response) {
-          if (successResponses.test(response.status)) {
-            return idb.del(idb.stores.requests, timestamp);
-          }
-          throw response;
-        }).catch(function (error) {
-          debug('network failure', error);
-
-          // Abandonment case, 1 based failureCount - but inc'd after this
-          // so count >= MAX_FAILURES (first is undef).
-          if (dehydratedRequest.failureCount &&
-              dehydratedRequest.failureCount >= MAX_FAILURES) {
-            debug('request ABANDONED after MAX_FAILURES', dehydratedRequest);
-
-            return idb.del(idb.stores.requests, timestamp).then(function () {
-              // Resolve to the abandoned dehydratedRequest.
-              return dehydratedRequest;
-            });
-          }
-
-          // Maintain failure count.
-          dehydratedRequest.failureCount =
-            (dehydratedRequest.failureCount || 0) + 1;
-
-          // Update the stored dehydratedRequest
-          return idb.put(idb.stores.requests, timestamp, dehydratedRequest);
-        });
-      }
-
-      // No apiInfo found for dehydratedRequest.apiPath
-      throw new Error('API Info for '+dehydratedRequest.apiPath+' not found');
+      return serviceOneRequest(dehydratedRequest, apis, options);
     }));
   });
 }
+
+/**
+ * Handle the one-off sync event.
+ *
+ * 1. Get the deferred request from IndexedDB.
+ * 2. Fetch valid credentials.
+ *    NOTE: Fetch must be on the same origin as apiPath to get credentials.
+ *          But, assumes all dehydratedRequest.apiPaths are on this origin.
+ *          Also, assumes url csrf token is in the responseText.
+ * 3. Service the request.
+ */
+self.addEventListener('sync', function (event) {
+  var dehydratedRequest;
+
+  event.waitUntil(
+    idb.get(idb.stores.requests, event.tag)
+    .then(function (result) {
+      dehydratedRequest = result;
+
+      if (dehydratedRequest) {
+        return fetch('/?render=0', {
+          credentials: 'include'
+        });
+      }
+
+      throw new Error(
+        'sync event did not find request w/timestamp ' + event.tag
+      );
+    })
+    .then(function (response) {
+      if (response.ok) {
+        return response.text();
+      }
+
+      throw new Error(
+        'sync event bad GET response'
+      );
+    })
+    .then(apiHelpers.createXHRContextFromText)
+    .then(function (xhrContext) {
+      var apis = {};
+      apis[dehydratedRequest.apiPath] = {
+        xhrContext: xhrContext
+      };
+
+      return serviceOneRequest(dehydratedRequest, apis, {
+        noManage: true
+      });
+    })
+  );
+});
 
 module.exports = {
   deferRequest: deferRequest,
   maintainRequests: maintainRequests,
   removeFallback: removeFallback,
-  serviceAllRequests: serviceAllRequests
+  serviceAllRequests: serviceAllRequests,
+  MAX_FAILURES: MAX_FAILURES
 };

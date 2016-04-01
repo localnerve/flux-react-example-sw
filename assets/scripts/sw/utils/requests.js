@@ -4,12 +4,11 @@
  *
  * Module to contain request handling operations.
  *
- * TODO:
- * URL should be used instead of so many string hacks, but requires jsdom
- * update to test.
  */
 /* global Request, Blob */
 'use strict';
+
+var apiHelpers = require('./api');
 
 /**
  * Adds or replaces a query string parameter to the given url.
@@ -20,13 +19,13 @@
  * @return {String} The updated url with the new name, value search parameter.
  */
 function addOrReplaceUrlSearchParameter(url, name, value) {
-  var newUrl, reName = new RegExp('('+name+'=)([^&]+)');
+  var search, newUrl, reName = new RegExp('('+name+'=)([^&]+)');
 
   // replace/add the name/value parameter in the url.
   if (reName.test(url)) {
     newUrl = url.replace(reName, '$1'+value);
   } else {
-    var search = url.split('?');
+    search = url.split('?');
     url = url.replace(/\?$/, '');
     newUrl = url + ( search[1] ? '&' : '?' );
     newUrl += [name, value].join('=');
@@ -101,18 +100,17 @@ function dehydrateRequest (request, bodyType) {
  * @return {Request} A new Request object from state.
  */
 function rehydrateRequest (state, apiInfo) {
-  var body, url, csrfName = '_csrf';
-
-  var csrfToken = apiInfo.xhrContext[csrfName];
+  var body, url,
+      csrfToken = apiHelpers.getCSRFTokenFromContext(apiInfo.xhrContext);
 
   // If csrfToken specified, add/replace one in the body and url
   if (csrfToken) {
-    url = addOrReplaceUrlSearchParameter(state.url, csrfName, csrfToken);
-
-    // replace/add the csrfToken in the body.
-    if (state.body.context && state.body.context[csrfName]) {
-      state.body.context[csrfName] = csrfToken;
-    }
+    url = addOrReplaceUrlSearchParameter(
+      state.url,
+      apiHelpers.CSRFTokenPropertyName,
+      csrfToken
+    );
+    apiHelpers.replaceCSRFTokenInRequestBody(state.body, csrfToken);
   }
 
   // Only supporting json bodyType for this app.

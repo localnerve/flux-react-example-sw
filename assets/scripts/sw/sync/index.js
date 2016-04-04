@@ -22,13 +22,24 @@ var serviceable = require('./serviceable');
  */
 var MAX_FAILURES = 3;
 
+/***
+ * Synchronization operations.
+ *
+ * Add operations here to direct sync event handling.
+ */
+var OPERATIONS = {
+  delimiter: ':',
+  deferredRequests: 'deferredRequests'
+};
+
 /**
  * Defer a request until later by storing it in IndexedDB.
  * This is called if the fetch fails.
+ * Register one-off sync if available.
  *
  * NOTE:
  * 1. Stores the old csrf token in the url. Replaced when serviced later.
- * @see serviceAllRequests
+ * @see serviceOneRequest
  *
  * @param {String} apiPath - The key used to service the requests in proper xhrContext.
  * @param {Object} request - A Request object to use to make the post request.
@@ -70,7 +81,14 @@ function deferRequest (apiPath, request) {
         status.text = 'deferred';
 
         if (hasSync) {
-          return self.registration.sync.register(timestamp)
+          return self.registration.sync.register([
+            OPERATIONS.deferredRequests,
+            apiPath
+          ].join(OPERATIONS.delimiter))
+          .catch(function (error) {
+            debug('sync register failed ', error);
+          })
+          // Always succeed.
           .then(function () {
             return status;
           });
@@ -226,96 +244,92 @@ function serviceOneRequest (dehydratedRequest, apis, options) {
 /**
  * Service all servicable deferred requests stored in IndexedDB requests.
  *
+ * `serviceable`, means ordered and filtered deferred requests for delayed
+ * processing in a way that mantains application consistency.
+ * @see ./serviceable.js
+ *
  * If a deferred request is deemed not serviceable, it is removed from storage.
  *
- * Ideally would just run one-off syncs, one scheduled on each deferral.
- * However, runs from init message - in case sync not supported.
+ * serviceAllRequests runs from one-off sync and the init command in the case
+ * that sync not supported.
  *
+ * @param {Object} apis - The application apis object.
  * @param {Object} [options] - Options object.
  * @param {RegExp} [options.successResponses] - Custom definition of http
  * success status.
  * @returns A Promise that resolves on all synchronization outcomes, rejects on
  * first failure (Promise.all).
  */
-function serviceAllRequests (options) {
+function serviceAllRequests (apis, options) {
   options = options || {};
 
-  var apis, allRequests, serviceableRequests;
-
-  return idb.get(idb.stores.init, 'apis')
-  .then(function (results) {
-    if (!results) {
-      var msg = 'apis not found in ' + idb.stores.init;
-      debug(msg);
-      throw new Error(msg);
-    }
-    apis = results;
-    return idb.all(idb.stores.requests);
+  return idb.all(idb.stores.requests)
+  .then(function (allRequests) {
+    return serviceable.getRequests(allRequests)
+    .then(function (serviceableRequests) {
+      return serviceable.pruneRequests(allRequests, serviceableRequests)
+      .then(function () {
+        return serviceableRequests;
+      });
+    });
   })
-  .then(function (results) {
-    allRequests = results;
-    return serviceable.getRequests(allRequests);
-  })
-  .then(function (results) {
-    serviceableRequests = results;
-    return serviceable.pruneRequests(allRequests, serviceableRequests);
-  })
-  .then(function () {
-    return Promise.all(serviceableRequests.map(function (dehydratedRequest) {
-      return serviceOneRequest(dehydratedRequest, apis, options);
-    }));
+  .then(function (serviceableRequests) {
+    return Promise.all(
+      serviceableRequests.map(function (dehydratedRequest) {
+        return serviceOneRequest(dehydratedRequest, apis, options);
+      })
+    );
   });
 }
 
 /**
  * Handle the one-off sync event.
  *
- * 1. Get the deferred request from IndexedDB.
- * 2. Fetch valid credentials.
+ * For OPERATIONS.deferredRequests:
+ * 1. Fetch valid credentials.
  *    NOTE: Fetch must be on the same origin as apiPath to get credentials.
- *          But, assumes all dehydratedRequest.apiPaths are on this origin.
- *          Also, assumes url csrf token is in the responseText.
- * 3. Service the request.
+ *          However, this implementation assumes:
+ *          a. All dehydratedRequest.apiPaths are on this origin.
+ *          b. url csrf tokens are in the cookie and responseText.
+ * 2. Service all deferred requests.
  */
 self.addEventListener('sync', function (event) {
-  var dehydratedRequest;
+  var eventParts = event.tag.split(OPERATIONS.delimiter),
+      eventOperation = eventParts[0],
+      eventDetail = eventParts[1];
 
-  event.waitUntil(
-    idb.get(idb.stores.requests, event.tag)
-    .then(function (result) {
-      dehydratedRequest = result;
+  if (eventOperation === OPERATIONS.deferredRequests) {
+    var apiPath = eventDetail;
 
-      if (dehydratedRequest) {
+    event.waitUntil(
+      ( apiPath ? Promise.resolve() :
+        Promise.reject(new Error('bad apiPath supplied')) )
+      .then(function () {
         return fetch('/?render=0', {
           credentials: 'include'
         });
-      }
+      })
+      .then(function (response) {
+        if (response.ok) {
+          return response.text();
+        }
 
-      throw new Error(
-        'sync event did not find request w/timestamp ' + event.tag
-      );
-    })
-    .then(function (response) {
-      if (response.ok) {
-        return response.text();
-      }
+        throw new Error(
+          'sync event bad GET response'
+        );
+      })
+      .then(function (text) {
+        var apis = {};
+        apis[apiPath] = {
+          xhrContext: apiHelpers.createXHRContextFromText(text)
+        };
 
-      throw new Error(
-        'sync event bad GET response'
-      );
-    })
-    .then(apiHelpers.createXHRContextFromText)
-    .then(function (xhrContext) {
-      var apis = {};
-      apis[dehydratedRequest.apiPath] = {
-        xhrContext: xhrContext
-      };
-
-      return serviceOneRequest(dehydratedRequest, apis, {
-        noManage: true
-      });
-    })
-  );
+        return serviceAllRequests(apis, {
+          noManage: true
+        });
+      })
+    );
+  }
 });
 
 module.exports = {
@@ -323,5 +337,6 @@ module.exports = {
   maintainRequests: maintainRequests,
   removeFallback: removeFallback,
   serviceAllRequests: serviceAllRequests,
-  MAX_FAILURES: MAX_FAILURES
+  MAX_FAILURES: MAX_FAILURES,
+  _ops: OPERATIONS
 };

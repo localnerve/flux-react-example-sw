@@ -23,6 +23,7 @@ var debug = require('../utils/debug')('init');
  *
  * @param {Object} payload - The message payload.
  * @param {Boolean} payload.startup - True if run at worker startup.
+ * @param {Object} payload.apis - The api information for the app.
  * @returns {Promise} Resolves to undefined when complete.
  */
 function startRequestSync (payload) {
@@ -30,7 +31,7 @@ function startRequestSync (payload) {
   var shouldRun = !payload.startup || !self.registration.sync;
 
   if (shouldRun) {
-    return sync.serviceAllRequests()
+    return sync.serviceAllRequests(payload.apis)
     .then(function (results) {
       results.forEach(function (result) {
         if (result && result.failureCount) {

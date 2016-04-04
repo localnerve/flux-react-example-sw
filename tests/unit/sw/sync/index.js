@@ -203,7 +203,6 @@ describe('sw/sync/index', function () {
     });
 
     beforeEach(function (done) {
-      var dehydratedRequests;
       mockApis[apiPath] = {
         xhrContext: {}
       };
@@ -217,31 +216,15 @@ describe('sw/sync/index', function () {
           calledDel++;
         }
 
-        // 1.
-        // capture the dehydratedRequest from deferRequest and use it for
-        // to represent a dehydratedRequests collection from treo.
-        if (method === 'put') {
+        if (method === 'put' && key === dehydratedRequest.timestamp) {
           calledPut++;
           treoMock.setValue([
             dehydratedRequest
           ]);
         }
-
-        // 2.
-        // save the dehydratedRequest from 'put', use mockApis for now.
-        if (method === 'get' && key === 'apis') {
-          dehydratedRequests = treoMock.getValue();
-          treoMock.setValue(mockApis);
-        }
-
-        // 3.
-        // restore saved dehydratedRequest
-        if (method === 'all') {
-          treoMock.setValue(dehydratedRequests);
-        }
       });
 
-      // evil, foolish, or genius? Whatever. Create a dehydratedRequest.
+      // Create a dehydratedRequest, store with reporter.
       index.deferRequest(apiPath, requestReplayable).then(function () {
         calledDel = calledPut = 0;
         done();
@@ -256,7 +239,7 @@ describe('sw/sync/index', function () {
     });
 
     it('should read requests, fetch, and maintain storage', function (done) {
-      index.serviceAllRequests().then(function () {
+      index.serviceAllRequests(mockApis).then(function () {
         expect(calledDel).to.equal(1);
         done();
       }).catch(function (err) {
@@ -264,39 +247,10 @@ describe('sw/sync/index', function () {
       });
     });
 
-    it('should throw when apis not in idb', function (done) {
-      var reporter = treoMock.getReporter();
-
-      treoMock.setReporter(function (method, key) {
-        if (method === 'get' && key === 'apis') {
-          treoMock.setValue(null);
-        } else {
-          reporter.apply(null, arguments);
-        }
-      });
-
-      index.serviceAllRequests().catch(function (error) {
-        expect(error.toString().toLowerCase()).to.be.a('string')
-          .that.contains('apis');
-        done();
-      });
-    });
-
     it('should throw when no api found failure', function (done) {
-      var dehydratedRequests, reporter = treoMock.getReporter();
+      delete mockApis[apiPath];
 
-      treoMock.setReporter(function (method, key) {
-        if (method === 'get' && key === 'apis') {
-          dehydratedRequests = treoMock.getValue();
-          treoMock.setValue({});
-        } else if (method === 'all') {
-          treoMock.setValue(dehydratedRequests);
-        } else {
-          reporter.apply(null, arguments);
-        }
-      });
-
-      index.serviceAllRequests().catch(function (error) {
+      index.serviceAllRequests(mockApis).catch(function (error) {
         expect(error.toString().toLowerCase()).to.be.a('string')
           .that.contains('api');
         done();
@@ -316,7 +270,7 @@ describe('sw/sync/index', function () {
 
       fetchMock.setEmulateError(true);
 
-      index.serviceAllRequests().then(function () {
+      index.serviceAllRequests(mockApis).then(function () {
         expect(calledPut).to.equal(1);
         done();
       }).catch(function (err) {
@@ -336,7 +290,7 @@ describe('sw/sync/index', function () {
         }
       });
 
-      index.serviceAllRequests({
+      index.serviceAllRequests(mockApis, {
         successResponses: {
           test: function () {
             calledTest = true;
@@ -358,7 +312,7 @@ describe('sw/sync/index', function () {
 
       fetchMock.setEmulateError(true);
 
-      index.serviceAllRequests().then(function (results) {
+      index.serviceAllRequests(mockApis).then(function (results) {
         expect(calledDel).to.equal(1);
         expect(results[0].failureCount).to.be.at.least(3);
         done();
@@ -369,7 +323,7 @@ describe('sw/sync/index', function () {
   });
 
   describe('sync event', function () {
-    var calledDel, testTimestamp = '12345678901';
+    var calledDel, testTag;
 
     before('sync event', function () {
       global.Response = require('../../../mocks/response');
@@ -382,7 +336,12 @@ describe('sw/sync/index', function () {
     });
 
     beforeEach(function (done) {
-      var dehydratedRequests, mockApis = {};
+      var mockApis = {};
+
+      testTag = [
+        index._ops.deferredRequests,
+        apiPath
+      ].join(index._ops.delimiter);
 
       mockApis[apiPath] = {
         xhrContext: {}
@@ -392,17 +351,11 @@ describe('sw/sync/index', function () {
 
       treoMock.setValue(undefined);
       treoMock.setReporter(function (method, key, dehydratedRequest) {
-        if (method === 'get' && key === 'apis') {
-          dehydratedRequests = treoMock.getValue();
-          treoMock.setValue(mockApis);
-        } else if (method === 'get' && key === testTimestamp) {
-          dehydratedRequests[0].timestamp = testTimestamp;
-          treoMock.setValue(dehydratedRequests[0]);
-        } else if (method === 'put') {
-          dehydratedRequests = [
+        if (method === 'put' && key === dehydratedRequest.timestamp) {
+          treoMock.setValue([
             dehydratedRequest
-          ];
-        } else if (method === 'del' && key === testTimestamp) {
+          ]);
+        } else if (method === 'del') {
           calledDel++;
         }
       });
@@ -426,7 +379,7 @@ describe('sw/sync/index', function () {
 
     function createSyncEvent (success, failure) {
       return {
-        tag: testTimestamp,
+        tag: testTag,
         waitUntil: function (promise) {
           promise
           .then(success)
@@ -435,14 +388,15 @@ describe('sw/sync/index', function () {
       };
     }
 
-    it('should fail if no deferred request found', function (done) {
-      treoMock.setValue(null);
-      treoMock.setReporter(undefined);
+    it('should fail if bad event detail', function (done) {
+      testTag = index._ops.deferredRequests;
+
       self.events.sync(createSyncEvent(
         function () {
           done(unexpectedError);
         },
-        function () {
+        function (error) {
+          expect(error.toString().toLowerCase()).contains('apipath');
           done();
         }
       ));

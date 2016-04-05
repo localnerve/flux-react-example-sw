@@ -16,12 +16,24 @@ The worker and registration source is located at [assets/scripts/sw](/assets/scr
 
 ### Offline and Performance Enhancements
 * This implementation leverages Google projects `sw-precache` and `sw-toolbox` for precaching static and dynamic assets, and the general ease of setting up fetch handling on routes/origins.
+
 * The application's Flux Stores are sent to the service worker using the [init](/assets/scripts/sw/init/README.md) command and referenced from IndexedDB.
 
 ### Push Notifications
 * This implementation relies on GCM to deliver push notifications.
+
 * Chrome only (so far).
+
 * Currently, push notifications are subscribed and demonstrated using the settings control panel (cog in upper right).
+
+### Background Sync (not periodic)
+* [Failed api POST requests](https://github.com/localnerve/flux-react-example-sw/blob/8619f4a0e18e858048f067371fe98381b452c6cc/assets/scripts/sw/init/apiRequests.js#L157) are stored in IndexedDB store `requests` for deferred replay as appropriate.
+
+* Policies for what is "appropriate" for this example are found in [assets/scripts/sw/sync/serviceable.js](/assets/scripts/sw/sync/serviceable.js), and cover [bulk replay](https://github.com/localnerve/flux-react-example-sw/blob/8619f4a0e18e858048f067371fe98381b452c6cc/assets/scripts/sw/sync/index.js#L284) and [individual request success](https://github.com/localnerve/flux-react-example-sw/blob/8619f4a0e18e858048f067371fe98381b452c6cc/assets/scripts/sw/sync/index.js#L127) cases.
+
+* The service worker attempts to reconcile and replay all failed requests when the [init command](https://github.com/localnerve/flux-react-example-sw/blob/8619f4a0e18e858048f067371fe98381b452c6cc/assets/scripts/sw/init/index.js#L36) is received. However, if service worker one-off [background sync](https://wicg.github.io/BackgroundSync/spec/) is supported (currently only Chrome 49+), it is also used to replay all failed requests. Failed requests are attempted to be serviced according to application policy until they succeed, an arbitrary retry limit is reached.
+
+* For browser supported background sync, the retry limit is set by user agent defined heuristics. For the manual case, where sync is initiated from the [init command](https://github.com/localnerve/flux-react-example-sw/blob/8619f4a0e18e858048f067371fe98381b452c6cc/assets/scripts/sw/init/index.js#L36), a simple hard-coded limit is used.
 
 ### Demonstration
 There is currently no hosted app. So, the best way to demo capabilities and have a look around at things is `git clone` and `npm install`.

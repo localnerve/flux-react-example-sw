@@ -58,11 +58,9 @@ function getPushRequests (dehydratedRequests) {
           syncable.ops.unsubscribe
         ]),
         actionableSubscribe = subUnsubRequests.length > 0 &&
-          subUnsubRequests[0].fallback.operation === syncable.ops.subscribe &&
-          !subscribed,
+          subUnsubRequests[0].fallback.operation === syncable.ops.subscribe,
         actionableUnsubscribe = subUnsubRequests.length > 0 &&
-          subUnsubRequests[0].fallback.operation === syncable.ops.unsubscribe &&
-          subscribed
+          subUnsubRequests[0].fallback.operation === syncable.ops.unsubscribe
         ;
 
       // [1] unconditionally add updateSubscription requests

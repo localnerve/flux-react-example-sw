@@ -115,8 +115,8 @@ function deferRequest (apiPath, request) {
  * Intended to be used on successful network fetch (as a successHandler) to
  * manually remove deferred requests to avoid unintended synchronization.
  *
- * Use case: A request succeeds that renders prior deferred requests
- *  illegitimate/unwarranted/dangerous/etc.
+ * Use case: A user request succeeds that renders prior deferred requests
+ *  unwarranted/irrelevant/dangerous/etc.
  *
  * @param {Request} req - ignored.
  * @param {Response} res - passed through on success.
@@ -170,11 +170,27 @@ function removeFallback (options, request) {
 }
 
 /**
+ * Deal with an abandoned deferred request that will not be processed again.
+ * This is just a placeholder.
+ *
+ * @private
+ *
+ * @param {Object} dehydratedRequest - The request that was abandoned.
+ * @return {Promise} Resolves to undefined when complete.
+ */
+function manageAbandonedRequest (dehydratedRequest) {
+  debug('TODO: manage abandoned request');
+  return Promise.resolve();
+}
+
+/**
  * Service (synchronize, replay, etc.) one deferred request.
  *
  * Throws exception if apiInfo not found in supplied apis object.
  * If a deferred request synchronization succeeds, it is removed from storage.
  * If a deferred request fails to sync more than MAX_FAILURES, it is abandoned.
+ *
+ * @private
  *
  * @param {Object} dehydratedRequest - A dehydrated request.
  * @param {Number|String} dehydratedRequest.timestamp - The request timestamp.
@@ -205,6 +221,7 @@ function serviceOneRequest (dehydratedRequest, apis, options) {
     return fetch(req)
     .then(function (response) {
       if (successResponses.test(response.status)) {
+        debug('successful request sync', req);
         return idb.del(idb.stores.requests, timestamp);
       }
       throw response;
@@ -222,7 +239,11 @@ function serviceOneRequest (dehydratedRequest, apis, options) {
           dehydratedRequest.failureCount >= MAX_FAILURES) {
         debug('request ABANDONED after MAX_FAILURES', dehydratedRequest);
 
-        return idb.del(idb.stores.requests, timestamp).then(function () {
+        return manageAbandonedRequest(dehydratedRequest)
+        .then(function () {
+          return idb.del(idb.stores.requests, timestamp);
+        })
+        .then(function () {
           // Resolve to the abandoned dehydratedRequest.
           return dehydratedRequest;
         });
@@ -285,6 +306,12 @@ function serviceAllRequests (apis, options) {
 /**
  * Handle the one-off sync event.
  *
+ * NOTE: lastChance is not handled. Deferred requests remain in IndexedDB
+ * for manual processing by the `init` message, which tracks and handles
+ * abandonment.
+ * For application items more urgent, abandonment should be handled here, too.
+ * @see serviceOneRequest
+ *
  * For OPERATIONS.deferredRequests:
  * 1. Fetch valid credentials.
  *    NOTE: Fetch must be on the same origin as apiPath to get credentials.
@@ -297,6 +324,8 @@ self.addEventListener('sync', function (event) {
   var eventParts = event.tag.split(OPERATIONS.delimiter),
       eventOperation = eventParts[0],
       eventDetail = eventParts[1];
+
+  debug('sync event, op ', eventOperation, ' detail ', eventDetail);
 
   if (eventOperation === OPERATIONS.deferredRequests) {
     var apiPath = eventDetail;

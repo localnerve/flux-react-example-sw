@@ -24,24 +24,21 @@ var debug = require('../utils/debug')('init');
  * @param {Object} payload - The message payload.
  * @param {Boolean} payload.startup - True if run at worker startup.
  * @param {Object} payload.apis - The api information for the app.
- * @returns {Promise} Resolves to undefined when complete.
+ * @returns {Promise} Resolves when complete.
  */
 function startRequestSync (payload) {
   // If this is run at worker startup and has sync capability, don't run.
   var shouldRun = !payload.startup || !self.registration.sync;
 
   if (shouldRun) {
+    debug('running request sync');
+
     return sync.serviceAllRequests(payload.apis)
-    .then(function (results) {
-      results.forEach(function (result) {
-        if (result && result.failureCount) {
-          debug('TODO: manage abandoned request', result);
-        }
-      });
-    })
     .catch(function (error) {
       debug('serviceAllRequests failed ', error);
     });
+  } else {
+    debug('request sync skipped');
   }
 
   return Promise.resolve();
@@ -62,15 +59,17 @@ function startRequestSync (payload) {
 function updateAndSetup (payload) {
   return update(payload).then(function (updated) {
     if (updated || payload.startup) {
+      debug('running setup');
+
       return backgrounds(payload.stores)
-        .then(function () {
-          return apiRequests(payload.apis);
-        })
-        .then(function () {
-          return routes(payload.stores);
-        });
+      .then(function () {
+        return apiRequests(payload.apis);
+      })
+      .then(function () {
+        return routes(payload.stores);
+      });
     } else {
-      debug('init skipped');
+      debug('setup skipped');
     }
   });
 }

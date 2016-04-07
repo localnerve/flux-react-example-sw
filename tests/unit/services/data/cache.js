@@ -2,7 +2,7 @@
  * Copyright (c) 2015, 2016 Alex Grant (@localnerve), LocalNerve LLC
  * Copyrights licensed under the BSD License. See the accompanying LICENSE file for terms.
  */
- /* global describe, it */
+ /* global beforeEach, describe, it */
 'use strict';
 
 var expect = require('chai').expect;
@@ -129,6 +129,31 @@ describe('data/cache', function () {
       expect(res).to.have.property('models', undefined);
       expect(res).to.have.property('content')
         .that.deep.equals(cacheResources.validModels.models);
+    });
+  });
+
+  describe('find', function () {
+    var res;
+    var notFoundValue = 'notFound';
+
+    // assert 'put' cache state preconditions exist.
+    beforeEach('find', function () {
+      res = cache.get(cacheResources.noFormat.resource);
+      expect(res.content.resource).to.equal(cacheResources.jsonData.test.resource);
+    });
+
+    it('should return undefined if bad input', function () {
+      expect(cache.find()).to.be.undefined;
+    });
+
+    it('should find valid item', function () {
+      var result = cache.find(cacheResources.jsonData.test.resource);
+      expect(result).to.eql(res.content);
+    });
+
+    it('should not find valid item', function () {
+      var result = cache.find(notFoundValue);
+      expect(result).to.be.undefined;
     });
   });
 });

@@ -11,7 +11,8 @@ var mocks = require('../../../mocks');
 var config = require('../../../../configs').create().data;
 
 describe('data/fetch', function () {
-  var fetch, cache, request;
+  var fetch, cache, request,
+      expectedError = new Error('Expected error');
 
   before(function () {
     mocks.superAgent.begin();
@@ -65,7 +66,7 @@ describe('data/fetch', function () {
           return done();
         }
 
-        done(new Error('Expected error'));
+        done(expectedError);
       });
     });
 
@@ -77,7 +78,19 @@ describe('data/fetch', function () {
           return done();
         }
 
-        done(new Error('Expected error'));
+        done(expectedError);
+      });
+    });
+
+    it('should fail if resource not found after fetch', function (done) {
+      var resourceName = 'miss';
+      fetch.fetchOne({ resource: resourceName }, function (err, res) {
+        if (err) {
+          expect(err.toString()).to.contain(resourceName);
+          return done();
+        }
+
+        done(expectedError);
       });
     });
   });
@@ -125,8 +138,29 @@ describe('data/fetch', function () {
           return done();
         }
 
-        done(new Error('Expected error'));
+        done(expectedError);
       });
+    });
+  });
+
+  describe('isManifestRequest', function () {
+    it('should positively identify manifest request', function () {
+      var result = fetch.isManifestRequest({
+        resource: config.FRED.mainResource
+      });
+      expect(result).to.be.true;
+    });
+
+    it('should negatively identify manifest request', function () {
+      var result = fetch.isManifestRequest({
+        resource: 'settings'
+      });
+      expect(result).to.be.false;
+    });
+
+    it('should handle bad input', function () {
+      var result = fetch.isManifestRequest();
+      expect(result).to.be.false;
     });
   });
 });

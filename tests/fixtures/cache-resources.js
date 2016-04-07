@@ -8,9 +8,11 @@
 
 var markupData = '<h2>Sunshine and Rainbows</h2>';
 var markdownData = '## Unicorns and Rainbows';
+var resourceName = 'testResourceName';
 var jsonData = JSON.stringify({
   test: {
-    testPropTest: 'testValueTest'
+    testPropTest: 'testValueTest',
+    resource: resourceName
   }
 });
 var validModels = JSON.stringify({

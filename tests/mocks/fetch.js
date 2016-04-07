@@ -4,8 +4,18 @@
  */
 'use strict';
 
+var fetchOneParams;
+
 module.exports = {
+  mockReset: function () {
+    fetchOneParams = undefined;
+  },
+  mockParams: function () {
+    return fetchOneParams;
+  },
+
   fetchOne: function (params, callback) {
+    fetchOneParams = params;
     callback(null, 'fetch');
   },
   fetchMain: function (callback) {
@@ -13,5 +23,8 @@ module.exports = {
   },
   fetchAll: function (callback) {
     callback(null, 'fetch');
+  },
+  isManifestRequest: function (params) {
+    return params.resource === 'routes';
   }
 };

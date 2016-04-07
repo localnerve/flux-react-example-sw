@@ -14,16 +14,26 @@ var fetchLib = require('./fetch');
  *
  * @param {Object} params - The parameters controlling fetch.
  * @param {String} params.resource - The name of the resource to fetch.
+ * @param {String} [params.url] - The url of the resource to fetch.
+ * Not required if expected in cache.
  * @param {Function} callback - The callback to execute on completion.
  */
 function fetch (params, callback) {
-  debug('fetching resource "'+params.resource+'"');
+  debug('fetching resource "'+ params.resource +'"');
 
   var resource = cache.get(params.resource);
 
   if (resource) {
     debug('cache hit');
     return callback(null, resource);
+  }
+
+  // If a cache hit was required, see if we already have a fetchable spec.
+  if (!fetchLib.isManifestRequest(params) && !params.url) {
+    var spec = cache.find(params.resource);
+    if (spec) {
+      params = spec;
+    }
   }
 
   fetchLib.fetchOne(params, callback);

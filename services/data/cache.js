@@ -5,6 +5,7 @@
 'use strict';
 
 var debug = require('debug')('Example:Data:Cache');
+var utils = require('./utils');
 var markdown = require('./markdown');
 
 // FIXME:
@@ -95,6 +96,19 @@ function readFromCache (cached) {
 
 module.exports = {
   /**
+   * Find a resource specification.
+   * Locate the first object in cache that contains a matching resource property.
+   *
+   * @param {String} resource - The resource name to lookup.
+   * @returns {Object} The object found, undefined otherwise.
+   */
+  find: function (resource) {
+    if (resource) {
+      return utils.objContains('resource', resource, cache);
+    }
+  },
+
+  /**
    * Read from cache.
    *
    * @param {String} resource - The resource name to lookup.
@@ -116,8 +130,8 @@ module.exports = {
    *
    * @param {Object} params - The data accompanying the main payload.
    * @param {String} params.resource - The key: The resource name.
-   * @param {String} params.format - The format of the main payload.
-   * @param {Object} params.models - Models associated with the main payload.
+   * @param {String} [params.format] - The format of the main payload. defaults to 'json'.
+   * @param {Object} [params.models] - Models associated with the main payload.
    * @param {Object|String} data - The main payload. The content.
    */
   put: function (params, data) {

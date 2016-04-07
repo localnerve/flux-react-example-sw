@@ -42,14 +42,14 @@ function create (subscriptionId, endpoint, callback) {
 
   data.fetch({
     resource: 'settings'
-  }, function (err, data) {
-    debug('create: fetch settings: ', err, data);
+  }, function (err, payload) {
+    debug('create: fetch settings: ', err, payload);
 
     if (err) {
       return callback(err);
     }
 
-    var topics = data.content.pushNotifications.topics.map(function (topic) {
+    var topics = payload.content.pushNotifications.topics.map(function (topic) {
       topic.subscribed = true;
       return topic;
     });
@@ -83,14 +83,14 @@ function read (subscriptionId, callback) {
 
   data.fetch({
     resource: 'settings'
-  }, function (err, data) {
-    debug('read: fetch settings: ', err, data);
+  }, function (err, payload) {
+    debug('read: fetch settings: ', err, payload);
 
     if (err) {
       return callback(err);
     }
 
-    return callback(null, data.content.pushNotifications.topics);
+    return callback(null, payload.content.pushNotifications.topics);
   });
 }
 

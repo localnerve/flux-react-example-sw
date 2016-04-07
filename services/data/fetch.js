@@ -38,12 +38,26 @@ function fetchOne (params, callback) {
       return callback(err);
     }
 
-    var content = res.body && res.body.content;
+    var resource, content = res.body && res.body.content;
 
     if (content) {
       debug('Content successfully retrieved for', params.url);
-      cache.put(params, new Buffer(content, config.FRED.contentEncoding()).toString());
-      return callback(null, cache.get(params.resource));
+
+      cache.put(
+        params, new Buffer(content, config.FRED.contentEncoding()).toString()
+      );
+
+      resource = cache.get(params.resource);
+
+      if (resource) {
+        return callback(null, resource);
+      }
+
+      return callback(
+        new Error(
+          'Requested resource '+ params.resource +' not found for '+ params.url
+        )
+      );
     }
 
     debug('Content not found for', params.url, res.body);
@@ -67,6 +81,7 @@ function fetchMain (callback) {
  * Get all resources from FRED and cache them.
  * Call to update or populate the entire data cache.
  * Returns an array of each routes' content.
+ * TODO: if a route references a model with content, fetch that too.
  *
  * @param {Function} callback - The callback to execute on completion.
  */
@@ -95,8 +110,20 @@ function fetchAll (callback) {
   });
 }
 
+/**
+ * Check params for main resource resource request.
+ *
+ * @param {Object} params - fetch params.
+ * @param {String} params.resource - the resource to be fetched.
+ * @returns {Boolean} true if mainResource request, false otherwise.
+ */
+function isManifestRequest (params) {
+  return !!(params && params.resource === config.FRED.mainResource);
+}
+
 module.exports = {
   fetchMain: fetchMain,
   fetchOne: fetchOne,
-  fetchAll: fetchAll
+  fetchAll: fetchAll,
+  isManifestRequest: isManifestRequest
 };

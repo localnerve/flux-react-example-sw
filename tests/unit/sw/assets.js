@@ -38,8 +38,8 @@ describe('sw/assets', function () {
     var diff = _.xor(
       data.assets,
       toolbox.options.preCacheItems.map(function (req) {
-        expect(req.url).to.be.a('string').that.is.not.empty;
-        return req.url;
+        expect(req).to.be.a('string').that.is.not.empty;
+        return req;
       })
     );
 

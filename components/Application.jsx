@@ -12,7 +12,6 @@ var provideContext = require('fluxible-addons-react/provideContext');
 var handleHistory = require('fluxible-router').handleHistory;
 var navigateAction = require('fluxible-router').navigateAction;
 var ReactSwipe = require('react-swipe');
-var ReactModal = require('react-modal');
 
 var modalAction = require('../actions/modal').closeModal;
 var pages = require('./pages');
@@ -79,27 +78,6 @@ var Application = React.createClass({
 
     return (
       <div className="app-block">
-        <ReactModal
-          isOpen={this.props.modal.open}
-          onRequestClose={this.modalClose}
-          style={{
-            overlay: {
-              backgroundColor: 'rgba(70, 70, 70, 0.75)'
-            },
-            content: {
-              top: '50%',
-              left: '50%',
-              right: 'auto',
-              bottom: 'auto',
-              marginRight: '-50%',
-              overflow: 'visible',
-              transform: 'translate(-50%, -50%)',
-              background: 'rgba(255, 255, 255, 0.93)'
-            }
-          }}
-          >
-          {modalElement}
-        </ReactModal>
         <Background prefetch={false} />
         <Header
           selected={navPages[routeOrdinal].page}

@@ -9,6 +9,9 @@
 
 > A WIP learning playground for service worker
 
+\***NOTICE**\*  
+[react-pwa-reference](https://github.com/localnerve/react-pwa-reference) is a more up-to-date version of this project.
+
 This repository expands on [flux-react-example](https://github.com/localnerve/flux-react-example) and adds a **service worker** to test progressive app offline and push capabilities based on that architecture.
 
 ## Service Worker Info
